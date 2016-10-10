@@ -2,37 +2,28 @@
 
 typedef enum
 {
-  LEFT_PAREN_TKN,
-  RIGHT_PAREN_TKN,
-  LEFT_BRACE_TKN,
-  RIGHT_BRACE_TKN,
-  PLUS_TKN,
-  MINUS_TKN,
-  MULT_TKN,
-  DIV_TKN,
-  MOD_TKN,
-  ID_TKN,
-  NUM_TKN,
-  STR_TKN,
-  EOF_TKN
+  LEFT_PAREN_TKN = 1,
+  RIGHT_PAREN_TKN = 2,
+  LEFT_BRACE_TKN = 3,
+  RIGHT_BRACE_TKN = 4,
+  PLUS_TKN = 5,
+  MINUS_TKN = 6,
+  MULT_TKN = 7,
+  DIV_TKN = 8,
+  MOD_TKN = 9,
+  ID_TKN = 10,
+  NUM_TKN = 11,
+  STR_TKN = 12,
+  EOF_TKN = 13
 } TokenType;
 
 typedef struct
 {
-  char *name;
-  int val;
-} TokenValue;
-
-typedef struct
-{
   TokenType type;
-  TokenValue value;
-  int line;
-  int pos;
-
+  char *value;
 } Token;
 
-Token lex(char curr_c);
-char get_char();
+Token lex();
 Token get_num_tkn(char curr_c);
 Token get_str_tkn(char curr_c);
+char *append(char *str, char c);

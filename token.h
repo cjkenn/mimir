@@ -22,10 +22,10 @@ enum TokenType
 class Token
 {
 public:
-  Token();
-  Token(TokenType type);
-  Token(TokenType type, int val);
-  Token(TokenType type, std::string text);
+  Token() {};
+ Token(TokenType type) : m_type(type) {};
+ Token(TokenType type, int val) : m_type(type), m_val(val) {};
+ Token(TokenType type, std::string text) : m_type(type), m_text(text) {};
 
   TokenType get_type() const {return m_type;}
   int get_val() const {return m_val;}

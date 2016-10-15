@@ -1,7 +1,7 @@
-CC=gcc
+CC=g++
 
-mimir: compiler.c lexer.c
-	$(CC) -g -Wall -o mimir compiler.c lexer.c
+mimir: compiler.cpp lexer.cpp token.cpp
+	$(CC) -g -Wall -std=c++11 -o mimir compiler.cpp lexer.cpp token.cpp
 
 clean:
 	$(RM) mimir *.o

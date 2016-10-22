@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 
 enum AstType {
   VAR_AST,
@@ -23,11 +24,20 @@ class AstNode {
   AstNode(AstType type, int val);
   ~AstNode();
   void AddChild(AstNode child, int child_index);
-  void SetType(AstType type);
+
+  AstType GetType() const {return type_;}
+  void SetType(AstType type) {type_ = type;}
+
+  std::string GetText() const {return text_;}
+  void SetText(std::string text) {text_ = text;}
+
+  int GetVal() const {return val_;}
+  void SetVal(int val) {val_ = val;}
 
  private:
   AstType type_;
   int val_;
+  std::string text_;
   AstNode *first_child_;
   AstNode *second_child_;
   AstNode *third_child_;

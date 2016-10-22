@@ -36,7 +36,3 @@ void AstNode::AddChild(AstNode child, int child_index) {
     third_child_ = &child;
   }
 }
-
-void AstNode::SetType(AstType type) {
-  type_ = type;
-}

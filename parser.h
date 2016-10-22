@@ -15,6 +15,12 @@ class Parser {
  private:
   AstNode Program();
   AstNode Statement();
+  AstNode ParenExpr();
+  AstNode Expr();
+  AstNode Test();
+  AstNode Sum();
+  AstNode Term();
+  void Expect(TokenType expected_type);
 
   Lexer lexer_;
   Token curr_tkn_;

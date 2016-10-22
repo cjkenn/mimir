@@ -2,8 +2,7 @@
 
 #include "token.h"
 
-class Lexer
-{
+class Lexer {
  public:
   Token Lex();
 

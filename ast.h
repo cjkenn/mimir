@@ -1,7 +1,6 @@
 #pragma once
 
-enum AstType
-{
+enum AstType {
   VAR_AST,
   CST_AST,
   ADD_AST,
@@ -11,20 +10,20 @@ enum AstType
   IF_AST,
   ELSE_AST,
   WHILE_AST,
-  DO_AST,
   SEQ_AST,
   EXPR_AST,
   PROG_AST,
+  EMPTY_AST,
   EOF_AST
 };
 
-class AstNode
-{
+class AstNode {
  public:
   AstNode(AstType type);
   AstNode(AstType type, int val);
   ~AstNode();
   void AddChild(AstNode child, int child_index);
+  void SetType(AstType type);
 
  private:
   AstType type_;

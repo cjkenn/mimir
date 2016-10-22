@@ -8,11 +8,14 @@ class Parser {
  public:
   Parser(Lexer lexer);
   ~Parser();
-  Token GetTkn();
+  Token GetNextTkn();
   void LogError(std::string error);
   AstNode Parse();
 
  private:
+  AstNode Program();
+  AstNode Statement();
+
   Lexer lexer_;
   Token curr_tkn_;
 };

@@ -91,5 +91,17 @@ Token Lexer::GetStrTkn(int curr_c) {
     ident += curr_c;
   }
 
+  if (ident == "while") {
+    return Token(WHILE_TKN, ident);
+  }
+
+  if (ident == "if") {
+    return Token(IF_TKN, ident);
+  }
+
+  if (ident == "else") {
+    return Token(ELSE_TKN, ident);
+  }
+
   return Token(STR_TKN, ident);
 }

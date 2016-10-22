@@ -3,6 +3,7 @@
 #include <string>
 #include <cstdio>
 #include <stdlib.h>
+#include <iostream>
 
 using namespace std;
 
@@ -85,7 +86,8 @@ Token Lexer::GetNumTkn(int curr_c) {
 }
 
 Token Lexer::GetStrTkn(int curr_c) {
-  string ident = to_string(curr_c);
+  string ident = "";
+  ident += curr_c;
 
   while (isalnum((curr_c = getchar()))) {
     ident += curr_c;
@@ -103,5 +105,5 @@ Token Lexer::GetStrTkn(int curr_c) {
     return Token(ELSE_TKN, ident);
   }
 
-  return Token(STR_TKN, ident);
+  return Token(ID_TKN, ident);
 }

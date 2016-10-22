@@ -6,7 +6,7 @@
 
 class Parser {
  public:
-  Parser(Lexer lexer);
+  Parser(Lexer *lexer);
   ~Parser();
   Token GetNextTkn();
   void LogError(std::string error);
@@ -22,6 +22,6 @@ class Parser {
   AstNode Term();
   void Expect(TokenType expected_type);
 
-  Lexer lexer_;
+  Lexer *lexer_;
   Token curr_tkn_;
 };

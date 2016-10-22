@@ -6,6 +6,14 @@
 
 using namespace std;
 
+Parser::Parser(Lexer *lexer) {
+  lexer_ = lexer;
+}
+
+Parser::~Parser() {
+  delete lexer_;
+}
+
 AstNode Parser::Parse() {
   return Program();
 }
@@ -163,7 +171,7 @@ void Parser::Expect(TokenType expected_type) {
 }
 
 Token Parser::GetNextTkn() {
-  curr_tkn_ = lexer_.Lex();
+  curr_tkn_ = lexer_->Lex();
   return curr_tkn_;
 }
 

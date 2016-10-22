@@ -2,18 +2,19 @@
 #include <iostream>
 #include "token.h"
 #include "parser.h"
-#include "ast/expr.h"
+#include "ast.h"
 
 using namespace std;
 
-ExprAST Parser::parse() {
-  return ExprAST();
+AstNode Parser::Parse() {
+  return AstNode(EOF_AST);
 }
 
-Token Parser::get_tkn() {
-  return Token();
+Token Parser::GetTkn() {
+  curr_tkn_ = lexer_.Lex();
+  return curr_tkn_;
 }
 
-void Parser::log_error(string error) {
+void Parser::LogError(string error) {
   cout << error << endl;
 }

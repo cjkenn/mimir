@@ -2,16 +2,17 @@
 
 #include "token.h"
 #include "lexer.h"
-#include "ast/expr.h"
+#include "ast.h"
 
 class Parser {
  public:
-  Parser(Lexer lexer) : m_lexer(lexer) {};
-  ~Parser() {};
-  Token get_tkn();
-  void log_error(std::string error);
-  ExprAST parse();
+  Parser(Lexer lexer);
+  ~Parser();
+  Token GetTkn();
+  void LogError(std::string error);
+  AstNode Parse();
+
  private:
-  Lexer m_lexer;
-  Token curr_tkn;
+  Lexer lexer_;
+  Token curr_tkn_;
 };

@@ -4,10 +4,10 @@
 
 class Lexer
 {
-public:
-  Token lex();
+ public:
+  Token Lex();
 
-private:
-  Token get_num_tkn(int curr_c);
-  Token get_str_tkn(int curr_c);
+ private:
+  Token GetNumTkn(int curr_c);
+  Token GetStrTkn(int curr_c);
 };

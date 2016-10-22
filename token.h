@@ -16,23 +16,26 @@ enum TokenType
   ID_TKN,
   NUM_TKN,
   STR_TKN,
+  LT_TKN,
+  SEMICOLON_TKN,
+  EQUALS_TKN,
   EOF_TKN
 };
 
 class Token
 {
-public:
+ public:
   Token() {};
- Token(TokenType type) : m_type(type) {};
- Token(TokenType type, int val) : m_type(type), m_val(val) {};
- Token(TokenType type, std::string text) : m_type(type), m_text(text) {};
+  Token(TokenType type) : type_(type) {};
+  Token(TokenType type, int val) : type_(type), val_(val) {};
+  Token(TokenType type, std::string text) : type_(type), text_(text) {};
 
-  TokenType get_type() const {return m_type;}
-  int get_val() const {return m_val;}
-  std::string get_text() const {return m_text;}
+  TokenType get_type() const {return type_;}
+  int get_val() const {return val_;}
+  std::string get_text() const {return text_;}
 
-private:
-  TokenType m_type;
-  int m_val;
-  std::string m_text;
+ private:
+  TokenType type_;
+  int val_;
+  std::string text_;
 };

@@ -6,7 +6,7 @@
 
 using namespace std;
 
-Token Lexer::lex() {
+Token Lexer::Lex() {
   Token tkn;
   int lastchar = ' ';
 
@@ -44,6 +44,15 @@ Token Lexer::lex() {
   case '%':
     tkn = Token(MOD_TKN);
     break;
+  case '<':
+    tkn = Token(LT_TKN);
+    break;
+  case ';':
+    tkn = Token(SEMICOLON_TKN);
+    break;
+  case '=':
+    tkn = Token(EQUALS_TKN);
+    break;
   case EOF:
     tkn = Token(EOF_TKN);
     break;
@@ -51,18 +60,18 @@ Token Lexer::lex() {
 
   // Lex a number
   if (isdigit(lastchar)) {
-    return get_num_tkn(lastchar);
+    return GetNumTkn(lastchar);
   }
 
   // Lex a string
   if (isalpha(lastchar)) {
-    return get_str_tkn(lastchar);
+    return GetStrTkn(lastchar);
   }
 
   return tkn;
 }
 
-Token Lexer::get_num_tkn(int curr_c) {
+Token Lexer::GetNumTkn(int curr_c) {
   string num_str;
 
   do {
@@ -75,8 +84,9 @@ Token Lexer::get_num_tkn(int curr_c) {
   return Token(NUM_TKN, val);
 }
 
-Token Lexer::get_str_tkn(int curr_c) {
+Token Lexer::GetStrTkn(int curr_c) {
   string ident = to_string(curr_c);
+
   while (isalnum((curr_c = getchar()))) {
     ident += curr_c;
   }

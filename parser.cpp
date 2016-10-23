@@ -99,10 +99,10 @@ AstNode Parser::Expr() {
     AstNode assign_ast = expr_ast;
     expr_ast = AstNode(SET_AST);
     GetNextTkn();
+
     expr_ast.AddChild(assign_ast, 1);
     expr_ast.AddChild(Expr(), 2);
   }
-
   return expr_ast;
 }
 
@@ -140,6 +140,7 @@ AstNode Parser::Sum() {
   return sum_ast;
 }
 
+// Expect curr_tkn_ to be ident or number
 AstNode Parser::Term() {
   AstNode term_ast = AstNode(EMPTY_AST);
   TokenType curr_type = curr_tkn_.GetType();

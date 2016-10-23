@@ -2,3 +2,4 @@
 *.out
 mimir
 *.o
+*.mr

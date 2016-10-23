@@ -1,23 +1,36 @@
-#include "lexer.h"
-#include "token.h"
 #include <string>
 #include <cstdio>
 #include <stdlib.h>
+#include <fstream>
 #include <iostream>
+#include "token.h"
+#include "lexer.h"
 
 using namespace std;
 
+Lexer::Lexer() {
+  lastchar_ = ' ';
+}
+
+Lexer::Lexer(string filename) {
+  lastchar_ = ' ';
+  ifs_.open(filename.c_str(), std::ifstream::in);
+}
+
+Lexer::~Lexer() {
+  ifs_.close();
+}
+
 Token Lexer::Lex() {
   Token tkn;
-  int lastchar = ' ';
 
   // Skip whitespace
-  while (isspace(lastchar)) {
-    lastchar = getchar();
+  while (isspace(lastchar_)) {
+    lastchar_ = ifs_.get();
   }
 
   // Lex a single character symbol
-  switch (lastchar) {
+  switch (lastchar_) {
   case '(':
     tkn = Token(LEFT_PAREN_TKN);
     break;
@@ -60,13 +73,13 @@ Token Lexer::Lex() {
   }
 
   // Lex a number
-  if (isdigit(lastchar)) {
-    return GetNumTkn(lastchar);
+  if (isdigit(lastchar_)) {
+    return GetNumTkn(lastchar_);
   }
 
   // Lex a string
-  if (isalpha(lastchar)) {
-    return GetStrTkn(lastchar);
+  if (isalpha(lastchar_)) {
+    return GetStrTkn(lastchar_);
   }
 
   return tkn;
@@ -77,7 +90,7 @@ Token Lexer::GetNumTkn(int curr_c) {
 
   do {
     num_str += curr_c;
-    curr_c = getchar();
+    curr_c = ifs_.get();
   } while (isdigit(curr_c));
 
   int val = strtod(num_str.c_str(), 0);
@@ -89,7 +102,7 @@ Token Lexer::GetStrTkn(int curr_c) {
   string ident = "";
   ident += curr_c;
 
-  while (isalnum((curr_c = getchar()))) {
+  while (isalnum((curr_c = ifs_.get()))) {
     ident += curr_c;
   }
 

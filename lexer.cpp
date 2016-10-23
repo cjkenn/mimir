@@ -14,7 +14,7 @@ Lexer::Lexer() {
 
 Lexer::Lexer(string filename) {
   lastchar_ = ' ';
-  ifs_.open(filename.c_str(), std::ifstream::in);
+  ifs_.open(filename.c_str());
 }
 
 Lexer::~Lexer() {
@@ -26,84 +26,102 @@ Token Lexer::Lex() {
 
   // Skip whitespace
   while (isspace(lastchar_)) {
-    lastchar_ = ifs_.get();
+    if (!ifs_.get(lastchar_)) {
+      break;
+    }
   }
 
   // Lex a single character symbol
   switch (lastchar_) {
   case '(':
     tkn = Token(LEFT_PAREN_TKN);
+    ifs_.get(lastchar_);
     break;
   case ')':
     tkn = Token(RIGHT_PAREN_TKN);
+    ifs_.get(lastchar_);
     break;
   case '{':
     tkn = Token(LEFT_BRACE_TKN);
+    ifs_.get(lastchar_);
     break;
   case '}':
     tkn = Token(RIGHT_BRACE_TKN);
+    ifs_.get(lastchar_);
     break;
   case '+':
     tkn = Token(PLUS_TKN);
+    ifs_.get(lastchar_);
     break;
   case '-':
     tkn = Token(MINUS_TKN);
+    ifs_.get(lastchar_);
     break;
   case '*':
     tkn = Token(MULT_TKN);
+    ifs_.get(lastchar_);
     break;
   case '/':
     tkn = Token(DIV_TKN);
+    ifs_.get(lastchar_);
     break;
   case '%':
     tkn = Token(MOD_TKN);
+    ifs_.get(lastchar_);
     break;
   case '<':
     tkn = Token(LT_TKN);
+    ifs_.get(lastchar_);
     break;
   case ';':
     tkn = Token(SEMICOLON_TKN);
+    ifs_.get(lastchar_);
     break;
   case '=':
     tkn = Token(EQUALS_TKN);
+    ifs_.get(lastchar_);
     break;
-  case EOF:
+  default:
     tkn = Token(EOF_TKN);
     break;
   }
 
   // Lex a number
   if (isdigit(lastchar_)) {
-    return GetNumTkn(lastchar_);
+    return GetNumTkn();
   }
 
   // Lex a string
   if (isalpha(lastchar_)) {
-    return GetStrTkn(lastchar_);
+    return GetStrTkn();
   }
 
   return tkn;
 }
 
-Token Lexer::GetNumTkn(int curr_c) {
-  string num_str;
+Token Lexer::GetNumTkn() {
+  string num_str = "";
+  num_str += lastchar_;
+  ifs_.get(lastchar_);
 
-  do {
-    num_str += curr_c;
-    curr_c = ifs_.get();
-  } while (isdigit(curr_c));
-
+  while (isdigit(lastchar_)) {
+    num_str += lastchar_;
+    ifs_.get(lastchar_);
+  }
   int val = strtod(num_str.c_str(), 0);
 
   return Token(NUM_TKN, val);
 }
 
-Token Lexer::GetStrTkn(int curr_c) {
+Token Lexer::GetStrTkn() {
   string ident = "";
-  ident += curr_c;
+  ident += lastchar_;
 
-  while (isalnum((curr_c = ifs_.get()))) {
-    ident += curr_c;
+  ifs_.get(lastchar_);
+
+  while (isalnum(lastchar_)) {
+    ident += lastchar_;
+    ifs_.get(lastchar_);
   }
 
   if (ident == "while") {

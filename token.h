@@ -34,11 +34,11 @@ class Token {
   TokenType GetType() const {return type_;}
   int GetVal() const {return val_;}
   std::string GetText() const {return text_;}
+  std::string GetPrettyType();
   void Debug();
 
  private:
   void SetDebug();
-  std::string GetPrettyType();
 
   TokenType type_;
   int val_;

@@ -167,13 +167,14 @@ void Parser::Expect(TokenType expected_type) {
   if (curr_tkn_.GetType() == expected_type) {
     GetNextTkn();
   } else {
-    LogError("Encountered wrong type!");
+    cout << "Expected " << expected_type << ", but found " << curr_tkn_.GetPrettyType() << endl;
+    cout << "Current token: " << endl;
+    curr_tkn_.Debug();
   }
 }
 
-Token Parser::GetNextTkn() {
+void Parser::GetNextTkn() {
   curr_tkn_ = lexer_->Lex();
-  return curr_tkn_;
 }
 
 void Parser::LogError(string error) {

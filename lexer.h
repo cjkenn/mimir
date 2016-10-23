@@ -12,8 +12,8 @@ class Lexer {
   Token Lex();
 
  private:
-  Token GetNumTkn(int curr_c);
-  Token GetStrTkn(int curr_c);
+  Token GetNumTkn();
+  Token GetStrTkn();
   std::ifstream ifs_;
   char lastchar_;
 };

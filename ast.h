@@ -34,6 +34,15 @@ class AstNode {
   int GetVal() const {return val_;}
   void SetVal(int val) {val_ = val;}
 
+  AstNode* GetFirstChild() const {return first_child_;}
+  AstNode* GetSecondChild() const {return second_child_;}
+  AstNode* GetThirdChild() const {return third_child_;}
+
+  void SetDebug();
+  std::string GetDebug() const {return debug_;}
+
+  void Debug();
+
  private:
   AstType type_;
   int val_;
@@ -41,4 +50,8 @@ class AstNode {
   AstNode *first_child_;
   AstNode *second_child_;
   AstNode *third_child_;
+  std::string debug_;
+
+  std::string GetPrettyType();
+  std::string GetChildDebugString(AstNode *child);
 };

@@ -28,6 +28,9 @@ AstNode Parser::Program() {
     LogError("Expected end of file!");
   }
 
+  head.Debug();
+  cout << head.GetFirstChild()->GetType() << endl;
+
   return head;
 }
 

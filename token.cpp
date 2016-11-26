@@ -1,6 +1,5 @@
 #include <iostream>
 #include <sstream>
-#include <unordered_map>
 #include "token.h"
 
 using namespace std;

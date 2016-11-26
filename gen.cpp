@@ -1,8 +1,6 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <cstdio>
-#include <stdlib.h>
 #include "gen.h"
 #include "ast.h"
 
@@ -29,7 +27,30 @@ void Gen::Generate(GenTarget target) {
 }
 
 void Gen::GenerateTyr() {
+  // TODO: Better error handling here?
+  if (program_->GetType() != PROG_AST) {
+    cout << "Incorrect program type provided" << endl;
+    exit(1);
+  }
+
   string outfile = filename_ + ".out";
   ofstream ofs(outfile.c_str());
-  program_->Debug();
+  AstNode *instr = program_->GetFirstChild();
+
+  switch(instr->GetType()) {
+  case VAR_AST:
+    EmitVar(instr);
+    break;
+  case EXPR_AST:
+    EmitExpr(instr);
+    break;
+  }
+
+}
+
+void Gen::EmitVar(AstNode *node) {
+
+}
+
+void Gen::EmitExpr(AstNode *node) {
 }

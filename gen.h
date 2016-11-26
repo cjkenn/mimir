@@ -17,6 +17,8 @@ class Gen {
 
  private:
   void GenerateTyr();
+  void EmitVar(AstNode *node);
+  void EmitExpr(AstNode *node);
 
   std::string filename_;
   AstNode *program_;

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "token.h"
 #include <fstream>
+#include "token.h"
 
 class Lexer {
  public:

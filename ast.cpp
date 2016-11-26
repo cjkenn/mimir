@@ -107,5 +107,5 @@ string AstNode::GetPrettyType() {
 }
 
 string AstNode::GetChildDebugString(AstNode *child) {
-  return (child ? child->GetDebug() : "");
+  return (child ? child->GetDebug() : "None");
 }

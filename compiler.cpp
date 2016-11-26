@@ -1,8 +1,10 @@
 #include <stdio.h>
 #include <fstream>
 #include <iostream>
+#include "ast.h"
 #include "lexer.h"
 #include "parser.h"
+#include "gen.h"
 
 using namespace std;
 
@@ -17,7 +19,10 @@ int main(int argc, char *argv[]) {
 
   Lexer *lexer = new Lexer(filename);
   Parser parser = Parser(lexer);
-  parser.Parse();
+  AstNode program = parser.Parse();
+
+  Gen gen = Gen(&program, filename);
+  gen.Generate(TYR_GEN);
 
   return 0;
 }

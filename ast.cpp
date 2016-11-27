@@ -10,7 +10,6 @@ AstNode::AstNode(AstType type) {
   first_child_ = nullptr;
   second_child_ = nullptr;
   third_child_ = nullptr;
-  SetDebug();
 }
 
 AstNode::AstNode(AstType type, int val) {
@@ -19,7 +18,6 @@ AstNode::AstNode(AstType type, int val) {
   first_child_ = nullptr;
   second_child_ = nullptr;
   third_child_ = nullptr;
-  SetDebug();
 }
 
 AstNode::~AstNode() {
@@ -28,25 +26,23 @@ AstNode::~AstNode() {
   third_child_ = nullptr;
 }
 
-void AstNode::AddChild(AstNode child, int child_index) {
+void AstNode::AddChild(AstNode *child, int child_index) {
   // TODO: Error handling for anything other than 1-3 index values
   if (child_index > 3) {
     return;
   }
 
   if (child_index == 1) {
-    first_child_ = &child;
+    first_child_ = child;
   }
 
   if (child_index == 2) {
-    second_child_ = &child;
+    second_child_ = child;
   }
 
   if (child_index == 3) {
-    third_child_ = &child;
+    third_child_ = child;
   }
-
-  SetDebug();
 }
 
 void AstNode::SetDebug() {
@@ -58,6 +54,7 @@ void AstNode::SetDebug() {
   string third_type = GetChildDebugString(third_child_);
 
   debug_stream << "{\n AstType: " << GetPrettyType() <<
+    "\n Text: " << text_ <<
     "\n Value: " << val_ <<
     "\n First Child: " << first_type <<
     "\n Second Child: " << second_type <<
@@ -68,6 +65,7 @@ void AstNode::SetDebug() {
 }
 
 void AstNode::Debug() {
+  SetDebug();
   cout << debug_ << endl;
 }
 
@@ -76,7 +74,7 @@ string AstNode::GetPrettyType() {
   case VAR_AST:
     return "Variable declaration AST";
   case CST_AST:
-    return "Constant declartation AST";
+    return "Constant declaration AST";
   case ADD_AST:
     return "Addition expression AST";
   case SUB_AST:

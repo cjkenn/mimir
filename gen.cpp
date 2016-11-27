@@ -7,7 +7,7 @@
 using namespace std;
 
 Gen::Gen(AstNode *program, string filename) {
-  filename_ = filename;
+  filename_ = filename + ".out";
   program_ = program;
 }
 
@@ -34,7 +34,6 @@ void Gen::GenerateTyr() {
   }
 
   string outfile = filename_ + ".out";
-  ofstream ofs(outfile.c_str());
   AstNode *instr = program_->GetFirstChild();
 
   switch(instr->GetType()) {
@@ -52,5 +51,24 @@ void Gen::EmitVar(AstNode *node) {
 
 }
 
+// Expect:
+// Expression AST
+//   -> Assignment AST
+//        -> Var AST
+//        -> Constant AST
 void Gen::EmitExpr(AstNode *node) {
+  AstNode *assign = node->GetFirstChild();
+  string name = assign->GetFirstChild()->GetText();
+  int val = assign->GetSecondChild()->GetVal();
+
+  if (name.empty()) {
+    cout << "Invalid expression AST provided!" << endl;
+    exit(1);
+  }
+
+  ofstream ofs(filename_.c_str());
+  // TODO: Stack location
+  ofs << "STOREV " << val << endl;
+
+  return;
 }

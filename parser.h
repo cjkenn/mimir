@@ -9,16 +9,16 @@ class Parser {
   Parser(Lexer *lexer);
   ~Parser();
   void LogError(std::string error);
-  AstNode Parse();
+  AstNode *Parse();
 
  private:
-  AstNode Program();
-  AstNode Statement();
-  AstNode ParenExpr();
-  AstNode Expr();
-  AstNode Test();
-  AstNode Sum();
-  AstNode Term();
+  AstNode *Program();
+  AstNode *Statement();
+  AstNode *ParenExpr();
+  AstNode *Expr();
+  AstNode *Test();
+  AstNode *Sum();
+  AstNode *Term();
   void Expect(TokenType expected_type);
   void GetNextTkn();
 

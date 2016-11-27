@@ -23,7 +23,7 @@ class AstNode {
   AstNode(AstType type);
   AstNode(AstType type, int val);
   ~AstNode();
-  void AddChild(AstNode child, int child_index);
+  void AddChild(AstNode *child, int child_index);
 
   AstType GetType() const {return type_;}
   void SetType(AstType type) {type_ = type;}

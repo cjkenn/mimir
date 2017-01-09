@@ -8,16 +8,16 @@ CFGNode::CFGNode(std::string name) {
   visited_ = false;
 }
 
-CFGNode::CFGNode(std::string name, std::vector<std::shared_ptr<CFGNode>> adj) {
+CFGNode::CFGNode(std::string name, std::vector<NodePtr> adj) {
   name_ = name;
   visited_ = false;
   adj_ = adj;
 }
 
-void CFGNode::AddAdjChild(std::shared_ptr<CFGNode> node) {
+void CFGNode::AddAdjChild(NodePtr node) {
   adj_.push_back(node);
 }
 
-void CFGNode::AddPred(std::shared_ptr<CFGNode> node) {
-  preds_.push_back(node);
+void CFGNode::AddParent(NodePtr node) {
+  parents_.push_back(node);
 }

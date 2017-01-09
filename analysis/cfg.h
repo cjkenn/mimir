@@ -8,7 +8,7 @@
 class CFG {
  public:
   CFG(NodePtr root);
-  ~CFG();
+  ~CFG() {};
 
   // Calculates and builds the dominance sets for each node in this CFG.
   void Dominance();

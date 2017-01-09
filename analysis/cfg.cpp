@@ -77,8 +77,12 @@ std::vector<NodePtr> CFG::FindParentIntersection(NodePtr node, std::vector<NodeP
   auto parents = node->GetParents();
   int num_parents = parents.size();
 
-  if (num_parents <= 1) {
+  if (num_parents == 0) {
     return parents;
+  }
+
+  if (num_parents == 1) {
+    return parents[0]->GetDom();
   }
 
   std::unordered_map<std::string, int> node_map;

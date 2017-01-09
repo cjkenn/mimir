@@ -12,7 +12,7 @@ class CFGNode {
  public:
   CFGNode(std::string name);
   CFGNode(std::string name, std::vector<NodePtr> adj);
-  ~CFGNode();
+  ~CFGNode() {};
 
   std::string GetName() const { return name_; }
   bool GetVisited() const { return visited_; }

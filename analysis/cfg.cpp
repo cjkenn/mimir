@@ -73,7 +73,7 @@ std::vector<NodePtr> CFG::BuildCompleteNodeSet() {
   return cg;
 }
 
-std::vector<NodePtr> CFG::FindParentIntersection(NodePtr node, std::vector<NodePtr> node_set) {
+std::vector<NodePtr> CFG::FindParentIntersection(NodePtr node, std::vector<NodePtr>& node_set) {
   auto parents = node->GetParents();
   int num_parents = parents.size();
 
@@ -121,7 +121,7 @@ std::vector<NodePtr> CFG::FindParentIntersection(NodePtr node, std::vector<NodeP
   return intersection_set;
 }
 
-std::unordered_map<std::string, NodePtr> CFG::BuildNodeMapping(std::vector<NodePtr> cg) {
+std::unordered_map<std::string, NodePtr> CFG::BuildNodeMapping(std::vector<NodePtr>& cg) {
   std::unordered_map<std::string, NodePtr> node_map;
 
   for (auto node : cg) {

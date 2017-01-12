@@ -6,20 +6,16 @@
 
 using namespace std;
 
-Parser::Parser(Lexer *lexer) {
+Parser::Parser(std::shared_ptr<Lexer> lexer) {
   lexer_ = lexer;
 }
 
-Parser::~Parser() {
-  delete lexer_;
-}
-
-AstNode *Parser::Parse() {
+AstNodePtr Parser::Parse() {
   return Program();
 }
 
-AstNode *Parser::Program() {
-  AstNode *head = new AstNode(PROG_AST);
+AstNodePtr Parser::Program() {
+  auto head = std::make_shared<AstNode>(PROG_AST);
   GetNextTkn();
 
   // TODO: Can only parse one statement at a time
@@ -32,8 +28,8 @@ AstNode *Parser::Program() {
   return head;
 }
 
-AstNode *Parser::Statement() {
-  AstNode *statement_ast = new AstNode(EMPTY_AST);
+AstNodePtr Parser::Statement() {
+  auto statement_ast = std::make_shared<AstNode>(EMPTY_AST);
 
   switch (curr_tkn_.GetType()) {
   case IF_TKN:
@@ -61,8 +57,8 @@ AstNode *Parser::Statement() {
   case LEFT_BRACE_TKN:
     GetNextTkn();
     while (curr_tkn_.GetType() != RIGHT_BRACE_TKN) {
-      AstNode *brace_statement_ast = statement_ast;
-      statement_ast = new AstNode(SEQ_AST);
+      auto brace_statement_ast = statement_ast;
+      statement_ast = std::make_shared<AstNode>(SEQ_AST);
 
       statement_ast->AddChild(brace_statement_ast, 1);
       statement_ast->AddChild(Statement(), 2);
@@ -81,24 +77,24 @@ AstNode *Parser::Statement() {
   return statement_ast;
 }
 
-AstNode *Parser::ParenExpr() {
+AstNodePtr Parser::ParenExpr() {
   Expect(LEFT_PAREN_TKN);
-  AstNode *parenexpr_ast = Expr();
+  AstNodePtr parenexpr_ast = Expr();
   Expect(RIGHT_PAREN_TKN);
 
   return parenexpr_ast;
 }
 
-AstNode *Parser::Expr() {
+AstNodePtr Parser::Expr() {
   if (curr_tkn_.GetType() != ID_TKN) {
     return Test();
   }
 
-  AstNode *expr_ast = Test();
+  AstNodePtr expr_ast = Test();
 
   if (expr_ast->GetType() == VAR_AST && curr_tkn_.GetType() == EQUALS_TKN) {
-    AstNode *assign_ast = expr_ast;
-    expr_ast = new AstNode(SET_AST);
+    AstNodePtr assign_ast = expr_ast;
+    expr_ast = std::make_shared<AstNode>(SET_AST);
     GetNextTkn();
 
     expr_ast->AddChild(assign_ast, 1);
@@ -108,12 +104,12 @@ AstNode *Parser::Expr() {
   return expr_ast;
 }
 
-AstNode *Parser::Test() {
-  AstNode *test_ast = Sum();
+AstNodePtr Parser::Test() {
+  AstNodePtr test_ast = Sum();
 
   if (curr_tkn_.GetType() == LT_TKN) {
-    AstNode *less_ast = test_ast;
-    test_ast = new AstNode(LT_AST);
+    AstNodePtr less_ast = test_ast;
+    test_ast = std::make_shared<AstNode>(LT_AST);
     GetNextTkn();
 
     test_ast->AddChild(less_ast, 1);
@@ -123,17 +119,17 @@ AstNode *Parser::Test() {
   return test_ast;
 }
 
-AstNode *Parser::Sum() {
-  AstNode *sum_ast = Term();
+AstNodePtr Parser::Sum() {
+  AstNodePtr sum_ast = Term();
   while (curr_tkn_.GetType() == PLUS_TKN || curr_tkn_.GetType() == MINUS_TKN) {
-    AstNode *op_ast = sum_ast;
+    AstNodePtr op_ast = sum_ast;
 
     AstType curr_type = ADD_AST;
     if (curr_tkn_.GetType() == MINUS_TKN) {
       curr_type = SUB_AST;
     }
 
-    sum_ast = new AstNode(curr_type);
+    sum_ast = std::make_shared<AstNode>(curr_type);
     GetNextTkn();
     sum_ast->AddChild(op_ast, 1);
     sum_ast->AddChild(Sum(), 2);
@@ -143,8 +139,8 @@ AstNode *Parser::Sum() {
 }
 
 // Expect curr_tkn_ to be ident or number
-AstNode *Parser::Term() {
-  AstNode *term_ast = new AstNode(EMPTY_AST);
+AstNodePtr Parser::Term() {
+  AstNodePtr term_ast = std::make_shared<AstNode>(EMPTY_AST);
   TokenType curr_type = curr_tkn_.GetType();
 
   switch(curr_type) {

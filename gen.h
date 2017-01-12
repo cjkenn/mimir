@@ -10,16 +10,16 @@ enum GenTarget {
 
 class Gen {
  public:
-  Gen(AstNode *program, std::string filename);
-  ~Gen();
+  Gen(AstNodePtr program, std::string filename);
+  ~Gen() {};
 
   void Generate(GenTarget target);
 
  private:
   void GenerateTyr();
-  void EmitVar(AstNode *node);
-  void EmitExpr(AstNode *node);
+  void EmitVar(AstNodePtr node);
+  void EmitExpr(AstNodePtr node);
 
   std::string filename_;
-  AstNode *program_;
+  AstNodePtr program_;
 };

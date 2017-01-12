@@ -26,7 +26,7 @@ AstNode::~AstNode() {
   third_child_ = nullptr;
 }
 
-void AstNode::AddChild(AstNode *child, int child_index) {
+void AstNode::AddChild(AstNodePtr child, int child_index) {
   // TODO: Error handling for anything other than 1-3 index values
   if (child_index > 3) {
     return;
@@ -104,6 +104,6 @@ string AstNode::GetPrettyType() {
   }
 }
 
-string AstNode::GetChildDebugString(AstNode *child) {
+string AstNode::GetChildDebugString(AstNodePtr child) {
   return (child ? child->GetDebug() : "None");
 }

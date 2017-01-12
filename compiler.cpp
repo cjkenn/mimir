@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <fstream>
 #include <iostream>
+#include <memory>
 #include "ast.h"
 #include "lexer.h"
 #include "parser.h"
@@ -17,9 +18,9 @@ int main(int argc, char *argv[]) {
 
   std::string filename = argv[1];
 
-  Lexer *lexer = new Lexer(filename);
+  auto lexer = std::make_shared<Lexer>(filename);
   Parser parser = Parser(lexer);
-  AstNode *program = parser.Parse();
+  auto program = parser.Parse();
 
   Gen gen = Gen(program, filename);
   gen.Generate(TYR_GEN);

@@ -11,7 +11,7 @@ typedef std::shared_ptr<CFGNode> NodePtr;
 class CFGNode {
  public:
   CFGNode(std::string name);
-  CFGNode(std::string name, std::vector<NodePtr> adj);
+  CFGNode(std::string name, std::vector<NodePtr>& adj);
   ~CFGNode() {};
 
   std::string GetName() const { return name_; }

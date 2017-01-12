@@ -8,7 +8,7 @@ CFGNode::CFGNode(std::string name) {
   visited_ = false;
 }
 
-CFGNode::CFGNode(std::string name, std::vector<NodePtr> adj) {
+CFGNode::CFGNode(std::string name, std::vector<NodePtr>& adj) {
   name_ = name;
   visited_ = false;
   adj_ = adj;

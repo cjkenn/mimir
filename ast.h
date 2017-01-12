@@ -1,5 +1,10 @@
 #pragma once
 #include <string>
+#include <memory>
+
+class AstNode;
+
+typedef std::shared_ptr<AstNode> AstNodePtr;
 
 enum AstType {
   VAR_AST,
@@ -23,7 +28,7 @@ class AstNode {
   AstNode(AstType type);
   AstNode(AstType type, int val);
   ~AstNode();
-  void AddChild(AstNode *child, int child_index);
+  void AddChild(AstNodePtr child, int child_index);
 
   AstType GetType() const {return type_;}
   void SetType(AstType type) {type_ = type;}
@@ -34,9 +39,9 @@ class AstNode {
   int GetVal() const {return val_;}
   void SetVal(int val) {val_ = val;}
 
-  AstNode* GetFirstChild() const {return first_child_;}
-  AstNode* GetSecondChild() const {return second_child_;}
-  AstNode* GetThirdChild() const {return third_child_;}
+  AstNodePtr GetFirstChild() const {return first_child_;}
+  AstNodePtr GetSecondChild() const {return second_child_;}
+  AstNodePtr GetThirdChild() const {return third_child_;}
 
   void SetDebug();
   std::string GetDebug() const {return debug_;}
@@ -47,11 +52,11 @@ class AstNode {
   AstType type_;
   int val_;
   std::string text_;
-  AstNode *first_child_;
-  AstNode *second_child_;
-  AstNode *third_child_;
+  AstNodePtr first_child_;
+  AstNodePtr second_child_;
+  AstNodePtr third_child_;
   std::string debug_;
 
   std::string GetPrettyType();
-  std::string GetChildDebugString(AstNode *child);
+  std::string GetChildDebugString(AstNodePtr child);
 };

@@ -6,13 +6,9 @@
 
 using namespace std;
 
-Gen::Gen(AstNode *program, string filename) {
+Gen::Gen(AstNodePtr program, string filename) {
   filename_ = filename + ".out";
   program_ = program;
-}
-
-Gen::~Gen() {
-  program_ = nullptr;
 }
 
 void Gen::Generate(GenTarget target) {
@@ -34,7 +30,7 @@ void Gen::GenerateTyr() {
   }
 
   string outfile = filename_ + ".out";
-  AstNode *instr = program_->GetFirstChild();
+  AstNodePtr instr = program_->GetFirstChild();
 
   switch(instr->GetType()) {
   case VAR_AST:
@@ -47,7 +43,7 @@ void Gen::GenerateTyr() {
 
 }
 
-void Gen::EmitVar(AstNode *node) {
+void Gen::EmitVar(AstNodePtr node) {
 
 }
 
@@ -56,8 +52,8 @@ void Gen::EmitVar(AstNode *node) {
 //   -> Assignment AST
 //        -> Var AST
 //        -> Constant AST
-void Gen::EmitExpr(AstNode *node) {
-  AstNode *assign = node->GetFirstChild();
+void Gen::EmitExpr(AstNodePtr node) {
+  AstNodePtr assign = node->GetFirstChild();
   string name = assign->GetFirstChild()->GetText();
   int val = assign->GetSecondChild()->GetVal();
 

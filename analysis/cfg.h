@@ -25,9 +25,9 @@ class CFG {
   // the intersection.
   //
   // This is intended to be used by the Dominance() function.
-  std::vector<NodePtr> FindParentIntersection(NodePtr node, std::vector<NodePtr> node_set);
+  std::vector<NodePtr> FindParentIntersection(NodePtr node, std::vector<NodePtr>& node_set);
 
   // Given a set of all nodes in thie CFG, builds a simple map from node.name -> NodePtr
   // for easy lookup of each node.
-  std::unordered_map<std::string, NodePtr> BuildNodeMapping(std::vector<NodePtr> cg);
+  std::unordered_map<std::string, NodePtr> BuildNodeMapping(std::vector<NodePtr>& cg);
 };

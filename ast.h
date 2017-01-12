@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <memory>
+#include <vector>
 
 class AstNode;
 
@@ -27,8 +28,9 @@ class AstNode {
  public:
   AstNode(AstType type);
   AstNode(AstType type, int val);
-  ~AstNode();
-  void AddChild(AstNodePtr child, int child_index);
+  ~AstNode() {};
+  void AddChild(AstNodePtr child);
+  AstNodePtr GetChildAtIndex(int index);
 
   AstType GetType() const {return type_;}
   void SetType(AstType type) {type_ = type;}
@@ -39,9 +41,8 @@ class AstNode {
   int GetVal() const {return val_;}
   void SetVal(int val) {val_ = val;}
 
-  AstNodePtr GetFirstChild() const {return first_child_;}
-  AstNodePtr GetSecondChild() const {return second_child_;}
-  AstNodePtr GetThirdChild() const {return third_child_;}
+  std::vector<AstNodePtr> GetChildren() const {return children_;}
+  void SetChildren(std::vector<AstNodePtr> children) {children_ = children;}
 
   void SetDebug();
   std::string GetDebug() const {return debug_;}
@@ -52,10 +53,8 @@ class AstNode {
   AstType type_;
   int val_;
   std::string text_;
-  AstNodePtr first_child_;
-  AstNodePtr second_child_;
-  AstNodePtr third_child_;
   std::string debug_;
+  std::vector<AstNodePtr> children_;
 
   std::string GetPrettyType();
   std::string GetChildDebugString(AstNodePtr child);

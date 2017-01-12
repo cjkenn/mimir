@@ -30,7 +30,7 @@ void Gen::GenerateTyr() {
   }
 
   string outfile = filename_ + ".out";
-  AstNodePtr instr = program_->GetFirstChild();
+  AstNodePtr instr = program_->GetChildAtIndex(0);
 
   switch(instr->GetType()) {
   case VAR_AST:
@@ -53,9 +53,9 @@ void Gen::EmitVar(AstNodePtr node) {
 //        -> Var AST
 //        -> Constant AST
 void Gen::EmitExpr(AstNodePtr node) {
-  AstNodePtr assign = node->GetFirstChild();
-  string name = assign->GetFirstChild()->GetText();
-  int val = assign->GetSecondChild()->GetVal();
+  AstNodePtr assign = node->GetChildAtIndex(0);
+  string name = assign->GetChildAtIndex(0)->GetText();
+  int val = assign->GetChildAtIndex(1)->GetVal();
 
   if (name.empty()) {
     cout << "Invalid expression AST provided!" << endl;

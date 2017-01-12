@@ -19,7 +19,7 @@ AstNodePtr Parser::Program() {
   GetNextTkn();
 
   // TODO: Can only parse one statement at a time
-  head->AddChild(Statement(), 1);
+  head->AddChild(Statement());
 
   if (curr_tkn_.GetType() != EOF_TKN) {
     LogError("Expected end of file!");
@@ -36,20 +36,20 @@ AstNodePtr Parser::Statement() {
     statement_ast->SetType(IF_AST);
     GetNextTkn();
 
-    statement_ast->AddChild(ParenExpr(), 1);
-    statement_ast->AddChild(Statement(), 2);
+    statement_ast->AddChild(ParenExpr());
+    statement_ast->AddChild(Statement());
 
     if (curr_tkn_.GetType() == ELSE_TKN) {
       statement_ast->SetType(ELSE_AST);
       GetNextTkn();
-      statement_ast->AddChild(Statement(), 3);
+      statement_ast->AddChild(Statement());
     }
     break;
   case WHILE_TKN:
     statement_ast->SetType(WHILE_AST);
     GetNextTkn();
-    statement_ast->AddChild(ParenExpr(), 1);
-    statement_ast->AddChild(Statement(), 2);
+    statement_ast->AddChild(ParenExpr());
+    statement_ast->AddChild(Statement());
     break;
   case SEMICOLON_TKN:
     GetNextTkn();
@@ -60,15 +60,15 @@ AstNodePtr Parser::Statement() {
       auto brace_statement_ast = statement_ast;
       statement_ast = std::make_shared<AstNode>(SEQ_AST);
 
-      statement_ast->AddChild(brace_statement_ast, 1);
-      statement_ast->AddChild(Statement(), 2);
+      statement_ast->AddChild(brace_statement_ast);
+      statement_ast->AddChild(Statement());
     }
 
     GetNextTkn();
     break;
   default:
     statement_ast->SetType(EXPR_AST);
-    statement_ast->AddChild(Expr(), 1);
+    statement_ast->AddChild(Expr());
 
     Expect(SEMICOLON_TKN);
     break;
@@ -97,8 +97,8 @@ AstNodePtr Parser::Expr() {
     expr_ast = std::make_shared<AstNode>(SET_AST);
     GetNextTkn();
 
-    expr_ast->AddChild(assign_ast, 1);
-    expr_ast->AddChild(Expr(), 2);
+    expr_ast->AddChild(assign_ast);
+    expr_ast->AddChild(Expr());
   }
 
   return expr_ast;
@@ -112,8 +112,8 @@ AstNodePtr Parser::Test() {
     test_ast = std::make_shared<AstNode>(LT_AST);
     GetNextTkn();
 
-    test_ast->AddChild(less_ast, 1);
-    test_ast->AddChild(Sum(), 2);
+    test_ast->AddChild(less_ast);
+    test_ast->AddChild(Sum());
   }
 
   return test_ast;
@@ -131,8 +131,8 @@ AstNodePtr Parser::Sum() {
 
     sum_ast = std::make_shared<AstNode>(curr_type);
     GetNextTkn();
-    sum_ast->AddChild(op_ast, 1);
-    sum_ast->AddChild(Sum(), 2);
+    sum_ast->AddChild(op_ast);
+    sum_ast->AddChild(Sum());
   }
 
   return sum_ast;
@@ -140,7 +140,7 @@ AstNodePtr Parser::Sum() {
 
 // Expect curr_tkn_ to be ident or number
 AstNodePtr Parser::Term() {
-  AstNodePtr term_ast = std::make_shared<AstNode>(EMPTY_AST);
+  auto term_ast = std::make_shared<AstNode>(EMPTY_AST);
   TokenType curr_type = curr_tkn_.GetType();
 
   switch(curr_type) {

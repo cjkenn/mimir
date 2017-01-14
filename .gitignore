@@ -1,5 +1,6 @@
 *.~
 *.out
-mimir
 *.o
 *.mr
+mimir
+analysis

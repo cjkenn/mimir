@@ -6,25 +6,27 @@
 #include "cfg_node.h"
 #include "cfg.h"
 
-CFG::CFG(NodePtr root) {
+Cfg::Cfg(CfgNodePtr root) {
   root_ = root;
 }
 
-void CFG::Dominance() {
+void Cfg::Dominance() {
   if (root_ == nullptr) {
     return;
   }
 
   // Initialize vector of all nodes.
+  // O(v), v = num vertices
   auto node_set = BuildCompleteNodeSet();
 
-  std::vector<NodePtr> initial;
+  std::vector<CfgNodePtr> initial;
   initial.push_back(root_);
 
   root_->SetDom(initial);
 
   // We use this loop format to skip the root, which has its
   // dom set initially set to itself, rather than the entire set.
+  // O(v), v = num vertices
   for (std::size_t i = 1; i < node_set.size(); i++) {
     node_set[i]->SetDom(node_set);
   }
@@ -50,9 +52,9 @@ void CFG::Dominance() {
   }
 }
 
-std::vector<NodePtr> CFG::BuildCompleteNodeSet() {
-  std::queue<NodePtr> q;
-  std::vector<NodePtr> cg;
+std::vector<CfgNodePtr> Cfg::BuildCompleteNodeSet() {
+  std::queue<CfgNodePtr> q;
+  std::vector<CfgNodePtr> cg;
 
   q.push(root_);
   cg.push_back(root_);
@@ -73,7 +75,7 @@ std::vector<NodePtr> CFG::BuildCompleteNodeSet() {
   return cg;
 }
 
-std::vector<NodePtr> CFG::FindParentIntersection(NodePtr node, std::vector<NodePtr>& node_set) {
+std::vector<CfgNodePtr> Cfg::FindParentIntersection(CfgNodePtr node, std::vector<CfgNodePtr>& node_set) {
   auto parents = node->GetParents();
   int num_parents = parents.size();
 
@@ -108,7 +110,7 @@ std::vector<NodePtr> CFG::FindParentIntersection(NodePtr node, std::vector<NodeP
   // size of the parents vector, we add to the intersection set. To simplify,
   // we lookup the actual node pointer by using the name. This way we
   // don't need to try and compare NodePtr's with one another.
-  std::vector<NodePtr> intersection_set;
+  std::vector<CfgNodePtr> intersection_set;
   auto all_nodes = BuildNodeMapping(node_set);
 
   for (auto &entry : node_map) {
@@ -121,8 +123,9 @@ std::vector<NodePtr> CFG::FindParentIntersection(NodePtr node, std::vector<NodeP
   return intersection_set;
 }
 
-std::unordered_map<std::string, NodePtr> CFG::BuildNodeMapping(std::vector<NodePtr>& cg) {
-  std::unordered_map<std::string, NodePtr> node_map;
+// TODO: could be combined with buildcompletenodeset to save a pass over the graph
+std::unordered_map<std::string, CfgNodePtr> Cfg::BuildNodeMapping(std::vector<CfgNodePtr>& cg) {
+  std::unordered_map<std::string, CfgNodePtr> node_map;
 
   for (auto node : cg) {
     node_map[node->GetName()] = node;

@@ -8,7 +8,6 @@ Very small language based on tinyc grammar. This is mainly used as a tool to wor
 <statement> ::= "if" <paren_expr> <statement> |
                 "if" <paren_expr> <statement> "else" <statement> |
                 "while" <paren_expr> <statement> |
-                "do" <statement> "while" <paren_expr> ";" |
                 "{" { <statement> } "}" |
                 <expr> ";" |
                 ";"

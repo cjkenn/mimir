@@ -7,7 +7,7 @@
 // We don't test all symbols exhaustively, but this
 // sample of single chars should suffice.
 void test_lex_symbols() {
-  std::string test_file = "lexerSymbolInput";
+  std::string test_file = "lexer_input/symbol";
   Lexer lexer(test_file);
 
   Token paren_tkn = lexer.Lex();
@@ -28,7 +28,7 @@ void test_lex_symbols() {
 
 // Test the Lex function on an identifier.
 void test_lex_ident() {
-  std::string test_file = "lexerIdentInput";
+  std::string test_file = "lexer_input/ident";
   Lexer lexer(test_file);
 
   Token ident_tkn = lexer.Lex();
@@ -38,7 +38,7 @@ void test_lex_ident() {
 
 // Test the Lex function on a number.
 void test_lex_num() {
-  std::string test_file = "lexerNumInput";
+  std::string test_file = "lexer_input/num";
   Lexer lexer(test_file);
 
   Token num_tkn = lexer.Lex();

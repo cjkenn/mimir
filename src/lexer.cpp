@@ -36,51 +36,51 @@ Token Lexer::Lex() {
   case '(':
     tkn = Token(LEFT_PAREN_TKN);
     ifs_.get(lastchar_);
-    break;
+    return tkn;
   case ')':
     tkn = Token(RIGHT_PAREN_TKN);
     ifs_.get(lastchar_);
-    break;
+    return tkn;
   case '{':
     tkn = Token(LEFT_BRACE_TKN);
     ifs_.get(lastchar_);
-    break;
+    return tkn;
   case '}':
     tkn = Token(RIGHT_BRACE_TKN);
     ifs_.get(lastchar_);
-    break;
+    return tkn;
   case '+':
     tkn = Token(PLUS_TKN);
     ifs_.get(lastchar_);
-    break;
+    return tkn;
   case '-':
     tkn = Token(MINUS_TKN);
     ifs_.get(lastchar_);
-    break;
+    return tkn;
   case '*':
     tkn = Token(MULT_TKN);
     ifs_.get(lastchar_);
-    break;
+    return tkn;
   case '/':
     tkn = Token(DIV_TKN);
     ifs_.get(lastchar_);
-    break;
+    return tkn;
   case '%':
     tkn = Token(MOD_TKN);
     ifs_.get(lastchar_);
-    break;
+    return tkn;
   case '<':
     tkn = Token(LT_TKN);
     ifs_.get(lastchar_);
-    break;
+    return tkn;
   case ';':
     tkn = Token(SEMICOLON_TKN);
     ifs_.get(lastchar_);
-    break;
+    return tkn;
   case '=':
     tkn = Token(EQUALS_TKN);
     ifs_.get(lastchar_);
-    break;
+    return tkn;
   default:
     tkn = Token(EOF_TKN);
     break;

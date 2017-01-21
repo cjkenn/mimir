@@ -21,10 +21,6 @@ AstNodePtr Parser::Program() {
   // TODO: Can only parse one statement at a time
   head->AddChild(Statement());
 
-  if (curr_tkn_.GetType() != EOF_TKN) {
-    LogError("Expected end of file!");
-  }
-
   return head;
 }
 
@@ -35,7 +31,6 @@ AstNodePtr Parser::Statement() {
   case IF_TKN:
     statement_ast->SetType(IF_AST);
     GetNextTkn();
-
     statement_ast->AddChild(ParenExpr());
     statement_ast->AddChild(Statement());
 
@@ -60,7 +55,10 @@ AstNodePtr Parser::Statement() {
       auto brace_statement_ast = statement_ast;
       statement_ast = std::make_shared<AstNode>(SEQ_AST);
 
-      statement_ast->AddChild(brace_statement_ast);
+      if (brace_statement_ast->GetType() != AstType::EMPTY_AST) {
+	statement_ast->AddChild(brace_statement_ast);
+      }
+
       statement_ast->AddChild(Statement());
     }
 
@@ -161,11 +159,16 @@ AstNodePtr Parser::Term() {
   return term_ast;
 }
 
+// TODO: Error handling module
 void Parser::Expect(TokenType expected_type) {
   if (curr_tkn_.GetType() == expected_type) {
     GetNextTkn();
   } else {
-    cout << "Expected " << expected_type << ", but found " << curr_tkn_.GetPrettyType() << endl;
+    cout << "Expected " <<
+      PrettifyTokenType(expected_type) <<
+      ", but found " <<
+      curr_tkn_.GetPrettyType() << endl;
+
     cout << "Current token: " << endl;
     curr_tkn_.Debug();
   }
@@ -177,4 +180,23 @@ void Parser::GetNextTkn() {
 
 void Parser::LogError(string error) {
   cout << error << endl;
+}
+
+// TODO: Error handling module
+string Parser::PrettifyTokenType(TokenType type) {
+  switch (type) {
+  case ID_TKN:
+    return "Identifier";
+  case NUM_TKN:
+    return "Number";
+  case IF_TKN:
+    return "'If' keyword";
+  case ELSE_TKN:
+    return "'Else' keyword";
+  case WHILE_TKN:
+    return "'While' keyword";
+  default:
+    string type_str = "";
+    return type_str + (char)type;
+  }
 }

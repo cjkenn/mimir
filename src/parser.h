@@ -23,6 +23,7 @@ class Parser {
   AstNodePtr Term();
   void Expect(TokenType expected_type);
   void GetNextTkn();
+  std::string PrettifyTokenType(TokenType type);
 
   std::shared_ptr<Lexer> lexer_;
   Token curr_tkn_;

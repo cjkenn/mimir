@@ -108,7 +108,6 @@ void test_parse_assign_expression() {
 //                Set
 //              _/  \_
 //             Var   Num
-//
 void test_parse_if() {
   std::string test_file = "parser_input/if_statement";
   auto lexer = std::make_shared<Lexer>(test_file);
@@ -156,18 +155,158 @@ void test_parse_if() {
   assert(set_val_ast->GetVal() == 2);
 }
 
+// Expected format:
+//
+//         Program
+//            |
+//     ______Else______
+//   _/       |        \_
+//  Expr(LT) Seq       Seq
+//   _/ \_    |         |
+// Var  Num  Expr      Expr
+//            |         |
+//           Set       Set
+//         _/  \_     _/ \_
+//        Var  Num   Var  Num
 void test_parse_if_else() {
+  std::string test_file = "parser_input/if_else_statement";
+  auto lexer = std::make_shared<Lexer>(test_file);
+  Parser parser(lexer);
 
+  auto ast = parser.Parse();
+
+  assert(ast->GetType() == AstType::PROG_AST);
+  assert(ast->GetChildren().size() == 1);
+
+  auto else_ast = ast->GetChildren()[0];
+  assert(else_ast->GetType() == AstType::ELSE_AST);
+  assert(else_ast->GetChildren().size() == 3);
+
+  // Check the expression nodes
+  auto lt_expr_ast = else_ast->GetChildren()[0];
+  assert(lt_expr_ast->GetType() == AstType::LT_AST);
+  assert(lt_expr_ast->GetChildren().size() == 2);
+
+  auto lt_expr_term = lt_expr_ast->GetChildren()[0];
+  assert(lt_expr_term->GetType() == AstType::VAR_AST);
+  assert(lt_expr_term->GetChildren().size() == 0);
+  assert(lt_expr_term->GetText() == "x");
+
+  auto lt_expr_test = lt_expr_ast->GetChildren()[1];
+  assert(lt_expr_test->GetType() == AstType::CST_AST);
+  assert(lt_expr_test->GetChildren().size() == 0);
+  assert(lt_expr_test->GetVal() == 1);
+
+  // Check the original if sequence
+  auto seq_ast = else_ast->GetChildren()[1];
+  assert(seq_ast->GetType() == AstType::SEQ_AST);
+  assert(seq_ast->GetChildren().size() == 1);
+
+  auto seq_expr_ast = seq_ast->GetChildren()[0];
+  assert(seq_expr_ast->GetType() == AstType::EXPR_AST);
+  assert(seq_expr_ast->GetChildren().size() == 1);
+
+  auto set_expr_ast = seq_expr_ast->GetChildren()[0];
+  assert(set_expr_ast->GetType() == AstType::SET_AST);
+  assert(set_expr_ast->GetChildren().size() == 2);
+
+  auto set_var_ast = set_expr_ast->GetChildren()[0];
+  assert(set_var_ast->GetText() == "y");
+
+  auto set_val_ast = set_expr_ast->GetChildren()[1];
+  assert(set_val_ast->GetVal() == 2);
+
+  // Check the else sequence, entered if the original condition is false
+  auto else_seq_ast = else_ast->GetChildren()[2];
+  assert(else_seq_ast->GetType() == AstType::SEQ_AST);
+  assert(else_seq_ast->GetChildren().size() == 1);
+
+  auto else_seq_expr_ast = else_seq_ast->GetChildren()[0];
+  assert(else_seq_expr_ast->GetType() == AstType::EXPR_AST);
+  assert(else_seq_expr_ast->GetChildren().size() == 1);
+
+  auto else_set_expr_ast = else_seq_expr_ast->GetChildren()[0];
+  assert(else_set_expr_ast->GetType() == AstType::SET_AST);
+  assert(else_set_expr_ast->GetChildren().size() == 2);
+
+  auto else_set_var_ast = else_set_expr_ast->GetChildren()[0];
+  assert(else_set_var_ast->GetText() == "y");
+
+  auto else_set_val_ast = else_set_expr_ast->GetChildren()[1];
+  assert(else_set_val_ast->GetVal() == 3);
 }
 
+// Expected format:
+//
+//         Program
+//            |
+//     _____While____
+//   _/              \_
+//  Expr(LT)         Seq
+//   _/ \_            |
+// Var  Num          Expr
+//                    |
+//                   Set
+//                 _/  \_
+//                Var   Op
+//                    _/ \_
+//                   Var Num
 void test_parse_while() {
+  std::string test_file = "parser_input/while";
+  auto lexer = std::make_shared<Lexer>(test_file);
+  Parser parser(lexer);
 
+  auto ast = parser.Parse();
+
+  assert(ast->GetType() == AstType::PROG_AST);
+  assert(ast->GetChildren().size() == 1);
+
+  auto while_ast = ast->GetChildren()[0];
+  assert(while_ast->GetType() == AstType::WHILE_AST);
+  assert(while_ast->GetChildren().size() == 2);
+
+  // Check the expression nodes
+  auto lt_expr_ast = while_ast->GetChildren()[0];
+  assert(lt_expr_ast->GetType() == AstType::LT_AST);
+  assert(lt_expr_ast->GetChildren().size() == 2);
+
+  auto lt_expr_term = lt_expr_ast->GetChildren()[0];
+  assert(lt_expr_term->GetType() == AstType::VAR_AST);
+  assert(lt_expr_term->GetChildren().size() == 0);
+  assert(lt_expr_term->GetText() == "x");
+
+  auto lt_expr_test = lt_expr_ast->GetChildren()[1];
+  assert(lt_expr_test->GetType() == AstType::CST_AST);
+  assert(lt_expr_test->GetChildren().size() == 0);
+  assert(lt_expr_test->GetVal() == 10);
+
+  // Check the sequence inside the while loop
+  auto seq_ast = while_ast->GetChildren()[1];
+  assert(seq_ast->GetType() == AstType::SEQ_AST);
+  assert(seq_ast->GetChildren().size() == 1);
+
+  auto seq_expr_ast = seq_ast->GetChildren()[0];
+  assert(seq_expr_ast->GetType() == AstType::EXPR_AST);
+  assert(seq_expr_ast->GetChildren().size() == 1);
+
+  auto set_expr_ast = seq_expr_ast->GetChildren()[0];
+  assert(set_expr_ast->GetType() == AstType::SET_AST);
+  assert(set_expr_ast->GetChildren().size() == 2);
+
+  auto set_var_ast = set_expr_ast->GetChildren()[0];
+  assert(set_var_ast->GetText() == "x");
+
+  auto next_set_ast = set_expr_ast->GetChildren()[1];
+  assert(next_set_ast->GetType() == AstType::ADD_AST);
+  assert(next_set_ast->GetChildren().size() == 2);
 }
 
 int main(int argc, char** argv) {
   test_parse_assign();
   test_parse_assign_expression();
   test_parse_if();
+  test_parse_if_else();
+  test_parse_while();
 
   std::cout << "Parser Tests passed!" << std::endl;
   return 0;

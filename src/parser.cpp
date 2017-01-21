@@ -18,7 +18,7 @@ AstNodePtr Parser::Program() {
   auto head = std::make_shared<AstNode>(PROG_AST);
   GetNextTkn();
 
-  // TODO: Can only parse one statement at a time
+  // TODO: Can only parse one LINE at a time
   head->AddChild(Statement());
 
   return head;

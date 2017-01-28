@@ -2,6 +2,11 @@
 
 #include <memory>
 
+class BasicBlock;
+
+typedef std::shared_ptr<BasicBlock> BasicBlockPtr;
+
+
 enum BasicBlockInstr {
   MV_INSTR,
   JMP_INSTR,
@@ -23,7 +28,7 @@ class BasicBlock {
 	     std::string arg1,
 	     std::string arg2,
 	     std::string dest,
-	     std::shared_ptr<BasicBlock> next);
+	     BasicBlockPtr next);
 
   ~BasicBlock() {};
 
@@ -31,13 +36,13 @@ class BasicBlock {
   std::string GetSecondArg() const { return second_arg_; }
   std::string GetDest() const { return dest_; }
   bool GetIsLeader() const { return isLeader_; }
-  std::shared_ptr<BasicBlock> GetNext() const { return next_block_; }
+  BasicBlockPtr GetNext() const { return next_block_; }
 
   void SetFirstArg(std::string arg) { first_arg_ = arg; }
   void SetSecondArg(std::string arg) { second_arg_ = arg; }
   void SetDest(std::string dest) { dest_ = dest; }
   void SetLeader(bool isLeader) { isLeader_ = isLeader; }
-  void SetNext(std::shared_ptr<BasicBlock> next) { next_block_ = next; }
+  void SetNext(BasicBlockPtr next) { next_block_ = next; }
 
  private:
   BasicBlockInstr instr_;
@@ -46,5 +51,5 @@ class BasicBlock {
   std::string dest_;
   std::string label_;
   bool isLeader_;
-  std::shared_ptr<BasicBlock> next_block_;
+  BasicBlockPtr next_block_;
 };

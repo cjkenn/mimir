@@ -16,7 +16,7 @@ BasicBlock::BasicBlock(BasicBlockInstr instr,
 		       std::string arg1,
 		       std::string arg2,
 		       std::string dest,
-		       std::shared_ptr<BasicBlock> next) {
+		       BasicBlockPtr next) {
   instr_ = instr;
   first_arg_ = arg1;
   second_arg_ = arg2;

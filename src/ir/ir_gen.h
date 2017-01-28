@@ -9,8 +9,9 @@ class IrGen {
   IrGen();
   ~IrGen() {};
 
-  std::shared_ptr<BasicBlock> Gen(AstNodePtr ast);
+  BasicBlockPtr Gen(AstNodePtr ast);
 
  private:
-
+  BasicBlockPtr GetBlock(AstNodePtr ast);
+  int reg_count_;
 };

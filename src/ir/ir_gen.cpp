@@ -1,29 +1,121 @@
 #include <memory>
 #include "../ast.h"
-#include "basic_block.h"
+#include "ir_block.h"
+#include "instruction.h"
 #include "ir_gen.h"
 
 IrGen::IrGen() {
-  reg_count_ = 0;
+  register_count_ = 0;
 }
 
-BasicBlockPtr IrGen::Gen(AstNodePtr ast) {
+IrBlockPtr IrGen::Gen(AstNodePtr ast) {
   // Confirm the ast structure
   if (ast->GetType() != AstType::PROG_AST) {
     // TODO: error handling maybe?
     return nullptr;
   }
 
-  AstNodePtr start = ast->GetChildAtIndex(0);
-  if (start->GetType() == AstType::EXPR_AST) {
-    start = start->GetChildAtIndex(0);
-  }
+  Instruction start_lbl(LBL_INSTR, "start_:");
+  IrBlockPtr start_block = std::make_shared<IrBlock>();
+  start_block->AddInstruction(start_lbl);
 
-  auto root = GetBlock(start);
+  // IrBlocks contain vectors of instructions,
+  // each instruction has a type, 2 args, and a destination.
+  // Each IR basic block ends with a jmp or a branch.
+  // Each block contains a vector of pointers to other blocks
+  // that are adjacent to it (ie. possible code paths)
+  // A label is counted as a separate instruction.
 
-  return root;
+  AstNodePtr start_ast = ast->GetChildAtIndex(0);
+  switch (start_ast->GetType()) {
+  case AstType::IF_AST:
+    GenIfBlocks(start_block, start_ast);
+  };
+
+  return start_block;
 }
 
-BasicBlockPtr IrGen::GetBlock(AstNodePtr ast) {
-  return nullptr;
+// Expects the ast passed in to be of type IF_AST
+void IrGen::GenIfBlocks(IrBlockPtr root, AstNodePtr ast) {
+  if (ast->GetType() != AstType::IF_AST) {
+    return;
+  }
+
+  auto if_expr_ast = ast->GetChildren()[0];
+  auto left_side_ast = if_expr_ast->GetChildren()[0];
+  Instruction left_side_cmp = BuildInstrFromAst(left_side_ast);
+
+  auto right_side_ast = if_expr_ast->GetChildren()[1];
+  Instruction right_side_cmp = BuildInstrFromAst(right_side_ast);
+
+  // Comparison will take the two destination registers as args,
+  // and return an expected result in the first register.
+  Instruction comparison(InstructionType::CMP_INSTR,
+			 left_side_cmp.GetDest(),
+			 right_side_cmp.GetDest(),
+			 left_side_cmp.GetDest());
+
+  root->AddInstruction(left_side_cmp);
+  root->AddInstruction(right_side_cmp);
+  root->AddInstruction(comparison);
+
+  Instruction conditional_jmp = BuildInstrFromAst(if_expr_ast);
+  root->AddInstruction(conditional_jmp);
+
+  // We end the root block with the branching instruction.
+  // For an if statement, this block can either move to the
+  // next block if the conditional is true, or skip to the jmp
+  // label if it is false. We build both those blocks, and add them
+  // to the adjacent list for the root block.
+  // TODO: ensure label block is created
+  // TODO: ensure all instructions are added after label block (recursively?)
+
+
+
+}
+
+Instruction IrGen::BuildInstrFromAst(AstNodePtr ast) {
+  Instruction instr;
+  std::string first_arg;
+  std::string second_arg;
+  std::pair<std::string, std::string> args;
+
+  switch(ast->GetType()) {
+  case AstType::VAR_AST:
+    first_arg = ast->GetText();
+    second_arg = GetNextRegister();
+    args = std::pair<std::string, std::string>(first_arg, second_arg);
+    instr.SetType(InstructionType::LD_INSTR);
+    instr.SetArgs(args);
+    instr.SetDest(second_arg);
+    break;
+  case AstType::CST_AST:
+    first_arg = std::to_string(ast->GetVal());
+    second_arg = GetNextRegister();
+    args = std::pair<std::string, std::string>(first_arg, second_arg);
+    instr.SetType(InstructionType::MV_INSTR);
+    instr.SetArgs(args);
+    instr.SetDest(second_arg);
+    break;
+  case AstType::LT_AST:
+    instr.SetType(InstructionType::JMPGT_INSTR);
+    instr.SetDest(GetNextLabel());
+    break;
+  }
+
+  return instr;
+}
+
+std::string IrGen::GetNextRegister() {
+  std::string reg = "r" + std::to_string(register_count_);
+  register_count_++;
+
+  return reg;
+}
+
+std::string IrGen::GetNextLabel() {
+  std::string lbl = "lbl" + std::to_string(lbl_count_);
+  lbl_count_++;
+
+  return lbl;
 }

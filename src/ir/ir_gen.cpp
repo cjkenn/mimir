@@ -1,11 +1,13 @@
 #include <memory>
+#include <queue>
 #include "../ast.h"
 #include "ir_block.h"
 #include "instruction.h"
 #include "ir_gen.h"
 
 IrGen::IrGen() {
-  register_count_ = 0;
+  register_count_ = -1;
+  lbl_count_ = -1;
 }
 
 IrBlockPtr IrGen::Gen(AstNodePtr ast) {
@@ -67,11 +69,60 @@ void IrGen::GenIfBlocks(IrBlockPtr root, AstNodePtr ast) {
   // next block if the conditional is true, or skip to the jmp
   // label if it is false. We build both those blocks, and add them
   // to the adjacent list for the root block.
+  IrBlockPtr if_seq = GenIfBlockWhenTrue(ast);
+  root->AddAdjacentBlock(if_seq);
+
   // TODO: ensure label block is created
   // TODO: ensure all instructions are added after label block (recursively?)
+  IrBlockPtr else_seq = GenIfBlockWhenFalse(ast);
+  root->AddAdjacentBlock(else_seq);
+}
 
+IrBlockPtr IrGen::GenIfBlockWhenTrue(AstNodePtr ast) {
+  if (ast->GetType() != AstType::IF_AST) {
+    // TODO: Error handling
+    return nullptr;
+  }
 
+  auto seq_ast = ast->GetChildren()[1];
+  if (seq_ast->GetType() != AstType::SEQ_AST || seq_ast == nullptr) {
+    // TODO: Error handling
+    return nullptr;
+  }
 
+  IrBlockPtr seq_block = GenSeqBlock(seq_ast);
+
+  return seq_block;
+}
+
+IrBlockPtr IrGen::GenIfBlockWhenFalse(AstNodePtr ast) {
+  return nullptr;
+}
+
+IrBlockPtr IrGen::GenSeqBlock(AstNodePtr ast) {
+  if (ast->GetType() != AstType::SEQ_AST) {
+    return nullptr;
+  }
+
+  auto initial_ast = ast->GetChildren()[0];
+  IrBlockPtr seq_block = std::make_shared<IrBlock>();
+
+  // BFS remaining nodes in this branch of ast
+  std::queue<AstNodePtr> q;
+  q.push(initial_ast);
+
+  while (!q.empty()) {
+    auto node = q.front();
+    q.pop();
+
+    Instruction instr = BuildInstrFromAst(node);
+    seq_block->AddInstruction(instr);
+    for (auto adj : node->GetChildren()) {
+      q.push(adj);
+    }
+  }
+
+  return seq_block;
 }
 
 Instruction IrGen::BuildInstrFromAst(AstNodePtr ast) {
@@ -107,15 +158,23 @@ Instruction IrGen::BuildInstrFromAst(AstNodePtr ast) {
 }
 
 std::string IrGen::GetNextRegister() {
-  std::string reg = "r" + std::to_string(register_count_);
   register_count_++;
+  std::string reg = "r" + std::to_string(register_count_);
+  return reg;
+}
 
+std::string IrGen::GetCurrRegister() {
+  std::string reg = "r" + std::to_string(register_count_);
   return reg;
 }
 
 std::string IrGen::GetNextLabel() {
-  std::string lbl = "lbl" + std::to_string(lbl_count_);
   lbl_count_++;
+  std::string lbl = "lbl" + std::to_string(lbl_count_);
+  return lbl;
+}
 
+std::string IrGen::GetCurrLabel() {
+  std::string lbl = "lbl" + std::to_string(lbl_count_);
   return lbl;
 }

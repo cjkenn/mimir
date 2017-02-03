@@ -21,6 +21,7 @@ class IrBlock {
   void SetAdjacent(std::vector<IrBlockPtr> adj) { adjacent_ = adj; }
   void SetInstructions(std::vector<Instruction> instructions) { instructions_ = instructions; }
   void AddInstruction(Instruction instr);
+  void PrependInstruction(Instruction instr);
   void AddAdjacentBlock(IrBlockPtr next);
 
  private:

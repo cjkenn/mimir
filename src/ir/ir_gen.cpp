@@ -72,33 +72,38 @@ void IrGen::GenIfBlocks(IrBlockPtr root, AstNodePtr ast) {
   IrBlockPtr if_seq = GenIfBlockWhenTrue(ast);
   root->AddAdjacentBlock(if_seq);
 
-  // TODO: ensure label block is created
-  // TODO: ensure all instructions are added after label block (recursively?)
   IrBlockPtr else_seq = GenIfBlockWhenFalse(ast);
   root->AddAdjacentBlock(else_seq);
 }
 
 IrBlockPtr IrGen::GenIfBlockWhenTrue(AstNodePtr ast) {
   if (ast->GetType() != AstType::IF_AST) {
-    // TODO: Error handling
     return nullptr;
   }
 
   auto seq_ast = ast->GetChildren()[1];
   if (seq_ast->GetType() != AstType::SEQ_AST || seq_ast == nullptr) {
-    // TODO: Error handling
     return nullptr;
   }
 
   IrBlockPtr seq_block = GenSeqBlock(seq_ast);
+  Instruction unconditional_jmp(InstructionType::JMP_INSTR, GetCurrLabel());
+  seq_block->AddInstruction(unconditional_jmp);
 
   return seq_block;
 }
 
 IrBlockPtr IrGen::GenIfBlockWhenFalse(AstNodePtr ast) {
-  return nullptr;
+  // TODO: Which ast to use for this call?
+  IrBlockPtr seq_block = GenSeqBlock(ast);
+
+  Instruction cont_lbl(InstructionType::LBL_INSTR, GetCurrLabel());
+  seq_block->PrependInstruction(seq_block);
+
+  return seq_block;
 }
 
+// There should be no labels or conditional jmps generated here
 IrBlockPtr IrGen::GenSeqBlock(AstNodePtr ast) {
   if (ast->GetType() != AstType::SEQ_AST) {
     return nullptr;
@@ -131,6 +136,8 @@ Instruction IrGen::BuildInstrFromAst(AstNodePtr ast) {
   std::string second_arg;
   std::pair<std::string, std::string> args;
 
+  // TODO: How to build instruction from SET ast?
+  // TODO: How to build multiple instructions from single ast?
   switch(ast->GetType()) {
   case AstType::VAR_AST:
     first_arg = ast->GetText();

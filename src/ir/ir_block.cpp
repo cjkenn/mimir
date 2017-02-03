@@ -14,6 +14,10 @@ void IrBlock::AddInstruction(Instruction instr) {
   instructions_.push_back(instr);
 }
 
+void IrBlock::PrependInstruction(Instruction instr) {
+  instructions_.insert(instructions_.begin(), instr);
+}
+
 void IrBlock::AddAdjacentBlock(IrBlockPtr next) {
   adjacent_.push_back(next);
 }

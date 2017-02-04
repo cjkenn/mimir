@@ -1,5 +1,6 @@
 #include <iostream>
 #include <sstream>
+#include <queue>
 #include "ast.h"
 
 using namespace std;
@@ -7,11 +8,13 @@ using namespace std;
 AstNode::AstNode(AstType type) {
   type_ = type;
   val_ = 0;
+  visited_ = false;
 }
 
 AstNode::AstNode(AstType type, int val) {
   type_ = type;
   val_ = val;
+  visited_ = false;
 }
 
 void AstNode::AddChild(AstNodePtr child) {

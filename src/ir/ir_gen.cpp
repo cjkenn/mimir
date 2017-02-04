@@ -10,6 +10,12 @@ IrGen::IrGen() {
   lbl_count_ = -1;
 }
 
+// IrBlocks contain vectors of instructions,
+// each instruction has a type, 2 args, and a destination.
+// Each IR basic block ends with a jmp or a branch.
+// Each block contains a vector of pointers to other blocks
+// that are adjacent to it (ie. possible code paths)
+// A label is counted as a separate instruction.
 IrBlockPtr IrGen::Gen(AstNodePtr ast) {
   // Confirm the ast structure
   if (ast->GetType() != AstType::PROG_AST) {
@@ -17,24 +23,103 @@ IrBlockPtr IrGen::Gen(AstNodePtr ast) {
     return nullptr;
   }
 
+  // 1. BFS on ast
+  // 2. For each node, convert the AST to a vector
+  //    of instructions (could only be one).
+  //    For ast's that convert to multiple instructions,
+  //    we may need to mark the children of those nodes
+  //    as visited so we don't continue to traverse them.
+  //
+  // 3. During BFS, if we find a jmp or a label definition,
+  //    we end the block there and begin a new one.
+  //
+  // 4. If a block ends on a jmp, we know that it needs at least
+  //    two adjacent blocks, one for if the jmp condition is true and one
+  //    other if it is false.
   Instruction start_lbl(LBL_INSTR, "start_:");
   IrBlockPtr start_block = std::make_shared<IrBlock>();
+  IrBlockPtr curr_block = start_block;
   start_block->AddInstruction(start_lbl);
 
-  // IrBlocks contain vectors of instructions,
-  // each instruction has a type, 2 args, and a destination.
-  // Each IR basic block ends with a jmp or a branch.
-  // Each block contains a vector of pointers to other blocks
-  // that are adjacent to it (ie. possible code paths)
-  // A label is counted as a separate instruction.
-
   AstNodePtr start_ast = ast->GetChildAtIndex(0);
-  switch (start_ast->GetType()) {
-  case AstType::IF_AST:
-    GenIfBlocks(start_block, start_ast);
-  };
+
+  // Ensure that no ast nodes have been marked as visited.
+  ResetAst(start_ast);
+
+  std::queue<AstNodePtr> q;
+  q.push(start_ast);
+
+  while(!q.empty()) {
+    auto node = q.front();
+    q.pop();
+
+    std::vector<Instruction> instrs = ConvertAstToInstruction(node);
+    curr_block->MergeInstructions(instrs);
+    if (NewBlockRequired(curr_block)) {
+      IrBlockPtr new_block;
+      curr_block->AddAdjacentBlock(new_block);
+      curr_block = new_block;
+    }
+
+    node->Visit();
+    for (auto r : node->GetChildren()) {
+      if (!r->IsVisited()) {
+	q.push(r);
+      }
+    }
+  }
 
   return start_block;
+}
+
+std::vector<Instruction> IrGen::ConvertAstToInstruction(AstNodePtr ast) {
+  std::vector<Instruction> instrs;
+
+  // TODO: How to build instruction from SET ast?
+  // TODO: How to build multiple instructions from single ast?
+  switch(ast->GetType()) {
+  case AstType::VAR_AST:
+    instrs.push_back(VarAstToInstr(ast));
+    break;
+  case AstType::CST_AST:
+    instrs.push_back(CstAstToInstr(ast));
+    break;
+  case AstType::IF_AST:
+    {
+      auto if_instrs = IfAstToInstr(ast);
+      instrs.insert(instrs.end(), if_instrs.begin(), if_instrs.end());
+      break;
+    }
+  case AstType::ELSE_AST:
+    break;
+  case AstType::LT_AST:
+    // instr.SetType(InstructionType::JMPGT_INSTR);
+    // instr.SetDest(GetNextLabel());
+    break;
+  }
+
+  return instrs;
+}
+
+Instruction IrGen::VarAstToInstr(AstNodePtr ast) {
+  std::pair<std::string, std::string> args(ast->GetText(), GetNextRegister());
+  Instruction ins(InstructionType::LD_INSTR,
+		  args,
+		  GetCurrRegister());
+  return ins;
+}
+
+Instruction IrGen::CstAstToInstr(AstNodePtr ast) {
+  std::pair<std::string, std::string> args(std::to_string(ast->GetVal()), GetNextRegister());
+  Instruction ins(InstructionType::MV_INSTR,
+		  args,
+		  GetCurrRegister());
+  return ins;
+}
+
+std::vector<Instruction> IrGen::IfAstToInstr(AstNodePtr ast) {
+
+  return 0;
 }
 
 // Expects the ast passed in to be of type IF_AST
@@ -103,65 +188,21 @@ IrBlockPtr IrGen::GenIfBlockWhenFalse(AstNodePtr ast) {
   return seq_block;
 }
 
-// There should be no labels or conditional jmps generated here
-IrBlockPtr IrGen::GenSeqBlock(AstNodePtr ast) {
-  if (ast->GetType() != AstType::SEQ_AST) {
-    return nullptr;
-  }
-
-  auto initial_ast = ast->GetChildren()[0];
-  IrBlockPtr seq_block = std::make_shared<IrBlock>();
-
-  // BFS remaining nodes in this branch of ast
+void IrGen::ResetAst(AstNodePtr ast) {
   std::queue<AstNodePtr> q;
-  q.push(initial_ast);
+  q.push(ast);
 
   while (!q.empty()) {
     auto node = q.front();
     q.pop();
-
-    Instruction instr = BuildInstrFromAst(node);
-    seq_block->AddInstruction(instr);
-    for (auto adj : node->GetChildren()) {
-      q.push(adj);
+    node->SetVisited(false);
+    for (auto r : node->GetChildren()) {
+      // If we have a visited node, make sure we reset it to false.
+      if (r->IsVisited()) {
+	q.push(r);
+      }
     }
   }
-
-  return seq_block;
-}
-
-Instruction IrGen::BuildInstrFromAst(AstNodePtr ast) {
-  Instruction instr;
-  std::string first_arg;
-  std::string second_arg;
-  std::pair<std::string, std::string> args;
-
-  // TODO: How to build instruction from SET ast?
-  // TODO: How to build multiple instructions from single ast?
-  switch(ast->GetType()) {
-  case AstType::VAR_AST:
-    first_arg = ast->GetText();
-    second_arg = GetNextRegister();
-    args = std::pair<std::string, std::string>(first_arg, second_arg);
-    instr.SetType(InstructionType::LD_INSTR);
-    instr.SetArgs(args);
-    instr.SetDest(second_arg);
-    break;
-  case AstType::CST_AST:
-    first_arg = std::to_string(ast->GetVal());
-    second_arg = GetNextRegister();
-    args = std::pair<std::string, std::string>(first_arg, second_arg);
-    instr.SetType(InstructionType::MV_INSTR);
-    instr.SetArgs(args);
-    instr.SetDest(second_arg);
-    break;
-  case AstType::LT_AST:
-    instr.SetType(InstructionType::JMPGT_INSTR);
-    instr.SetDest(GetNextLabel());
-    break;
-  }
-
-  return instr;
 }
 
 std::string IrGen::GetNextRegister() {

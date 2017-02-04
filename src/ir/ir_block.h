@@ -22,6 +22,7 @@ class IrBlock {
   void SetInstructions(std::vector<Instruction> instructions) { instructions_ = instructions; }
   void AddInstruction(Instruction instr);
   void PrependInstruction(Instruction instr);
+  void MergeInstructions(std::vector<Instruction> instrs);
   void AddAdjacentBlock(IrBlockPtr next);
 
  private:

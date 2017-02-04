@@ -47,6 +47,9 @@ class AstNode {
   void SetDebug();
   std::string GetDebug() const {return debug_;}
 
+  void Visit() { visited_ = true; }
+  bool IsVisited() const { return visited_; }
+  void SetVisited(bool v) { visited_ = v; }
   void Debug();
 
  private:
@@ -55,6 +58,7 @@ class AstNode {
   std::string text_;
   std::string debug_;
   std::vector<AstNodePtr> children_;
+  bool visited_;
 
   std::string GetPrettyType();
   std::string GetChildDebugString(AstNodePtr child);

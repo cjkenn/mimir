@@ -21,3 +21,7 @@ void IrBlock::PrependInstruction(Instruction instr) {
 void IrBlock::AddAdjacentBlock(IrBlockPtr next) {
   adjacent_.push_back(next);
 }
+
+void IrBlock::MergeInstructions(std::vector<Instruction> instrs) {
+  instructions_.insert(instructions_.end(), instrs.begin(), instrs.end());
+}

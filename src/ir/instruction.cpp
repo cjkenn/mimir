@@ -25,5 +25,11 @@ Instruction::Instruction(InstructionType type,
   arg_pair.second = arg2;
   args_ = arg_pair;
   dest_ = dest;
+}
 
+bool Instruction::IsJmp() {
+  return (type_ == InstructionType::JMP_INSTR ||
+    type_ == InstructionType::JMPLT_INSTR ||
+    type_ == InstructionType::JMPGT_INSTR ||
+	  type_ == InstructionType::JMPEQ_INSTR);
 }

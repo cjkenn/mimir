@@ -44,6 +44,13 @@ void AstNode::SetDebug() {
   debug_ = debug_stream.str();
 }
 
+void AstNode::VisitNodeAndChildren() {
+  visited_ = true;
+  for (auto node : children_) {
+    node->Visit();
+  }
+}
+
 void AstNode::Debug() {
   SetDebug();
   cout << debug_ << endl;

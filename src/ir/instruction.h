@@ -41,6 +41,7 @@ class Instruction {
   void SetType(InstructionType type) { type_ = type; }
   void SetArgs(std::pair<std::string, std::string> args) { args_ = args; }
   void SetDest(std::string dest) { dest_ = dest; }
+  bool IsJmp();
 
  private:
   InstructionType type_;

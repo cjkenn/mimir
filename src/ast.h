@@ -50,6 +50,8 @@ class AstNode {
   void Visit() { visited_ = true; }
   bool IsVisited() const { return visited_; }
   void SetVisited(bool v) { visited_ = v; }
+
+  void VisitNodeAndChildren();
   void Debug();
 
  private:

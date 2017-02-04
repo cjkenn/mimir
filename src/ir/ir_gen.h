@@ -12,19 +12,16 @@ class IrGen {
   IrBlockPtr Gen(AstNodePtr ast);
 
  private:
-  std::vector<Instruction> ConvertAstToInstruction(AstNodePtr ast);
+  std::vector<Instruction> ConvertAstToInstr(AstNodePtr ast);
   bool NewBlockRequired(IrBlockPtr ir);
-
-  // TODO: Likely not needed
-  void GenIfBlocks(IrBlockPtr root, AstNodePtr ast);
-  IrBlockPtr GenIfBlockWhenTrue(AstNodePtr ast);
-  IrBlockPtr GenIfBlockWhenFalse(AstNodePtr ast);
-
   Instruction VarAstToInstr(AstNodePtr ast);
   Instruction CstAstToInstr(AstNodePtr ast);
+  Instruction LtAstToInstr(AstNodePtr ast);
   std::vector<Instruction> IfAstToInstr(AstNodePtr ast);
+  std::vector<Instruction> SeqAstToInstr(AstNodePtr ast);
 
   void ResetAst(AstNodePtr ast);
+  void MergeInstrVecs(std::vector<Instruction> v1, std::vector<Instruction> v2);
   std::string GetNextRegister();
   std::string GetCurrRegister();
   std::string GetNextLabel();

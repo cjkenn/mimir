@@ -53,7 +53,7 @@ IrBlockPtr IrGen::Gen(AstNodePtr ast) {
     auto node = q.front();
     q.pop();
 
-    std::vector<Instruction> instrs = ConvertAstToInstruction(node);
+    std::vector<Instruction> instrs = ConvertAstToInstr(node);
     curr_block->MergeInstructions(instrs);
     if (NewBlockRequired(curr_block)) {
       IrBlockPtr new_block;
@@ -72,7 +72,14 @@ IrBlockPtr IrGen::Gen(AstNodePtr ast) {
   return start_block;
 }
 
-std::vector<Instruction> IrGen::ConvertAstToInstruction(AstNodePtr ast) {
+bool IrGen::NewBlockRequired(IrBlockPtr ir) {
+  // TODO: End a block just before a labelled instruction?
+  // Could get around this by inserting unconditional jmps before every label
+  auto last_instr = ir->GetInstructions().back();
+  return last_instr.IsJmp();
+}
+
+std::vector<Instruction> IrGen::ConvertAstToInstr(AstNodePtr ast) {
   std::vector<Instruction> instrs;
 
   // TODO: How to build instruction from SET ast?
@@ -87,14 +94,19 @@ std::vector<Instruction> IrGen::ConvertAstToInstruction(AstNodePtr ast) {
   case AstType::IF_AST:
     {
       auto if_instrs = IfAstToInstr(ast);
-      instrs.insert(instrs.end(), if_instrs.begin(), if_instrs.end());
+      MergeInstrVecs(instrs, if_instrs);
       break;
     }
   case AstType::ELSE_AST:
     break;
+  case AstType::SEQ_AST:
+    {
+      auto seq_instrs = SeqAstToInstr(ast);
+      MergeInstrVecs(instrs, seq_instrs);
+      break;
+    }
   case AstType::LT_AST:
-    // instr.SetType(InstructionType::JMPGT_INSTR);
-    // instr.SetDest(GetNextLabel());
+    instrs.push_back(LtAstToInstr(ast));
     break;
   }
 
@@ -117,75 +129,58 @@ Instruction IrGen::CstAstToInstr(AstNodePtr ast) {
   return ins;
 }
 
+Instruction IrGen::LtAstToInstr(AstNodePtr ast) {
+  Instruction ins(InstructionType::JMPGT_INSTR,
+		  GetNextLabel());
+  return ins;
+}
+
+// Multiple instructions are needed to convert the if ast
+// This function only generates the single block that contains
+// the test of the if. Then, the next ast node analyzed will contain
+// the next sequence of instructions, and that will be added as the next block.
+//
+// We expect the ast param to be of type IF_AST
 std::vector<Instruction> IrGen::IfAstToInstr(AstNodePtr ast) {
-
-  return 0;
-}
-
-// Expects the ast passed in to be of type IF_AST
-void IrGen::GenIfBlocks(IrBlockPtr root, AstNodePtr ast) {
+  std::vector<Instruction> v;
   if (ast->GetType() != AstType::IF_AST) {
-    return;
+    return v;
   }
 
-  auto if_expr_ast = ast->GetChildren()[0];
-  auto left_side_ast = if_expr_ast->GetChildren()[0];
-  Instruction left_side_cmp = BuildInstrFromAst(left_side_ast);
+  auto if_expr_ast = ast->GetChildAtIndex(0);
+  auto left_side = ConvertAstToInstr(if_expr_ast->GetChildAtIndex(0));
+  auto right_side = ConvertAstToInstr(if_expr_ast->GetChildAtIndex(1));
 
-  auto right_side_ast = if_expr_ast->GetChildren()[1];
-  Instruction right_side_cmp = BuildInstrFromAst(right_side_ast);
+  Instruction compare(InstructionType::CMP_INSTR,
+		      left_side[0].GetDest(),
+		      right_side[0].GetDest(),
+		      left_side[0].GetDest());
 
-  // Comparison will take the two destination registers as args,
-  // and return an expected result in the first register.
-  Instruction comparison(InstructionType::CMP_INSTR,
-			 left_side_cmp.GetDest(),
-			 right_side_cmp.GetDest(),
-			 left_side_cmp.GetDest());
+  auto jmp = ConvertAstToInstr(if_expr_ast);
 
-  root->AddInstruction(left_side_cmp);
-  root->AddInstruction(right_side_cmp);
-  root->AddInstruction(comparison);
+  // The order of instructions matters here: we need to add the comparison
+  // arguments first, then the cmp, then the relevant jmp.
+  MergeInstrVecs(v, left_side);
+  MergeInstrVecs(v, right_side);
+  v.push_back(compare);
+  MergeInstrVecs(v, jmp);
 
-  Instruction conditional_jmp = BuildInstrFromAst(if_expr_ast);
-  root->AddInstruction(conditional_jmp);
+  // We've now visited the if expr ast node, as well as each node
+  // in the left side branch of th if. We should mark all those nodes
+  // as visited to ensure we don't try to add instructions for them
+  // later on (as we continue to BFS the tree)
+  if_expr_ast->VisitNodeAndChildren();
 
-  // We end the root block with the branching instruction.
-  // For an if statement, this block can either move to the
-  // next block if the conditional is true, or skip to the jmp
-  // label if it is false. We build both those blocks, and add them
-  // to the adjacent list for the root block.
-  IrBlockPtr if_seq = GenIfBlockWhenTrue(ast);
-  root->AddAdjacentBlock(if_seq);
-
-  IrBlockPtr else_seq = GenIfBlockWhenFalse(ast);
-  root->AddAdjacentBlock(else_seq);
+  return v;
 }
 
-IrBlockPtr IrGen::GenIfBlockWhenTrue(AstNodePtr ast) {
-  if (ast->GetType() != AstType::IF_AST) {
-    return nullptr;
+std::vector<Instruction> IrGen::SeqAstToInstr(AstNodePtr ast) {
+  std::vector<Instruction> v;
+  if (ast->GetType() != AstType::SEQ_AST) {
+    return v;
   }
 
-  auto seq_ast = ast->GetChildren()[1];
-  if (seq_ast->GetType() != AstType::SEQ_AST || seq_ast == nullptr) {
-    return nullptr;
-  }
-
-  IrBlockPtr seq_block = GenSeqBlock(seq_ast);
-  Instruction unconditional_jmp(InstructionType::JMP_INSTR, GetCurrLabel());
-  seq_block->AddInstruction(unconditional_jmp);
-
-  return seq_block;
-}
-
-IrBlockPtr IrGen::GenIfBlockWhenFalse(AstNodePtr ast) {
-  // TODO: Which ast to use for this call?
-  IrBlockPtr seq_block = GenSeqBlock(ast);
-
-  Instruction cont_lbl(InstructionType::LBL_INSTR, GetCurrLabel());
-  seq_block->PrependInstruction(seq_block);
-
-  return seq_block;
+  return v;
 }
 
 void IrGen::ResetAst(AstNodePtr ast) {
@@ -203,6 +198,11 @@ void IrGen::ResetAst(AstNodePtr ast) {
       }
     }
   }
+}
+
+// Puts the contents of v2 into v1.
+void IrGen::MergeInstrVecs(std::vector<Instruction> v1, std::vector<Instruction> v2) {
+  v1.insert(v1.end(), v2.begin(), v2.end());
 }
 
 std::string IrGen::GetNextRegister() {

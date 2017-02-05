@@ -3,3 +3,4 @@
 make all
 ./lexer.test
 ./parser.test
+./irgen.test

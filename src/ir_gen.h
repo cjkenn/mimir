@@ -14,14 +14,15 @@ class IrGen {
  private:
   std::vector<Instruction> ConvertAstToInstr(AstNodePtr ast);
   bool NewBlockRequired(IrBlockPtr ir);
+  bool LabelRequiredForNext(IrBlockPtr ir);
   Instruction VarAstToInstr(AstNodePtr ast);
   Instruction CstAstToInstr(AstNodePtr ast);
   Instruction LtAstToInstr(AstNodePtr ast);
   std::vector<Instruction> IfAstToInstr(AstNodePtr ast);
-  std::vector<Instruction> SeqAstToInstr(AstNodePtr ast);
+  std::vector<Instruction> SetAstToInstr(AstNodePtr ast);
 
   void ResetAst(AstNodePtr ast);
-  void MergeInstrVecs(std::vector<Instruction> v1, std::vector<Instruction> v2);
+  void MergeInstrVecs(std::vector<Instruction>& v1, std::vector<Instruction>& v2);
   std::string GetNextRegister();
   std::string GetCurrRegister();
   std::string GetNextLabel();

@@ -16,8 +16,7 @@ enum InstructionType {
   SUB_INSTR,
   MUL_INSTR,
   DIV_INSTR,
-  CMP_INSTR,
-  LBL_INSTR
+  CMP_INSTR
 };
 
 class Instruction {

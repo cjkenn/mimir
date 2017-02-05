@@ -1,5 +1,6 @@
 #include <memory>
 #include <queue>
+#include <iostream>
 #include "ast.h"
 #include "ir_block.h"
 #include "instruction.h"
@@ -19,7 +20,6 @@ IrGen::IrGen() {
 IrBlockPtr IrGen::Gen(AstNodePtr ast) {
   // Confirm the ast structure
   if (ast->GetType() != AstType::PROG_AST) {
-    // TODO: error handling maybe?
     return nullptr;
   }
 
@@ -36,10 +36,10 @@ IrBlockPtr IrGen::Gen(AstNodePtr ast) {
   // 4. If a block ends on a jmp, we know that it needs at least
   //    two adjacent blocks, one for if the jmp condition is true and one
   //    other if it is false.
-  Instruction start_lbl(LBL_INSTR, "start_:");
+  std::string start_lbl = "start_:";
   IrBlockPtr start_block = std::make_shared<IrBlock>();
   IrBlockPtr curr_block = start_block;
-  start_block->AddInstruction(start_lbl);
+  start_block->SetLabel(start_lbl);
 
   AstNodePtr start_ast = ast->GetChildAtIndex(0);
 
@@ -55,9 +55,15 @@ IrBlockPtr IrGen::Gen(AstNodePtr ast) {
 
     std::vector<Instruction> instrs = ConvertAstToInstr(node);
     curr_block->MergeInstructions(instrs);
+
     if (NewBlockRequired(curr_block)) {
-      IrBlockPtr new_block;
+      IrBlockPtr new_block = std::make_shared<IrBlock>();
+
       curr_block->AddAdjacentBlock(new_block);
+      if (LabelRequiredForNext(curr_block)) {
+	new_block->SetLabel(GetCurrLabel());
+      }
+
       curr_block = new_block;
     }
 
@@ -75,8 +81,18 @@ IrBlockPtr IrGen::Gen(AstNodePtr ast) {
 bool IrGen::NewBlockRequired(IrBlockPtr ir) {
   // TODO: End a block just before a labelled instruction?
   // Could get around this by inserting unconditional jmps before every label
-  auto last_instr = ir->GetInstructions().back();
+  auto instrs = ir->GetInstructions();
+  if (instrs.empty()) {
+    return false;
+  }
+
+  auto last_instr = instrs.back();
   return last_instr.IsJmp();
+}
+
+bool IrGen::LabelRequiredForNext(IrBlockPtr ir) {
+  auto last_instr = ir->GetInstructions().back();
+  return (last_instr.GetType() == InstructionType::JMP_INSTR);
 }
 
 std::vector<Instruction> IrGen::ConvertAstToInstr(AstNodePtr ast) {
@@ -99,14 +115,20 @@ std::vector<Instruction> IrGen::ConvertAstToInstr(AstNodePtr ast) {
     }
   case AstType::ELSE_AST:
     break;
-  case AstType::SEQ_AST:
+  case AstType::SET_AST:
     {
-      auto seq_instrs = SeqAstToInstr(ast);
-      MergeInstrVecs(instrs, seq_instrs);
+      auto set_instrs = SetAstToInstr(ast);
+      MergeInstrVecs(instrs, set_instrs);
       break;
     }
   case AstType::LT_AST:
     instrs.push_back(LtAstToInstr(ast));
+    break;
+  case AstType::SEQ_AST:
+  case AstType::EXPR_AST:
+  default:
+    // We don't really care about these ast types here, because the real
+    // instructions are located in children ast nodes. So we skip them.
     break;
   }
 
@@ -166,19 +188,35 @@ std::vector<Instruction> IrGen::IfAstToInstr(AstNodePtr ast) {
   MergeInstrVecs(v, jmp);
 
   // We've now visited the if expr ast node, as well as each node
-  // in the left side branch of th if. We should mark all those nodes
+  // in the left side branch of the if. We should mark all those nodes
   // as visited to ensure we don't try to add instructions for them
-  // later on (as we continue to BFS the tree)
+  // later on (as we continue to traverse the tree)
   if_expr_ast->VisitNodeAndChildren();
 
   return v;
 }
 
-std::vector<Instruction> IrGen::SeqAstToInstr(AstNodePtr ast) {
+std::vector<Instruction> IrGen::SetAstToInstr(AstNodePtr ast) {
   std::vector<Instruction> v;
-  if (ast->GetType() != AstType::SEQ_AST) {
+  if (ast->GetType() != AstType::SET_AST) {
     return v;
   }
+
+  // Set contains the var name in the left child, and the value in the right.
+  // We don't use the typical var instruction here since this a set, so we build
+  // our own sv instruction here.
+  auto right_side = ConvertAstToInstr(ast->GetChildAtIndex(1));
+  Instruction save(InstructionType::SV_INSTR,
+		   GetCurrRegister());
+
+  Instruction always_jmp(InstructionType::JMP_INSTR,
+			 GetCurrLabel());
+
+  MergeInstrVecs(v, right_side);
+  v.push_back(save);
+  v.push_back(always_jmp);
+
+  ast->VisitNodeAndChildren();
 
   return v;
 }
@@ -201,7 +239,7 @@ void IrGen::ResetAst(AstNodePtr ast) {
 }
 
 // Puts the contents of v2 into v1.
-void IrGen::MergeInstrVecs(std::vector<Instruction> v1, std::vector<Instruction> v2) {
+void IrGen::MergeInstrVecs(std::vector<Instruction>& v1, std::vector<Instruction>& v2) {
   v1.insert(v1.end(), v2.begin(), v2.end());
 }
 

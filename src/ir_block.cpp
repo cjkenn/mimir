@@ -1,3 +1,4 @@
+#include <iostream>
 #include <vector>
 #include "ir_block.h"
 
@@ -22,6 +23,10 @@ void IrBlock::AddAdjacentBlock(IrBlockPtr next) {
   adjacent_.push_back(next);
 }
 
-void IrBlock::MergeInstructions(std::vector<Instruction> instrs) {
+void IrBlock::MergeInstructions(std::vector<Instruction>& instrs) {
+  if (instrs.empty()) {
+    return;
+  }
+
   instructions_.insert(instructions_.end(), instrs.begin(), instrs.end());
 }

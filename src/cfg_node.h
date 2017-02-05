@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 #include <memory>
-#include "../ast.h"
+#include "ast.h"
 
 enum CfgNodeType {
   IF_CFG = 0,

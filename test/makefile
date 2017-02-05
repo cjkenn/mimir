@@ -1,5 +1,5 @@
-CC=clang
-CFLAGS=-g -Wall -std=c++11 -o
+CC = clang++
+CFLAGS = -g -Wall -std=c++11 -o
 
 all: lexer_test parser_test
 

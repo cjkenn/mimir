@@ -1,8 +1,21 @@
-CC=clang
-CFLAGS=-g -Wall -std=c++11 -o
+CC = clang++
+CFLAGS = -g -Wall -std=c++11 -o
+SRCS = compiler.cpp \
+	lexer.cpp \
+	parser.cpp \
+	ast.cpp \
+	token.cpp \
+	gen.cpp \
+	ir_block.cpp \
+	ir_gen.cpp \
+	instruction.cpp \
+	cfg_builder.cpp \
+	cfg.cpp \
+	cfg_node.cpp
+OUT = ../build/mimir
 
-mimir: compiler.cpp lexer.cpp parser.cpp ast.cpp token.cpp gen.cpp
-	$(CC) $(CFLAGS) mimir compiler.cpp lexer.cpp parser.cpp ast.cpp token.cpp gen.cpp
+mimir: $(SRCS)
+	$(CC) $(CFLAGS) $(OUT) $(SRCS)
 
 clean:
-	$(RM) mimir *.o
+	$(RM) $(OUT) *.o

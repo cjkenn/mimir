@@ -1,4 +1,4 @@
-#include "../ast.h"
+#include "ast.h"
 #include "cfg_builder.h"
 #include "cfg_node.h"
 

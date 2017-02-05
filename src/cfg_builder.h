@@ -1,7 +1,7 @@
 #pragma once
 
 #include "cfg.h"
-#include "../ast.h"
+#include "ast.h"
 
 class CfgBuilder {
  public:

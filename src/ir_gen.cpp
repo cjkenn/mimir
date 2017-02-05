@@ -1,6 +1,6 @@
 #include <memory>
 #include <queue>
-#include "../ast.h"
+#include "ast.h"
 #include "ir_block.h"
 #include "instruction.h"
 #include "ir_gen.h"

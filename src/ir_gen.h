@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../ast.h"
+#include "ast.h"
 #include "ir_block.h"
 #include <memory>
 

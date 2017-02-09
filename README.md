@@ -1,10 +1,12 @@
 ## mimir
 
-Very small language based on tinyc grammar. The frontend is very minimal, in fact, it can only parse a single line at a time. This project is primarly to work on backend compiler algorithms, and provide a way to verify the correctness of these algorithms on small inputs.
+Very small language based on tinyc grammar. 
 
 #### Building
 Building is done using make. The directory structure is a WIP right now, so the builds are far from perfect. To compile a file with mimir, run:
+
 ```
+mkdir build # until I get around to changing the makefile
 make
 cd src
 ./mimir {filename}

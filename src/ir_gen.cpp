@@ -36,7 +36,7 @@ IrBlockPtr IrGen::Gen(AstNodePtr ast) {
   // 4. If a block ends on a jmp, we know that it needs at least
   //    two adjacent blocks, one for if the jmp condition is true and one
   //    other if it is false.
-  std::string start_lbl = "start_:";
+  std::string start_lbl = "start";
   IrBlockPtr start_block = std::make_shared<IrBlock>();
   IrBlockPtr curr_block = start_block;
   start_block->SetLabel(start_lbl);
@@ -91,6 +91,8 @@ bool IrGen::NewBlockRequired(IrBlockPtr ir) {
 }
 
 bool IrGen::LabelRequiredForNext(IrBlockPtr ir) {
+  // TODO: This isn't a good way to determine this, as it makes unconditional
+  // jmps unusable in other situations.
   auto last_instr = ir->GetInstructions().back();
   return (last_instr.GetType() == InstructionType::JMP_INSTR);
 }
@@ -98,8 +100,6 @@ bool IrGen::LabelRequiredForNext(IrBlockPtr ir) {
 std::vector<Instruction> IrGen::ConvertAstToInstr(AstNodePtr ast) {
   std::vector<Instruction> instrs;
 
-  // TODO: How to build instruction from SET ast?
-  // TODO: How to build multiple instructions from single ast?
   switch(ast->GetType()) {
   case AstType::VAR_AST:
     instrs.push_back(VarAstToInstr(ast));

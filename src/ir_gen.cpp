@@ -107,14 +107,13 @@ std::vector<Instruction> IrGen::ConvertAstToInstr(AstNodePtr ast) {
   case AstType::CST_AST:
     instrs.push_back(CstAstToInstr(ast));
     break;
+  case AstType::ELSE_AST:
   case AstType::IF_AST:
     {
       auto if_instrs = IfAstToInstr(ast);
       MergeInstrVecs(instrs, if_instrs);
       break;
     }
-  case AstType::ELSE_AST:
-    break;
   case AstType::SET_AST:
     {
       auto set_instrs = SetAstToInstr(ast);
@@ -162,12 +161,9 @@ Instruction IrGen::LtAstToInstr(AstNodePtr ast) {
 // the test of the if. Then, the next ast node analyzed will contain
 // the next sequence of instructions, and that will be added as the next block.
 //
-// We expect the ast param to be of type IF_AST
+// We expect the ast param to be of type IF_AST or ELSE_AST
 std::vector<Instruction> IrGen::IfAstToInstr(AstNodePtr ast) {
   std::vector<Instruction> v;
-  if (ast->GetType() != AstType::IF_AST) {
-    return v;
-  }
 
   auto if_expr_ast = ast->GetChildAtIndex(0);
   auto left_side = ConvertAstToInstr(if_expr_ast->GetChildAtIndex(0));

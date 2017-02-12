@@ -21,7 +21,7 @@
 // cmp r0, r1
 // jmpgt lbl1
 // mv 2, r2
-// sv r3
+// sv r2
 // lbl1:
 void test_gen_if_ast() {
   // TODO: Probably better to manually construct an ast rather
@@ -69,7 +69,7 @@ void test_gen_if_ast() {
 
   assert(ir[5]->GetType() == InstructionType::SV_INSTR);
   assert(ir[5]->GetLabel() == "lbl0");
-  assert(ir[5]->GetDest() == "r3");
+  assert(ir[5]->GetDest() == "r2");
 }
 
 // Expected format:

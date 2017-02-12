@@ -35,6 +35,11 @@ class IrGen {
   // Concatenate two instruction vectors in place.
   void MergeInstrVecs(std::vector<InstrPtr>& v1, std::vector<InstrPtr>& v2);
 
+  // Get the last register used. Useful for statements that want to
+  // check the immediately last used, but still allowing other
+  // instructions to advance the register.
+  std::string PrevRegister();
+
   // Increment the current register count and set the curr_reg_ field
   // accordingly.
   void AdvanceRegister();

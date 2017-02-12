@@ -191,7 +191,7 @@ std::vector<InstrPtr> IrGen::SetAstToInstr(AstNodePtr ast) {
   // our own sv instruction here.
   auto right_side = ConvertAstToInstr(ast->GetChildAtIndex(1));
   InstrPtr save = std::make_shared<Instruction>(InstructionType::SV_INSTR,
-						curr_reg_);
+						PrevRegister());
   save->SetLabel(curr_lbl_);
 
   MergeInstrVecs(v, right_side);
@@ -224,6 +224,11 @@ void IrGen::ResetAst(AstNodePtr ast) {
 // Puts the contents of v2 into v1.
 void IrGen::MergeInstrVecs(std::vector<InstrPtr>& v1, std::vector<InstrPtr>& v2) {
   v1.insert(v1.end(), v2.begin(), v2.end());
+}
+
+std::string IrGen::PrevRegister() {
+  std::string reg = "r" + std::to_string(register_count_ - 1);
+  return reg;
 }
 
 void IrGen::AdvanceRegister() {

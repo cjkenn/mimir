@@ -16,12 +16,6 @@ IrGen::IrGen() {
 
 std::vector<InstrPtr> IrGen::Gen(AstNodePtr ast) {
   std::vector<InstrPtr> ir;
-
-  // Confirm the ast structure
-  if (ast->GetType() != AstType::PROG_AST) {
-    return ir;
-  }
-
   AstNodePtr start_ast = ast->GetChildAtIndex(0);
 
   // Ensure that no ast nodes have been marked as visited.
@@ -55,6 +49,10 @@ std::vector<InstrPtr> IrGen::Gen(AstNodePtr ast) {
 std::vector<InstrPtr> IrGen::ConvertAstToInstr(AstNodePtr ast) {
   std::vector<InstrPtr> instrs;
 
+  if (ast == nullptr) {
+    return instrs;
+  }
+
   switch(ast->GetType()) {
   case AstType::VAR_AST:
     instrs.push_back(VarAstToInstr(ast));
@@ -80,6 +78,15 @@ std::vector<InstrPtr> IrGen::ConvertAstToInstr(AstNodePtr ast) {
     break;
   case AstType::SEQ_AST:
   case AstType::EXPR_AST:
+    {
+      // SEQ and EXPR asts don't really encode any instructions, they
+      // are just indicators of program structure. We can skip ahead to the next
+      // child and build instructions from there. Both these nodes should be
+      // guaranteed to have one child.
+      auto next_ast = ast->GetChildAtIndex(0);
+      instrs = ConvertAstToInstr(next_ast);
+      break;
+    }
   default:
     break;
   }
@@ -88,24 +95,37 @@ std::vector<InstrPtr> IrGen::ConvertAstToInstr(AstNodePtr ast) {
 }
 
 InstrPtr IrGen::VarAstToInstr(AstNodePtr ast) {
-  std::pair<std::string, std::string> args(ast->GetText(), NextRegister());
+  std::pair<std::string, std::string> args(ast->GetText(), curr_reg_);
   InstrPtr ins = std::make_shared<Instruction>(InstructionType::LD_INSTR,
 					       args,
 					       curr_reg_);
+  ins->SetLabel(curr_lbl_);
+  AdvanceRegister();
+
   return ins;
 }
 
 InstrPtr IrGen::CstAstToInstr(AstNodePtr ast) {
-  std::pair<std::string, std::string> args(std::to_string(ast->GetVal()), NextRegister());
+  std::pair<std::string, std::string> args(std::to_string(ast->GetVal()), curr_reg_);
   InstrPtr ins = std::make_shared<Instruction>(InstructionType::MV_INSTR,
 					       args,
 					       curr_reg_);
+  ins->SetLabel(curr_lbl_);
+  AdvanceRegister();
+
   return ins;
 }
 
 InstrPtr IrGen::LtAstToInstr(AstNodePtr ast) {
-  InstrPtr ins = std::make_shared<Instruction>(InstructionType::JMPGT_INSTR,
-					       NextLabel());
+  InstrPtr ins = std::make_shared<Instruction>();
+  ins->SetLabel(curr_lbl_);
+  ins->SetType(InstructionType::JMPGT_INSTR);
+
+  // We are jumping to the next label, but we don't want to advance the
+  // label yet, because subsequent instructions that are included before
+  // the jmp need to be included under the current label.
+  ins->SetDest(PeekLabel());
+
   return ins;
 }
 
@@ -126,6 +146,7 @@ std::vector<InstrPtr> IrGen::IfAstToInstr(AstNodePtr ast) {
 						   left_side[0]->GetDest(),
 						   right_side[0]->GetDest(),
 						   left_side[0]->GetDest());
+  compare->SetLabel(curr_lbl_);
 
   auto jmp = ConvertAstToInstr(if_expr_ast);
 
@@ -142,6 +163,20 @@ std::vector<InstrPtr> IrGen::IfAstToInstr(AstNodePtr ast) {
   // later on (as we continue to traverse the tree)
   if_expr_ast->VisitNodeAndChildren();
 
+  // Now we visit the right side of the ast, which contains the instructions
+  // to run if the if expression evaluates to true.
+  auto if_true_ast = ast->GetChildAtIndex(1);
+  auto if_true_instrs = ConvertAstToInstr(if_true_ast);
+  MergeInstrVecs(v, if_true_instrs);
+
+  // Visit the nodes in this branch of the ast.
+  if_true_ast->VisitNodeAndChildren();
+
+  // Now that we've visited both both relevant branches in this ast,
+  // we need to advance the label so the subsequent instructions are
+  // jumped to correctly if the if expression evaluates to false.
+  AdvanceLabel();
+
   return v;
 }
 
@@ -157,6 +192,7 @@ std::vector<InstrPtr> IrGen::SetAstToInstr(AstNodePtr ast) {
   auto right_side = ConvertAstToInstr(ast->GetChildAtIndex(1));
   InstrPtr save = std::make_shared<Instruction>(InstructionType::SV_INSTR,
 						curr_reg_);
+  save->SetLabel(curr_lbl_);
 
   MergeInstrVecs(v, right_side);
   v.push_back(save);
@@ -190,14 +226,17 @@ void IrGen::MergeInstrVecs(std::vector<InstrPtr>& v1, std::vector<InstrPtr>& v2)
   v1.insert(v1.end(), v2.begin(), v2.end());
 }
 
-std::string IrGen::NextRegister() {
+void IrGen::AdvanceRegister() {
   register_count_++;
   curr_reg_ = "r" + std::to_string(register_count_);
-  return curr_reg_;
 }
 
-std::string IrGen::NextLabel() {
+std::string IrGen::PeekLabel() {
+  std::string lbl = "lbl" + std::to_string(lbl_count_+1);
+  return lbl;
+}
+
+void IrGen::AdvanceLabel() {
   lbl_count_++;
   curr_lbl_ = "lbl" + std::to_string(lbl_count_);
-  return curr_lbl_;
 }

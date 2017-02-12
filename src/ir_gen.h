@@ -35,11 +35,16 @@ class IrGen {
   // Concatenate two instruction vectors in place.
   void MergeInstrVecs(std::vector<InstrPtr>& v1, std::vector<InstrPtr>& v2);
 
-  // 'Consume' the current register and create a new one.
-  std::string NextRegister();
+  // Increment the current register count and set the curr_reg_ field
+  // accordingly.
+  void AdvanceRegister();
 
-  // 'Consume' the current label and create a new one.
-  std::string NextLabel();
+  // Get the value of the next label, but keep the current label the same.
+  std::string PeekLabel();
+
+  // Increment the current label count and set the curr_lbl_ field
+  // accordingly.
+  void AdvanceLabel();
 
   // Current amount of registers used. Concatenated with 'r' to build a
   // register value for an instruction.

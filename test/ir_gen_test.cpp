@@ -29,8 +29,7 @@
 // cmp r0, r1
 // jmpgt lbl0 --> new block begins right after this instr
 // mv 2, r2
-// sv r2
-// jmp lbl0 --> new block begins right after this instr
+// sv r2  --> new block begins right after this instr
 // lbl0:
 void test_gen_if_ast() {
   // TODO: Probably better to manually construct an ast rather
@@ -70,7 +69,7 @@ void test_gen_if_ast() {
   // assert we have the correct instructions
   // for the second block.
   auto sec_ir = root_ir->GetAdjacent()[0];
-  assert(sec_ir->GetInstructions().size() == 3);
+  assert(sec_ir->GetInstructions().size() == 2);
   assert(sec_ir->GetAdjacent().size() == 1);
 
   auto sec_instrs = sec_ir->GetInstructions();
@@ -80,9 +79,6 @@ void test_gen_if_ast() {
 
   assert(sec_instrs[1].GetType() == InstructionType::SV_INSTR);
   assert(sec_instrs[1].GetDest() == "r2");
-
-  assert(sec_instrs[2].GetType() == InstructionType::JMP_INSTR);
-  assert(sec_instrs[2].GetDest() == "lbl0");
 
   // nothing in the third block for this test
   auto third_ir = sec_ir->GetAdjacent()[0];
@@ -112,12 +108,10 @@ void test_gen_if_ast() {
 // cmp r0, r1
 // jmpgt lbl0 --> new block begins right after this instr
 // mv 2, r2
-// sv r2
-// jmp lbl0 --> new block begins right after this instr
+// sv r2 --> new block begins right after this instr
 // lbl0:
 // mv 3, r3
-// sv r3
-// jmp lbl1 --> new block begins right after this instr
+// sv r3  --> new block begins right after this instr
 // lbl1:
 void test_gen_else_ast() {
   std::string test_file = "parser_input/if_else_statement";
@@ -153,7 +147,7 @@ void test_gen_else_ast() {
   // assert we have the correct instructions
   // for the second block.
   auto sec_ir = root_ir->GetAdjacent()[0];
-  assert(sec_ir->GetInstructions().size() == 3);
+  assert(sec_ir->GetInstructions().size() == 2);
   assert(sec_ir->GetAdjacent().size() == 1);
 
   auto sec_instrs = sec_ir->GetInstructions();
@@ -164,13 +158,10 @@ void test_gen_else_ast() {
   assert(sec_instrs[1].GetType() == InstructionType::SV_INSTR);
   assert(sec_instrs[1].GetDest() == "r2");
 
-  assert(sec_instrs[2].GetType() == InstructionType::JMP_INSTR);
-  assert(sec_instrs[2].GetDest() == "lbl0");
-
   // assert we have the correct instructions
   // for the third block.
   auto third_ir = sec_ir->GetAdjacent()[0];
-  assert(third_ir->GetInstructions().size() == 3);
+  assert(third_ir->GetInstructions().size() == 2);
   assert(third_ir->GetLabel() == "lbl0");
   assert(third_ir->GetAdjacent().size() == 1);
 

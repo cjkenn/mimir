@@ -9,12 +9,14 @@ AstNode::AstNode(AstType type) {
   type_ = type;
   val_ = 0;
   visited_ = false;
+  needs_ir_label_ = false;
 }
 
 AstNode::AstNode(AstType type, int val) {
   type_ = type;
   val_ = val;
   visited_ = false;
+  needs_ir_label_ = false;
 }
 
 void AstNode::AddChild(AstNodePtr child) {

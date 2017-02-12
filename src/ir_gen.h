@@ -13,8 +13,8 @@ class IrGen {
 
  private:
   std::vector<Instruction> ConvertAstToInstr(AstNodePtr ast);
-  bool NewBlockRequired(IrBlockPtr ir);
-  bool LabelRequiredForNext(IrBlockPtr ir);
+  bool NewBlockRequired(IrBlockPtr ir, AstNodePtr ast);
+  bool LabelRequiredForBlock(AstNodePtr ast);
   Instruction VarAstToInstr(AstNodePtr ast);
   Instruction CstAstToInstr(AstNodePtr ast);
   Instruction LtAstToInstr(AstNodePtr ast);
@@ -30,4 +30,5 @@ class IrGen {
 
   int register_count_;
   int lbl_count_;
+  int lbls_used_;
 };

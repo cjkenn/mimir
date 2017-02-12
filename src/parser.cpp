@@ -38,6 +38,9 @@ AstNodePtr Parser::Statement() {
       statement_ast->SetType(ELSE_AST);
       GetNextTkn();
       statement_ast->AddChild(Statement());
+
+      // We add some extra info to the ast to let the IR know we need a label here.
+      statement_ast->GetChildAtIndex(2)->SetNeedsIrLabel(true);
     }
     break;
   case WHILE_TKN:

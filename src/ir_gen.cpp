@@ -67,10 +67,22 @@ std::vector<InstrPtr> IrGen::ConvertAstToInstr(AstNodePtr ast) {
       MergeInstrVecs(instrs, if_instrs);
       break;
     }
+  case AstType::WHILE_AST:
+    {
+      auto while_instrs = WhileAstToInstr(ast);
+      MergeInstrVecs(instrs, while_instrs);
+      break;
+    }
   case AstType::SET_AST:
     {
       auto set_instrs = SetAstToInstr(ast);
       MergeInstrVecs(instrs, set_instrs);
+      break;
+    }
+  case AstType::ADD_AST:
+    {
+      auto add_instrs = AddAstToInstr(ast);
+      MergeInstrVecs(instrs, add_instrs);
       break;
     }
   case AstType::LT_AST:
@@ -133,30 +145,8 @@ InstrPtr IrGen::LtAstToInstr(AstNodePtr ast) {
 std::vector<InstrPtr> IrGen::IfElseAstToInstr(AstNodePtr ast) {
   std::vector<InstrPtr> v;
 
-  auto if_expr_ast = ast->GetChildAtIndex(0);
-  auto left_side = ConvertAstToInstr(if_expr_ast->GetChildAtIndex(0));
-  auto right_side = ConvertAstToInstr(if_expr_ast->GetChildAtIndex(1));
-
-  InstrPtr compare = std::make_shared<Instruction>(InstructionType::CMP_INSTR,
-						   left_side[0]->GetDest(),
-						   right_side[0]->GetDest(),
-						   left_side[0]->GetDest());
-  compare->SetLabel(curr_lbl_);
-
-  auto jmp = ConvertAstToInstr(if_expr_ast);
-
-  // The order of instructions matters here: we need to add the comparison
-  // arguments first, then the cmp, then the relevant jmp.
-  MergeInstrVecs(v, left_side);
-  MergeInstrVecs(v, right_side);
-  v.push_back(compare);
-  MergeInstrVecs(v, jmp);
-
-  // We've now visited the if expr ast node, as well as each node
-  // in the left side branch of the if. We should mark all those nodes
-  // as visited to ensure we don't try to add instructions for them
-  // later on (as we continue to traverse the tree)
-  if_expr_ast->VisitNodeAndChildren();
+  auto expr_test = ComparisonAstToInstr(ast);
+  MergeInstrVecs(v, expr_test);
 
   // Now we visit the right side of the ast, which contains the instructions
   // to run if the if expression evaluates to true.
@@ -185,6 +175,57 @@ std::vector<InstrPtr> IrGen::IfElseAstToInstr(AstNodePtr ast) {
   return v;
 }
 
+std::vector<InstrPtr> IrGen::WhileAstToInstr(AstNodePtr ast) {
+  std::vector<InstrPtr> v;
+
+  auto expr_test = ComparisonAstToInstr(ast);
+  MergeInstrVecs(v, expr_test);
+
+  auto while_true_ast = ast->GetChildAtIndex(1);
+  auto while_true_instrs = ConvertAstToInstr(while_true_ast);
+  InstrPtr always_jmp = std::make_shared<Instruction>(InstructionType::JMP_INSTR,
+						      curr_lbl_);
+
+  // Order should be maintained here. The unconditional jump instruction
+  // should be added last.
+  MergeInstrVecs(v, while_true_instrs);
+  v.push_back(always_jmp);
+
+  while_true_ast->VisitNodeAndChildren();
+
+  // Now that we've visited both both relevant branches in this ast,
+  // we need to advance the label so the subsequent instructions are
+  // jumped to correctly if the if expression evaluates to false.
+  AdvanceLabel();
+
+  return v;
+}
+
+std::vector<InstrPtr> IrGen::ComparisonAstToInstr(AstNodePtr ast) {
+  std::vector<InstrPtr> v;
+
+  auto expr_ast = ast->GetChildAtIndex(0);
+  auto left_side = ConvertAstToInstr(expr_ast->GetChildAtIndex(0));
+  auto right_side = ConvertAstToInstr(expr_ast->GetChildAtIndex(1));
+
+  InstrPtr compare = std::make_shared<Instruction>(InstructionType::CMP_INSTR,
+						   left_side[0]->GetDest(),
+						   right_side[0]->GetDest(),
+						   left_side[0]->GetDest());
+  compare->SetLabel(curr_lbl_);
+
+  auto jmp = ConvertAstToInstr(expr_ast);
+
+  MergeInstrVecs(v, left_side);
+  MergeInstrVecs(v, right_side);
+  v.push_back(compare);
+  MergeInstrVecs(v, jmp);
+
+  expr_ast->VisitNodeAndChildren();
+
+  return v;
+}
+
 std::vector<InstrPtr> IrGen::SetAstToInstr(AstNodePtr ast) {
   std::vector<InstrPtr> v;
   if (ast->GetType() != AstType::SET_AST) {
@@ -204,6 +245,35 @@ std::vector<InstrPtr> IrGen::SetAstToInstr(AstNodePtr ast) {
 
   // Ensure we visit the set arguments here so we don't search them
   // multiple times.
+  ast->VisitNodeAndChildren();
+
+  return v;
+}
+
+// TODO: This can probably be re-used for every OP ast (sub, mul, div, mod)
+std::vector<InstrPtr> IrGen::AddAstToInstr(AstNodePtr ast) {
+  std::vector<InstrPtr> v;
+  if (ast->GetType() != AstType::ADD_AST) {
+    return v;
+  }
+
+  auto left_side = ConvertAstToInstr(ast->GetChildAtIndex(0));
+  // Save the register this is in, so we can use it later when we
+  // add the actual ADD instruction.
+  std::string first_add_arg = PrevRegister();
+
+  auto right_side = ConvertAstToInstr(ast->GetChildAtIndex(1));
+
+  std::pair<std::string, std::string> args(first_add_arg, PrevRegister());
+  InstrPtr add = std::make_shared<Instruction>(InstructionType::ADD_INSTR,
+					       args,
+					       PrevRegister());
+  add->SetLabel(curr_lbl_);
+
+  MergeInstrVecs(v, left_side);
+  MergeInstrVecs(v, right_side);
+  v.push_back(add);
+
   ast->VisitNodeAndChildren();
 
   return v;

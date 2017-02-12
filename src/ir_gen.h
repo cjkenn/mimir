@@ -19,12 +19,24 @@ class IrGen {
   std::vector<InstrPtr> Gen(AstNodePtr ast);
 
  private:
+  // Converts an ast branch to a series of instructions. Some ast's
+  // will only require a single instructions, but many require more than
+  // one, so this returns a vector.
   std::vector<InstrPtr> ConvertAstToInstr(AstNodePtr ast);
+
   InstrPtr VarAstToInstr(AstNodePtr ast);
   InstrPtr CstAstToInstr(AstNodePtr ast);
   InstrPtr LtAstToInstr(AstNodePtr ast);
+
   std::vector<InstrPtr> IfElseAstToInstr(AstNodePtr ast);
+  std::vector<InstrPtr> WhileAstToInstr(AstNodePtr ast);
   std::vector<InstrPtr> SetAstToInstr(AstNodePtr ast);
+  std::vector<InstrPtr> AddAstToInstr(AstNodePtr ast);
+
+  // The parenthetical expressions that are used the test
+  // whether we enter ifs or whiles can be generated in the
+  // same manner, so we extract that functionality to this method.
+  std::vector<InstrPtr> ComparisonAstToInstr(AstNodePtr ast);
 
   // Vists nodes in the given ast, and sets their Visited value
   // to false, if it is true. This ensures we can traverse an

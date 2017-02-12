@@ -144,9 +144,87 @@ void test_gen_else_ast() {
   assert(ir[7]->GetDest() == "r3");
 }
 
+// Input:
+//
+// while (x < 10) { x = x + 1; }
+//
+// Expected Output:
+//
+// lbl0:
+// ld x, r0
+// mv 10, r1
+// cmp r0, r1
+// jmpgt lbl1
+// ld x, r2
+// mv 1, r3
+// add r2, r3
+// sv r3
+// jmp lbl0
+// lbl1:
+void test_gen_while_ast() {
+  std::string test_file = "parser_input/while";
+  auto lexer = std::make_shared<Lexer>(test_file);
+  Parser parser(lexer);
+
+  auto ast = parser.Parse();
+  IrGen ir_gen;
+  std::vector<InstrPtr> ir = ir_gen.Gen(ast);
+
+  assert(ir.size() == 9);
+
+  // assert we have the correct instructions
+  assert(ir[0]->GetType() == InstructionType::LD_INSTR);
+  assert(ir[0]->GetLabel() == "lbl0");
+  assert(ir[0]->GetArgs().first == "x");
+  assert(ir[0]->GetArgs().second == "r0");
+  assert(ir[0]->GetDest() == "r0");
+
+  assert(ir[1]->GetType() == InstructionType::MV_INSTR);
+  assert(ir[1]->GetLabel() == "lbl0");
+  assert(ir[1]->GetArgs().first == "10");
+  assert(ir[1]->GetArgs().second == "r1");
+  assert(ir[1]->GetDest() == "r1");
+
+  assert(ir[2]->GetType() == InstructionType::CMP_INSTR);
+  assert(ir[2]->GetLabel() == "lbl0");
+  assert(ir[2]->GetArgs().first == "r0");
+  assert(ir[2]->GetArgs().second == "r1");
+  assert(ir[2]->GetDest() == "r0");
+
+  assert(ir[3]->GetType() == InstructionType::JMPGT_INSTR);
+  assert(ir[3]->GetLabel() == "lbl0");
+  assert(ir[3]->GetDest() == "lbl1");
+
+  assert(ir[4]->GetType() == InstructionType::LD_INSTR);
+  assert(ir[4]->GetLabel() == "lbl0");
+  assert(ir[4]->GetArgs().first == "x");
+  assert(ir[4]->GetArgs().second == "r2");
+  assert(ir[4]->GetDest() == "r2");
+
+  assert(ir[5]->GetType() == InstructionType::MV_INSTR);
+  assert(ir[5]->GetLabel() == "lbl0");
+  assert(ir[5]->GetArgs().first == "1");
+  assert(ir[5]->GetArgs().second == "r3");
+  assert(ir[5]->GetDest() == "r3");
+
+  assert(ir[6]->GetType() == InstructionType::ADD_INSTR);
+  assert(ir[6]->GetLabel() == "lbl0");
+  assert(ir[6]->GetArgs().first == "r2");
+  assert(ir[6]->GetArgs().second == "r3");
+  assert(ir[6]->GetDest() == "r3");
+
+  assert(ir[7]->GetType() == InstructionType::SV_INSTR);
+  assert(ir[7]->GetLabel() == "lbl0");
+  assert(ir[7]->GetDest() == "r3");
+
+  assert(ir[8]->GetType() == InstructionType::JMP_INSTR);
+  assert(ir[8]->GetDest() == "lbl0");
+}
+
 int main(int argc, char** argv) {
   test_gen_if_ast();
   test_gen_else_ast();
+  test_gen_while_ast();
 
   std::cout << "Ir gen tests passed!" << std::endl;
   return 0;

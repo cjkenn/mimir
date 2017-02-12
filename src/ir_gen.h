@@ -23,7 +23,7 @@ class IrGen {
   InstrPtr VarAstToInstr(AstNodePtr ast);
   InstrPtr CstAstToInstr(AstNodePtr ast);
   InstrPtr LtAstToInstr(AstNodePtr ast);
-  std::vector<InstrPtr> IfAstToInstr(AstNodePtr ast);
+  std::vector<InstrPtr> IfElseAstToInstr(AstNodePtr ast);
   std::vector<InstrPtr> SetAstToInstr(AstNodePtr ast);
 
   // Vists nodes in the given ast, and sets their Visited value

@@ -63,7 +63,7 @@ std::vector<InstrPtr> IrGen::ConvertAstToInstr(AstNodePtr ast) {
   case AstType::ELSE_AST:
   case AstType::IF_AST:
     {
-      auto if_instrs = IfAstToInstr(ast);
+      auto if_instrs = IfElseAstToInstr(ast);
       MergeInstrVecs(instrs, if_instrs);
       break;
     }
@@ -129,13 +129,8 @@ InstrPtr IrGen::LtAstToInstr(AstNodePtr ast) {
   return ins;
 }
 
-// Multiple instructions are needed to convert the if ast
-// This function only generates the single block that contains
-// the test of the if. Then, the next ast node analyzed will contain
-// the next sequence of instructions, and that will be added as the next block.
-//
 // We expect the ast param to be of type IF_AST or ELSE_AST
-std::vector<InstrPtr> IrGen::IfAstToInstr(AstNodePtr ast) {
+std::vector<InstrPtr> IrGen::IfElseAstToInstr(AstNodePtr ast) {
   std::vector<InstrPtr> v;
 
   auto if_expr_ast = ast->GetChildAtIndex(0);
@@ -176,6 +171,16 @@ std::vector<InstrPtr> IrGen::IfAstToInstr(AstNodePtr ast) {
   // we need to advance the label so the subsequent instructions are
   // jumped to correctly if the if expression evaluates to false.
   AdvanceLabel();
+
+  // Write instructions for the code that follows in the else block,
+  // if that is the type of ast we were passed in.
+  if (ast->GetType() == AstType::ELSE_AST) {
+    auto else_ast = ast->GetChildAtIndex(2);
+    auto else_instrs = ConvertAstToInstr(else_ast);
+    MergeInstrVecs(v, else_instrs);
+
+    else_ast->VisitNodeAndChildren();
+  }
 
   return v;
 }

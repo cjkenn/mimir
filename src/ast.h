@@ -1,4 +1,5 @@
 #pragma once
+
 #include <string>
 #include <memory>
 #include <vector>
@@ -59,8 +60,13 @@ class AstNode {
 
  private:
   AstType type_;
+
+  // The value is set if the ast needs a number.
   int val_;
+
+  // Text represents the name of the variable an ast can encode.
   std::string text_;
+
   std::string debug_;
   std::vector<AstNodePtr> children_;
   bool visited_;

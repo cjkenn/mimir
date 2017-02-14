@@ -6,13 +6,11 @@
 #include "token.h"
 #include "lexer.h"
 
-using namespace std;
-
 Lexer::Lexer() {
   lastchar_ = ' ';
 }
 
-Lexer::Lexer(string filename) {
+Lexer::Lexer(std::string filename) {
   lastchar_ = ' ';
   ifs_.open(filename.c_str());
 }
@@ -37,59 +35,58 @@ Token Lexer::Lex() {
     }
   }
 
-
   // Lex a single character symbol
   switch (lastchar_) {
   case '(':
-    tkn = Token(LEFT_PAREN_TKN);
+    tkn = Token(TokenType::LEFT_PAREN_TKN);
     Advance();
     return tkn;
   case ')':
-    tkn = Token(RIGHT_PAREN_TKN);
+    tkn = Token(TokenType::RIGHT_PAREN_TKN);
     Advance();
     return tkn;
   case '{':
-    tkn = Token(LEFT_BRACE_TKN);
+    tkn = Token(TokenType::LEFT_BRACE_TKN);
     Advance();
     return tkn;
   case '}':
-    tkn = Token(RIGHT_BRACE_TKN);
+    tkn = Token(TokenType::RIGHT_BRACE_TKN);
     Advance();
     return tkn;
   case '+':
-    tkn = Token(PLUS_TKN);
+    tkn = Token(TokenType::PLUS_TKN);
     Advance();
     return tkn;
   case '-':
-    tkn = Token(MINUS_TKN);
+    tkn = Token(TokenType::MINUS_TKN);
     Advance();
     return tkn;
   case '*':
-    tkn = Token(MULT_TKN);
+    tkn = Token(TokenType::MULT_TKN);
     Advance();
     return tkn;
   case '/':
-    tkn = Token(DIV_TKN);
+    tkn = Token(TokenType::DIV_TKN);
     Advance();
     return tkn;
   case '%':
-    tkn = Token(MOD_TKN);
+    tkn = Token(TokenType::MOD_TKN);
     Advance();
     return tkn;
   case '<':
-    tkn = Token(LT_TKN);
+    tkn = Token(TokenType::LT_TKN);
     Advance();
     return tkn;
   case ';':
-    tkn = Token(SEMICOLON_TKN);
+    tkn = Token(TokenType::SEMICOLON_TKN);
     Advance();
     return tkn;
   case '=':
-    tkn = Token(EQUALS_TKN);
+    tkn = Token(TokenType::EQUALS_TKN);
     Advance();
     return tkn;
   default:
-    tkn = Token(EOF_TKN);
+    tkn = Token(TokenType::EOF_TKN);
     break;
   }
 
@@ -107,7 +104,7 @@ Token Lexer::Lex() {
 }
 
 Token Lexer::GetNumTkn() {
-  string num_str = "";
+  std::string num_str = "";
   num_str += lastchar_;
   ifs_.get(lastchar_);
 
@@ -117,11 +114,11 @@ Token Lexer::GetNumTkn() {
   }
   int val = strtod(num_str.c_str(), 0);
 
-  return Token(NUM_TKN, val);
+  return Token(TokenType::NUM_TKN, val);
 }
 
 Token Lexer::GetStrTkn() {
-  string ident = "";
+  std::string ident = "";
   ident += lastchar_;
 
   ifs_.get(lastchar_);
@@ -132,18 +129,18 @@ Token Lexer::GetStrTkn() {
   }
 
   if (ident == "while") {
-    return Token(WHILE_TKN, ident);
+    return Token(TokenType::WHILE_TKN, ident);
   }
 
   if (ident == "if") {
-    return Token(IF_TKN, ident);
+    return Token(TokenType::IF_TKN, ident);
   }
 
   if (ident == "else") {
-    return Token(ELSE_TKN, ident);
+    return Token(TokenType::ELSE_TKN, ident);
   }
 
-  return Token(ID_TKN, ident);
+  return Token(TokenType::ID_TKN, ident);
 }
 
 void Lexer::Advance() {

@@ -41,15 +41,15 @@ void Token::Debug() {
 
 string Token::GetPrettyType() {
   switch (type_) {
-  case ID_TKN:
+  case TokenType::ID_TKN:
     return "Identifier";
-  case NUM_TKN:
+  case TokenType::NUM_TKN:
     return "Number";
-  case IF_TKN:
+  case TokenType::IF_TKN:
     return "'If' keyword";
-  case ELSE_TKN:
+  case TokenType::ELSE_TKN:
     return "'Else' keyword";
-  case WHILE_TKN:
+  case TokenType::WHILE_TKN:
     return "'While' keyword";
   default:
     string type_str = "";

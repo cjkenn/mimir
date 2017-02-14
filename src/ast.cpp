@@ -60,33 +60,33 @@ void AstNode::Debug() {
 
 string AstNode::GetPrettyType() {
   switch(type_) {
-  case VAR_AST:
+  case AstType::VAR_AST:
     return "Variable declaration AST";
-  case CST_AST:
+  case AstType::CST_AST:
     return "Constant declaration AST";
-  case ADD_AST:
+  case AstType::ADD_AST:
     return "Addition expression AST";
-  case SUB_AST:
+  case AstType::SUB_AST:
     return "Subtraction expression AST";
-  case LT_AST:
+  case AstType::LT_AST:
     return "Less than expression AST";
-  case SET_AST:
+  case AstType::SET_AST:
     return "Assignment expression AST";
-  case IF_AST:
+  case AstType::IF_AST:
     return "If statement AST";
-  case ELSE_AST:
+  case AstType::ELSE_AST:
     return "Else statement AST";
-  case WHILE_AST:
+  case AstType::WHILE_AST:
     return "While statement AST";
-  case SEQ_AST:
+  case AstType::SEQ_AST:
     return "Sequence AST";
-  case EXPR_AST:
+  case AstType::EXPR_AST:
     return "Expression AST";
-  case PROG_AST:
+  case AstType::PROG_AST:
     return "Top level program AST";
-  case EMPTY_AST:
+  case AstType::EMPTY_AST:
     return "Empty AST node";
-  case EOF_AST:
+  case AstType::EOF_AST:
     return "End of file";
   default:
     return "Unknown ast type!";

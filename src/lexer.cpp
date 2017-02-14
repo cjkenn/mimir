@@ -24,62 +24,69 @@ Lexer::~Lexer() {
 Token Lexer::Lex() {
   Token tkn;
 
+  if (lastchar_ == -1) {
+    tkn = Token(TokenType::EOF_TKN);
+    return tkn;
+  }
+
   // Skip whitespace
   while (isspace(lastchar_)) {
     if (!ifs_.get(lastchar_)) {
-      break;
+      tkn = Token(TokenType::EOF_TKN);
+      return tkn;
     }
   }
+
 
   // Lex a single character symbol
   switch (lastchar_) {
   case '(':
     tkn = Token(LEFT_PAREN_TKN);
-    ifs_.get(lastchar_);
+    Advance();
     return tkn;
   case ')':
     tkn = Token(RIGHT_PAREN_TKN);
-    ifs_.get(lastchar_);
+    Advance();
     return tkn;
   case '{':
     tkn = Token(LEFT_BRACE_TKN);
-    ifs_.get(lastchar_);
+    Advance();
     return tkn;
   case '}':
     tkn = Token(RIGHT_BRACE_TKN);
-    ifs_.get(lastchar_);
+    Advance();
     return tkn;
   case '+':
     tkn = Token(PLUS_TKN);
-    ifs_.get(lastchar_);
+    Advance();
     return tkn;
   case '-':
     tkn = Token(MINUS_TKN);
-    ifs_.get(lastchar_);
+    Advance();
     return tkn;
   case '*':
     tkn = Token(MULT_TKN);
-    ifs_.get(lastchar_);
+    Advance();
     return tkn;
   case '/':
     tkn = Token(DIV_TKN);
-    ifs_.get(lastchar_);
+    Advance();
     return tkn;
   case '%':
     tkn = Token(MOD_TKN);
-    ifs_.get(lastchar_);
+    Advance();
     return tkn;
   case '<':
     tkn = Token(LT_TKN);
-    ifs_.get(lastchar_);
+    Advance();
     return tkn;
   case ';':
     tkn = Token(SEMICOLON_TKN);
-    ifs_.get(lastchar_);
+    Advance();
     return tkn;
   case '=':
     tkn = Token(EQUALS_TKN);
-    ifs_.get(lastchar_);
+    Advance();
     return tkn;
   default:
     tkn = Token(EOF_TKN);
@@ -137,4 +144,10 @@ Token Lexer::GetStrTkn() {
   }
 
   return Token(ID_TKN, ident);
+}
+
+void Lexer::Advance() {
+  if (!ifs_.get(lastchar_)) {
+    lastchar_ = -1;
+  }
 }

@@ -52,9 +52,6 @@ class AstNode {
   bool IsVisited() const { return visited_; }
   void SetVisited(bool v) { visited_ = v; }
 
-  bool NeedsIrLabel() const { return needs_ir_label_; }
-  void SetNeedsIrLabel(bool l) { needs_ir_label_ = l; }
-
   void VisitNodeAndChildren();
   void Debug();
 

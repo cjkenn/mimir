@@ -1,5 +1,6 @@
 #include <string>
 #include <iostream>
+#include <stdlib.h>
 #include "token.h"
 #include "parser.h"
 #include "ast.h"
@@ -18,8 +19,10 @@ AstNodePtr Parser::Program() {
   auto head = std::make_shared<AstNode>(PROG_AST);
   GetNextTkn();
 
-  // TODO: Can only parse one LINE at a time
-  head->AddChild(Statement());
+  // TODO: Can only parse one statement at a time
+  while (curr_tkn_.GetType() != TokenType::EOF_TKN) {
+    head->AddChild(Statement());
+  }
 
   return head;
 }
@@ -38,16 +41,15 @@ AstNodePtr Parser::Statement() {
       statement_ast->SetType(ELSE_AST);
       GetNextTkn();
       statement_ast->AddChild(Statement());
-
-      // We add some extra info to the ast to let the IR know we need a label here.
-      statement_ast->GetChildAtIndex(2)->SetNeedsIrLabel(true);
     }
+
     break;
   case WHILE_TKN:
     statement_ast->SetType(WHILE_AST);
     GetNextTkn();
     statement_ast->AddChild(ParenExpr());
     statement_ast->AddChild(Statement());
+
     break;
   case SEMICOLON_TKN:
     GetNextTkn();
@@ -174,6 +176,7 @@ void Parser::Expect(TokenType expected_type) {
 
     cout << "Current token: " << endl;
     curr_tkn_.Debug();
+    std::exit(1);
   }
 }
 

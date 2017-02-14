@@ -14,6 +14,8 @@ class Lexer {
  private:
   Token GetNumTkn();
   Token GetStrTkn();
+  void Advance();
+
   std::ifstream ifs_;
   char lastchar_;
 };

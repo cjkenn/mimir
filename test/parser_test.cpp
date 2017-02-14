@@ -301,12 +301,65 @@ void test_parse_while() {
   assert(next_set_ast->GetChildren().size() == 2);
 }
 
+// Expected format:
+//
+//       ___Program___
+//     _/             \_
+//    Expr            Expr
+//     |               |
+//    Set             Set
+//  _/  \_          _/  \_
+// Var  Num        Var  Num
+void test_parse_two_statements() {
+  std::string test_file = "parser_input/two_statements";
+  auto lexer = std::make_shared<Lexer>(test_file);
+  Parser parser(lexer);
+
+  auto ast = parser.Parse();
+
+  assert(ast->GetType() == AstType::PROG_AST);
+  assert(ast->GetChildren().size() == 2);
+
+  auto first_expr_ast = ast->GetChildren()[0];
+  assert(first_expr_ast->GetType() == AstType::EXPR_AST);
+  assert(first_expr_ast->GetChildren().size() == 1);
+
+  auto second_expr_ast = ast->GetChildren()[1];
+  assert(second_expr_ast->GetType() == AstType::EXPR_AST);
+  assert(second_expr_ast->GetChildren().size() == 1);
+
+  auto first_set_ast = first_expr_ast->GetChildren()[0];
+  assert(first_set_ast->GetType() == AstType::SET_AST);
+  assert(first_set_ast->GetChildren().size() == 2);
+
+  auto second_set_ast = second_expr_ast->GetChildren()[0];
+  assert(second_set_ast->GetType() == AstType::SET_AST);
+  assert(second_set_ast->GetChildren().size() == 2);
+
+  auto first_var_ast = first_set_ast->GetChildren()[0];
+  assert(first_var_ast->GetType() == AstType::VAR_AST);
+  assert(first_var_ast->GetText() == "x");
+
+  auto first_num_ast = first_set_ast->GetChildren()[1];
+  assert(first_num_ast->GetType() == AstType::CST_AST);
+  assert(first_num_ast->GetVal() == 1);
+
+  auto second_var_ast = second_set_ast->GetChildren()[0];
+  assert(second_var_ast->GetType() == AstType::VAR_AST);
+  assert(second_var_ast->GetText() == "y");
+
+  auto second_num_ast = second_set_ast->GetChildren()[1];
+  assert(second_num_ast->GetType() == AstType::CST_AST);
+  assert(second_num_ast->GetVal() == 2);
+}
+
 int main(int argc, char** argv) {
   test_parse_assign();
   test_parse_assign_expression();
   test_parse_if();
   test_parse_if_else();
   test_parse_while();
+  test_parse_two_statements();
 
   std::cout << "Parser Tests passed!" << std::endl;
   return 0;

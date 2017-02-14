@@ -31,12 +31,18 @@ class IrGen {
   std::vector<InstrPtr> IfElseAstToInstr(AstNodePtr ast);
   std::vector<InstrPtr> WhileAstToInstr(AstNodePtr ast);
   std::vector<InstrPtr> SetAstToInstr(AstNodePtr ast);
-  std::vector<InstrPtr> AddAstToInstr(AstNodePtr ast);
+  std::vector<InstrPtr> BinOpAstToInstr(AstNodePtr ast);
 
   // The parenthetical expressions that are used the test
   // whether we enter ifs or whiles can be generated in the
   // same manner, so we extract that functionality to this method.
   std::vector<InstrPtr> ComparisonAstToInstr(AstNodePtr ast);
+
+  // Maps the ast types for binary operations to the
+  // instruction types for the same ops. This function exists
+  // so we can use the same BinOpAstToInstr method for every
+  // binary op, instead of a different method for each op.
+  InstructionType GetBinOpInstrTypeFromAst(AstNodePtr ast);
 
   // Vists nodes in the given ast, and sets their Visited value
   // to false, if it is true. This ensures we can traverse an

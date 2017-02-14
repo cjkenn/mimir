@@ -80,8 +80,9 @@ std::vector<InstrPtr> IrGen::ConvertAstToInstr(AstNodePtr ast) {
       break;
     }
   case AstType::ADD_AST:
+  case AstType::SUB_AST:
     {
-      auto add_instrs = AddAstToInstr(ast);
+      auto add_instrs = BinOpAstToInstr(ast);
       MergeInstrVecs(instrs, add_instrs);
       break;
     }
@@ -99,6 +100,9 @@ std::vector<InstrPtr> IrGen::ConvertAstToInstr(AstNodePtr ast) {
       instrs = ConvertAstToInstr(next_ast);
       break;
     }
+  case AstType::PROG_AST:
+  case AstType::EMPTY_AST:
+  case AstType::EOF_AST:
   default:
     break;
   }
@@ -250,12 +254,9 @@ std::vector<InstrPtr> IrGen::SetAstToInstr(AstNodePtr ast) {
   return v;
 }
 
-// TODO: This can probably be re-used for every OP ast (sub, mul, div, mod)
-std::vector<InstrPtr> IrGen::AddAstToInstr(AstNodePtr ast) {
+std::vector<InstrPtr> IrGen::BinOpAstToInstr(AstNodePtr ast) {
   std::vector<InstrPtr> v;
-  if (ast->GetType() != AstType::ADD_AST) {
-    return v;
-  }
+  auto op_instr_type = GetBinOpInstrTypeFromAst(ast);
 
   auto left_side = ConvertAstToInstr(ast->GetChildAtIndex(0));
   // Save the register this is in, so we can use it later when we
@@ -265,7 +266,7 @@ std::vector<InstrPtr> IrGen::AddAstToInstr(AstNodePtr ast) {
   auto right_side = ConvertAstToInstr(ast->GetChildAtIndex(1));
 
   std::pair<std::string, std::string> args(first_add_arg, PrevRegister());
-  InstrPtr add = std::make_shared<Instruction>(InstructionType::ADD_INSTR,
+  InstrPtr add = std::make_shared<Instruction>(op_instr_type,
 					       args,
 					       PrevRegister());
   add->SetLabel(curr_lbl_);
@@ -277,6 +278,16 @@ std::vector<InstrPtr> IrGen::AddAstToInstr(AstNodePtr ast) {
   ast->VisitNodeAndChildren();
 
   return v;
+}
+
+InstructionType IrGen::GetBinOpInstrTypeFromAst(AstNodePtr ast) {
+  auto ast_type = ast->GetType();
+
+  if (ast_type == AstType::ADD_AST) {
+    return InstructionType::ADD_INSTR;
+  } else {
+    return InstructionType::SUB_INSTR;
+  }
 }
 
 void IrGen::ResetAst(AstNodePtr ast) {

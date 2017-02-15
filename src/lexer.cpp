@@ -62,21 +62,41 @@ Token Lexer::Lex() {
     Advance();
     return tkn;
   case '*':
-    tkn = Token(TokenType::MULT_TKN);
+    tkn = Token(TokenType::STAR_TKN);
     Advance();
     return tkn;
   case '/':
-    tkn = Token(TokenType::DIV_TKN);
+    tkn = Token(TokenType::BACKSLASH_TKN);
     Advance();
     return tkn;
   case '%':
-    tkn = Token(TokenType::MOD_TKN);
+    tkn = Token(TokenType::PERCENT_TKN);
     Advance();
     return tkn;
   case '<':
-    tkn = Token(TokenType::LT_TKN);
-    Advance();
-    return tkn;
+    {
+      char next = Peek();
+      if (next == '=') {
+	tkn = Token(TokenType::LTE_TKN);
+	Advance();
+      } else {
+	tkn = Token(TokenType::LT_TKN);
+      }
+      Advance();
+      return tkn;
+    }
+  case '>':
+    {
+      char next = Peek();
+      if (next == '=') {
+	tkn = Token(TokenType::GTE_TKN);
+	Advance();
+      } else {
+	tkn = Token(TokenType::GT_TKN);
+      }
+      Advance();
+      return tkn;
+    }
   case ';':
     tkn = Token(TokenType::SEMICOLON_TKN);
     Advance();
@@ -147,4 +167,8 @@ void Lexer::Advance() {
   if (!ifs_.get(lastchar_)) {
     lastchar_ = -1;
   }
+}
+
+char Lexer::Peek() {
+  return ifs_.peek();
 }

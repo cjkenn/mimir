@@ -2,8 +2,6 @@
 #include <sstream>
 #include "token.h"
 
-using namespace std;
-
 Token::Token() {}
 
 Token::~Token() {}
@@ -19,14 +17,14 @@ Token::Token(TokenType type, int val) {
   SetDebug();
 }
 
-Token::Token(TokenType type, string text) {
+Token::Token(TokenType type, std::string text) {
   type_ = type;
   text_ = text;
   SetDebug();
 }
 
 void Token::SetDebug() {
-  stringstream debug_stream;
+  std::stringstream debug_stream;
   debug_stream << "{\n TokenType: " << GetPrettyType() <<
     "\n Value: " << val_ <<
     "\n Text: " << text_ <<
@@ -36,10 +34,10 @@ void Token::SetDebug() {
 }
 
 void Token::Debug() {
-  cout << debug_ << endl;
+  std::cout << debug_ << std::endl;
 }
 
-string Token::GetPrettyType() {
+std::string Token::GetPrettyType() {
   switch (type_) {
   case TokenType::ID_TKN:
     return "Identifier";
@@ -51,8 +49,37 @@ string Token::GetPrettyType() {
     return "'Else' keyword";
   case TokenType::WHILE_TKN:
     return "'While' keyword";
+  case TokenType::LEFT_PAREN_TKN:
+    return "(";
+  case TokenType::RIGHT_PAREN_TKN:
+    return ")";
+  case TokenType::LEFT_BRACE_TKN:
+    return "{";
+  case TokenType::RIGHT_BRACE_TKN:
+    return "}";
+  case TokenType::PLUS_TKN:
+    return "+";
+  case TokenType::MINUS_TKN:
+    return "-";
+  case TokenType::STAR_TKN:
+    return "*";
+  case TokenType::BACKSLASH_TKN:
+    return "/";
+  case TokenType::PERCENT_TKN:
+    return "%";
+  case TokenType::SEMICOLON_TKN:
+    return ";";
+  case TokenType::EQUALS_TKN:
+    return "=";
+  case TokenType::LT_TKN:
+    return "<";
+  case TokenType::LTE_TKN:
+    return "<=";
+  case TokenType::GT_TKN:
+    return ">";
+  case TokenType::GTE_TKN:
+    return ">=";
   default:
-    string type_str = "";
-    return type_str + (char)type_;
+    return "Unknown token type";
   }
 }

@@ -20,6 +20,10 @@ class Lexer {
   // that we will get and EOF token.
   void Advance();
 
+  // Look ahead to the next char and return it. Ensures that we do not
+  // consume the current char in the file stream.
+  char Peek();
+
   std::ifstream ifs_;
   char lastchar_;
 };

@@ -10,7 +10,7 @@
 //
 //      Program
 //         |
-//     Expression
+//        Expr
 //         |
 //        Set
 //      _/   \_
@@ -93,6 +93,78 @@ void test_parse_assign_expression() {
   auto second_term_ast = add_ast->GetChildren()[1];
   assert(second_term_ast->GetType() == AstType::CST_AST);
   assert(second_term_ast->GetVal() == 2);
+}
+
+// Expected format:
+//
+//      Program
+//         |
+//        Expr
+//         |
+//        Mul
+//      _/  \_
+//    Num    Num
+void test_parse_mul_expr() {
+  std::string test_file = "parser_input/mul_expr";
+  auto lexer = std::make_shared<Lexer>(test_file);
+  Parser parser(lexer);
+
+  auto ast = parser.Parse();
+
+  assert(ast->GetType() == AstType::PROG_AST);
+  assert(ast->GetChildren().size() == 1);
+
+  auto expr_ast = ast->GetChildren()[0];
+  assert(expr_ast->GetType() == AstType::EXPR_AST);
+  assert(expr_ast->GetChildren().size() == 1);
+
+  auto mul_ast = expr_ast->GetChildren()[0];
+  assert(mul_ast->GetType() == AstType::MUL_AST);
+  assert(mul_ast->GetChildren().size() == 2);
+
+  auto first_term_ast = mul_ast->GetChildren()[0];
+  assert(first_term_ast->GetType() == AstType::CST_AST);
+  assert(first_term_ast->GetVal() == 5);
+
+  auto second_term_ast = mul_ast->GetChildren()[1];
+  assert(second_term_ast->GetType() == AstType::CST_AST);
+  assert(second_term_ast->GetVal() == 6);
+}
+
+// Expected format:
+//
+//      Program
+//         |
+//        Expr
+//         |
+//        Div
+//      _/  \_
+//    Num    Num
+void test_parse_div_expr() {
+  std::string test_file = "parser_input/div_expr";
+  auto lexer = std::make_shared<Lexer>(test_file);
+  Parser parser(lexer);
+
+  auto ast = parser.Parse();
+
+  assert(ast->GetType() == AstType::PROG_AST);
+  assert(ast->GetChildren().size() == 1);
+
+  auto expr_ast = ast->GetChildren()[0];
+  assert(expr_ast->GetType() == AstType::EXPR_AST);
+  assert(expr_ast->GetChildren().size() == 1);
+
+  auto mul_ast = expr_ast->GetChildren()[0];
+  assert(mul_ast->GetType() == AstType::DIV_AST);
+  assert(mul_ast->GetChildren().size() == 2);
+
+  auto first_term_ast = mul_ast->GetChildren()[0];
+  assert(first_term_ast->GetType() == AstType::CST_AST);
+  assert(first_term_ast->GetVal() == 5);
+
+  auto second_term_ast = mul_ast->GetChildren()[1];
+  assert(second_term_ast->GetType() == AstType::CST_AST);
+  assert(second_term_ast->GetVal() == 6);
 }
 
 // Expected format:
@@ -356,6 +428,8 @@ void test_parse_two_statements() {
 int main(int argc, char** argv) {
   test_parse_assign();
   test_parse_assign_expression();
+  test_parse_mul_expr();
+  test_parse_div_expr();
   test_parse_if();
   test_parse_if_else();
   test_parse_while();

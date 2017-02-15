@@ -108,34 +108,33 @@ AstNodePtr Parser::Expr() {
 }
 
 AstNodePtr Parser::Test() {
-  AstNodePtr test_ast = Sum();
+  AstNodePtr test_ast = BinOp();
 
-  if (curr_tkn_.GetType() == TokenType::LT_TKN) {
+  if (CurrTknIsTestTkn()) {
     AstNodePtr less_ast = test_ast;
-    test_ast = std::make_shared<AstNode>(AstType::LT_AST);
+    AstType curr_ast_type = GetTestAstFromTkn();
+
+    test_ast = std::make_shared<AstNode>(curr_ast_type);
     GetNextTkn();
 
     test_ast->AddChild(less_ast);
-    test_ast->AddChild(Sum());
+    test_ast->AddChild(BinOp());
   }
 
   return test_ast;
 }
 
-AstNodePtr Parser::Sum() {
+AstNodePtr Parser::BinOp() {
   AstNodePtr sum_ast = Term();
-  while (curr_tkn_.GetType() == TokenType::PLUS_TKN || curr_tkn_.GetType() == TokenType::MINUS_TKN) {
+
+  while (CurrTknIsBinOpTkn()) {
     AstNodePtr op_ast = sum_ast;
+    AstType curr_ast_type = GetBinOpAstFromTkn();
 
-    AstType curr_type = AstType::ADD_AST;
-    if (curr_tkn_.GetType() == TokenType::MINUS_TKN) {
-      curr_type = AstType::SUB_AST;
-    }
-
-    sum_ast = std::make_shared<AstNode>(curr_type);
+    sum_ast = std::make_shared<AstNode>(curr_ast_type);
     GetNextTkn();
     sum_ast->AddChild(op_ast);
-    sum_ast->AddChild(Sum());
+    sum_ast->AddChild(BinOp());
   }
 
   return sum_ast;
@@ -182,6 +181,59 @@ void Parser::Expect(TokenType expected_type) {
 
 void Parser::GetNextTkn() {
   curr_tkn_ = lexer_->Lex();
+}
+
+bool Parser::CurrTknIsBinOpTkn() {
+  TokenType curr_type = curr_tkn_.GetType();
+  return (curr_type == TokenType::PLUS_TKN ||
+	  curr_type == TokenType::MINUS_TKN ||
+	  curr_type == TokenType::STAR_TKN ||
+	  curr_type == TokenType::BACKSLASH_TKN ||
+	  curr_type == TokenType::PERCENT_TKN);
+}
+
+AstType Parser::GetBinOpAstFromTkn() {
+  TokenType curr_type = curr_tkn_.GetType();
+
+  switch (curr_type) {
+  case TokenType::PLUS_TKN:
+    return AstType::ADD_AST;
+  case TokenType::MINUS_TKN:
+    return AstType::SUB_AST;
+  case TokenType::STAR_TKN:
+    return AstType::MUL_AST;
+  case TokenType::BACKSLASH_TKN:
+    return AstType::DIV_AST;
+  case TokenType::PERCENT_TKN:
+    return AstType::MOD_AST;
+  default:
+    return AstType::EMPTY_AST;
+  }
+}
+
+bool Parser::CurrTknIsTestTkn() {
+  TokenType curr_type = curr_tkn_.GetType();
+  return (curr_type == TokenType::GT_TKN ||
+	  curr_type == TokenType::LT_TKN ||
+	  curr_type == TokenType::LTE_TKN ||
+	  curr_type == TokenType::GTE_TKN);
+}
+
+AstType Parser::GetTestAstFromTkn() {
+  TokenType curr_type = curr_tkn_.GetType();
+
+  switch (curr_type) {
+  case TokenType::LT_TKN:
+    return AstType::LT_AST;
+  case TokenType::GT_TKN:
+    return AstType::GT_AST;
+  case TokenType::LTE_TKN:
+    return AstType::LTE_AST;
+  case TokenType::GTE_TKN:
+    return AstType::GTE_AST;
+  default:
+    return AstType::EMPTY_AST;
+  }
 }
 
 void Parser::LogError(string error) {

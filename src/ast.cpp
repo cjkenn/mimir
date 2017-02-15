@@ -66,6 +66,12 @@ string AstNode::GetPrettyType() {
     return "Constant declaration AST";
   case AstType::ADD_AST:
     return "Addition expression AST";
+  case AstType::MUL_AST:
+    return "Multiplication expression AST";
+  case AstType::DIV_AST:
+    return "Division expression AST";
+  case AstType::MOD_AST:
+    return "Mod expression AST";
   case AstType::SUB_AST:
     return "Subtraction expression AST";
   case AstType::LT_AST:

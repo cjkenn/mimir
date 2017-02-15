@@ -4,8 +4,9 @@
 #include "../src/lexer.h"
 
 // Test the Lex function on some single char symbols.
-// We don't test all symbols exhaustively, but this
-// sample of single chars should suffice.
+// The order of the assert statements matters here,
+// because it must match the order of the symbols in the
+// input file.
 void test_lex_symbols() {
   std::string test_file = "lexer_input/symbol";
   Lexer lexer(test_file);
@@ -24,6 +25,27 @@ void test_lex_symbols() {
 
   Token equals_tkn = lexer.Lex();
   assert(equals_tkn.GetType() == TokenType::EQUALS_TKN);
+
+  Token star_tkn = lexer.Lex();
+  assert(star_tkn.GetType() == TokenType::STAR_TKN);
+
+  Token slash_tkn = lexer.Lex();
+  assert(slash_tkn.GetType() == TokenType::BACKSLASH_TKN);
+
+  Token percent_tkn = lexer.Lex();
+  assert(percent_tkn.GetType() == TokenType::PERCENT_TKN);
+
+  Token lt_tkn = lexer.Lex();
+  assert(lt_tkn.GetType() == TokenType::LT_TKN);
+
+  Token gt_tkn = lexer.Lex();
+  assert(gt_tkn.GetType() == TokenType::GT_TKN);
+
+  Token lte_tkn = lexer.Lex();
+  assert(lte_tkn.GetType() == TokenType::LTE_TKN);
+
+  Token gte_tkn = lexer.Lex();
+  assert(gte_tkn.GetType() == TokenType::GTE_TKN);
 }
 
 // Test the Lex function on an identifier.

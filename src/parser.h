@@ -19,10 +19,15 @@ class Parser {
   AstNodePtr ParenExpr();
   AstNodePtr Expr();
   AstNodePtr Test();
-  AstNodePtr Sum();
+  AstNodePtr BinOp();
   AstNodePtr Term();
+
   void Expect(TokenType expected_type);
   void GetNextTkn();
+  bool CurrTknIsBinOpTkn();
+  AstType GetBinOpAstFromTkn();
+  bool CurrTknIsTestTkn();
+  AstType GetTestAstFromTkn();
   std::string PrettifyTokenType(TokenType type);
 
   std::shared_ptr<Lexer> lexer_;

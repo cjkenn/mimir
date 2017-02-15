@@ -5,14 +5,11 @@
 #include "ast.h"
 #include "lexer.h"
 #include "parser.h"
-#include "gen.h"
-
-using namespace std;
 
 int main(int argc, char *argv[]) {
   if (argc < 2) {
-    cout << "Please provide a filename!" << endl;
-    cout << "Usage: mimir {filename}" << endl;
+    std::cout << "Please provide a filename!" << std::endl;
+    std::cout << "Usage: mimir {filename}" << std::endl;
     exit(1);
   }
 
@@ -21,9 +18,6 @@ int main(int argc, char *argv[]) {
   auto lexer = std::make_shared<Lexer>(filename);
   Parser parser = Parser(lexer);
   auto program = parser.Parse();
-
-  Gen gen = Gen(program, filename);
-  gen.Generate(TYR_GEN);
 
   return 0;
 }

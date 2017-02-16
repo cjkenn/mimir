@@ -93,6 +93,8 @@ std::vector<InstrPtr> IrGen::ConvertAstToInstr(AstNodePtr ast) {
   case AstType::GT_AST:
   case AstType::GTE_AST:
   case AstType::LTE_AST:
+  case AstType::EQEQ_AST:
+  case AstType::NEQ_AST:
     instrs.push_back(TestAstToInstr(ast));
     break;
   case AstType::SEQ_AST:
@@ -302,7 +304,7 @@ InstructionType IrGen::GetBinOpInstrTypeFromAst(AstNodePtr ast) {
     return InstructionType::MOD_INSTR;
   default:
     // TODO: Error here
-    return InstructionType::NOP_INSTR;;
+    return InstructionType::NOP_INSTR;
   }
 }
 
@@ -318,7 +320,12 @@ InstructionType IrGen::GetJmpInstrTypeFromAst(AstNodePtr ast) {
     return InstructionType::JMPGTE_INSTR;
   case AstType::GTE_AST:
     return InstructionType::JMPLTE_INSTR;
+  case AstType::EQEQ_AST:
+    return InstructionType::JMPNEQ_INSTR;
+  case AstType::NEQ_AST:
+    return InstructionType::JMPEQ_INSTR;
   default:
+    // TODO: Error here
     return InstructionType::NOP_INSTR;
   }
 }

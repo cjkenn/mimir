@@ -24,7 +24,7 @@ void test_lex_symbols() {
   assert(minus_tkn.GetType() == TokenType::MINUS_TKN);
 
   Token equals_tkn = lexer.Lex();
-  assert(equals_tkn.GetType() == TokenType::EQUALS_TKN);
+  assert(equals_tkn.GetType() == TokenType::EQ_TKN);
 
   Token star_tkn = lexer.Lex();
   assert(star_tkn.GetType() == TokenType::STAR_TKN);
@@ -34,6 +34,9 @@ void test_lex_symbols() {
 
   Token percent_tkn = lexer.Lex();
   assert(percent_tkn.GetType() == TokenType::PERCENT_TKN);
+
+  Token excl_tkn = lexer.Lex();
+  assert(excl_tkn.GetType() == TokenType::EXCL_TKN);
 
   Token lt_tkn = lexer.Lex();
   assert(lt_tkn.GetType() == TokenType::LT_TKN);
@@ -46,6 +49,12 @@ void test_lex_symbols() {
 
   Token gte_tkn = lexer.Lex();
   assert(gte_tkn.GetType() == TokenType::GTE_TKN);
+
+  Token eqeq_tkn = lexer.Lex();
+  assert(eqeq_tkn.GetType() == TokenType::EQEQ_TKN);
+
+  Token neq_tkn = lexer.Lex();
+  assert(neq_tkn.GetType() == TokenType::NEQ_TKN);
 }
 
 // Test the Lex function on an identifier.

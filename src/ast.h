@@ -16,6 +16,8 @@ enum AstType {
   MUL_AST,
   DIV_AST,
   MOD_AST,
+  EQEQ_AST,
+  NEQ_AST,
   LT_AST,
   GT_AST,
   LTE_AST,

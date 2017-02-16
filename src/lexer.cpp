@@ -97,12 +97,32 @@ Token Lexer::Lex() {
       Advance();
       return tkn;
     }
+  case '=':
+    {
+      char next = Peek();
+      if (next == '=') {
+	tkn = Token(TokenType::EQEQ_TKN);
+	Advance();
+      } else {
+	tkn = Token(TokenType::EQ_TKN);
+      }
+      Advance();
+      return tkn;
+    }
+  case '!':
+    {
+      char next = Peek();
+      if (next == '=') {
+	tkn = Token(TokenType::NEQ_TKN);
+	Advance();
+      } else {
+	tkn = Token(TokenType::EXCL_TKN);
+      }
+      Advance();
+      return tkn;
+    }
   case ';':
     tkn = Token(TokenType::SEMICOLON_TKN);
-    Advance();
-    return tkn;
-  case '=':
-    tkn = Token(TokenType::EQUALS_TKN);
     Advance();
     return tkn;
   default:

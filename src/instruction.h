@@ -19,6 +19,7 @@ enum InstructionType {
   JMPGT_INSTR,
   JMPGTE_INSTR,
   JMPEQ_INSTR,
+  JMPNEQ_INSTR,
   ADD_INSTR,
   SUB_INSTR,
   MUL_INSTR,

@@ -212,6 +212,84 @@ void test_parse_lte_test() {
 //         |
 //      __If_____
 //    _/         \_
+//  Expr(EQEQ)   ...
+//  _/   \_
+// Num  Num
+//
+void test_parse_eqeq_test() {
+  std::string test_file = "parser_input/eqeq_test";
+  auto lexer = std::make_shared<Lexer>(test_file);
+  Parser parser(lexer);
+
+  auto ast = parser.Parse();
+
+  assert(ast->GetType() == AstType::PROG_AST);
+  assert(ast->GetChildren().size() == 1);
+
+  auto if_ast = ast->GetChildren()[0];
+  assert(if_ast->GetType() == AstType::IF_AST);
+  assert(if_ast->GetChildren().size() == 2);
+
+  auto eqeq_expr_ast = if_ast->GetChildren()[0];
+  assert(eqeq_expr_ast->GetType() == AstType::EQEQ_AST);
+  assert(eqeq_expr_ast->GetChildren().size() == 2);
+
+  auto eqeq_expr_term = eqeq_expr_ast->GetChildren()[0];
+  assert(eqeq_expr_term->GetType() == AstType::CST_AST);
+  assert(eqeq_expr_term->GetChildren().size() == 0);
+  assert(eqeq_expr_term->GetVal() == 5);
+
+  auto eqeq_expr_test = eqeq_expr_ast->GetChildren()[1];
+  assert(eqeq_expr_test->GetType() == AstType::CST_AST);
+  assert(eqeq_expr_test->GetChildren().size() == 0);
+  assert(eqeq_expr_test->GetVal() == 7);
+}
+
+// Expected format:
+//
+//      Program
+//         |
+//      __If_____
+//    _/         \_
+//  Expr(NEQ)   ...
+//  _/   \_
+// Num  Num
+//
+void test_parse_neq_test() {
+  std::string test_file = "parser_input/neq_test";
+  auto lexer = std::make_shared<Lexer>(test_file);
+  Parser parser(lexer);
+
+  auto ast = parser.Parse();
+
+  assert(ast->GetType() == AstType::PROG_AST);
+  assert(ast->GetChildren().size() == 1);
+
+  auto if_ast = ast->GetChildren()[0];
+  assert(if_ast->GetType() == AstType::IF_AST);
+  assert(if_ast->GetChildren().size() == 2);
+
+  auto eqeq_expr_ast = if_ast->GetChildren()[0];
+  assert(eqeq_expr_ast->GetType() == AstType::NEQ_AST);
+  assert(eqeq_expr_ast->GetChildren().size() == 2);
+
+  auto eqeq_expr_term = eqeq_expr_ast->GetChildren()[0];
+  assert(eqeq_expr_term->GetType() == AstType::CST_AST);
+  assert(eqeq_expr_term->GetChildren().size() == 0);
+  assert(eqeq_expr_term->GetVal() == 5);
+
+  auto eqeq_expr_test = eqeq_expr_ast->GetChildren()[1];
+  assert(eqeq_expr_test->GetType() == AstType::CST_AST);
+  assert(eqeq_expr_test->GetChildren().size() == 0);
+  assert(eqeq_expr_test->GetVal() == 7);
+}
+
+// Expected format:
+//
+//      Program
+//         |
+//      __If_____
+//    _/         \_
 //  Expr(LT)     Sequence
 //  _/   \_         |
 // Var  Num       Expr
@@ -470,6 +548,8 @@ int main(int argc, char** argv) {
   test_parse_mul_expr();
   test_parse_div_expr();
   test_parse_lte_test();
+  test_parse_eqeq_test();
+  test_parse_neq_test();
   test_parse_if();
   test_parse_if_else();
   test_parse_while();

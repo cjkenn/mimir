@@ -95,7 +95,7 @@ AstNodePtr Parser::Expr() {
 
   AstNodePtr expr_ast = Test();
 
-  if (expr_ast->GetType() == AstType::VAR_AST && curr_tkn_.GetType() == TokenType::EQUALS_TKN) {
+  if (expr_ast->GetType() == AstType::VAR_AST && curr_tkn_.GetType() == TokenType::EQ_TKN) {
     AstNodePtr assign_ast = expr_ast;
     expr_ast = std::make_shared<AstNode>(AstType::SET_AST);
     GetNextTkn();
@@ -216,7 +216,9 @@ bool Parser::CurrTknIsTestTkn() {
   return (curr_type == TokenType::GT_TKN ||
 	  curr_type == TokenType::LT_TKN ||
 	  curr_type == TokenType::LTE_TKN ||
-	  curr_type == TokenType::GTE_TKN);
+	  curr_type == TokenType::GTE_TKN ||
+	  curr_type == TokenType::EQEQ_TKN ||
+	  curr_type == TokenType::NEQ_TKN);
 }
 
 AstType Parser::GetTestAstFromTkn() {
@@ -231,6 +233,10 @@ AstType Parser::GetTestAstFromTkn() {
     return AstType::LTE_AST;
   case TokenType::GTE_TKN:
     return AstType::GTE_AST;
+  case TokenType::EQEQ_TKN:
+    return AstType::EQEQ_AST;
+  case TokenType::NEQ_TKN:
+    return AstType::NEQ_AST;
   default:
     return AstType::EMPTY_AST;
   }

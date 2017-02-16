@@ -69,7 +69,7 @@ std::string Token::GetPrettyType() {
     return "%";
   case TokenType::SEMICOLON_TKN:
     return ";";
-  case TokenType::EQUALS_TKN:
+  case TokenType::EQ_TKN:
     return "=";
   case TokenType::LT_TKN:
     return "<";
@@ -79,6 +79,8 @@ std::string Token::GetPrettyType() {
     return ">";
   case TokenType::GTE_TKN:
     return ">=";
+  case TokenType::EQEQ_TKN:
+    return "==";
   default:
     return "Unknown token type";
   }

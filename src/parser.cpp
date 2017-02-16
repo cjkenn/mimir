@@ -5,8 +5,6 @@
 #include "parser.h"
 #include "ast.h"
 
-using namespace std;
-
 Parser::Parser(std::shared_ptr<Lexer> lexer) {
   lexer_ = lexer;
 }
@@ -168,12 +166,12 @@ void Parser::Expect(TokenType expected_type) {
   if (curr_tkn_.GetType() == expected_type) {
     GetNextTkn();
   } else {
-    cout << "Expected " <<
+    std::cout << "Expected " <<
       PrettifyTokenType(expected_type) <<
       ", but found " <<
-      curr_tkn_.GetPrettyType() << endl;
+      curr_tkn_.GetPrettyType() << std::endl;
 
-    cout << "Current token: " << endl;
+    std::cout << "Current token: " << std::endl;
     curr_tkn_.Debug();
     std::exit(1);
   }
@@ -242,12 +240,12 @@ AstType Parser::GetTestAstFromTkn() {
   }
 }
 
-void Parser::LogError(string error) {
-  cout << error << endl;
+void Parser::LogError(std::string error) {
+  std::cout << error << std::endl;
 }
 
 // TODO: Error handling module
-string Parser::PrettifyTokenType(TokenType type) {
+std::string Parser::PrettifyTokenType(TokenType type) {
   switch (type) {
   case TokenType::ID_TKN:
     return "Identifier";
@@ -260,7 +258,7 @@ string Parser::PrettifyTokenType(TokenType type) {
   case TokenType::WHILE_TKN:
     return "'While' keyword";
   default:
-    string type_str = "";
+    std::string type_str = "";
     return type_str + (char)type;
   }
 }

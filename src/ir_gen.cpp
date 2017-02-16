@@ -81,13 +81,19 @@ std::vector<InstrPtr> IrGen::ConvertAstToInstr(AstNodePtr ast) {
     }
   case AstType::ADD_AST:
   case AstType::SUB_AST:
+  case AstType::MUL_AST:
+  case AstType::DIV_AST:
+  case AstType::MOD_AST:
     {
       auto add_instrs = BinOpAstToInstr(ast);
       MergeInstrVecs(instrs, add_instrs);
       break;
     }
   case AstType::LT_AST:
-    instrs.push_back(LtAstToInstr(ast));
+  case AstType::GT_AST:
+  case AstType::GTE_AST:
+  case AstType::LTE_AST:
+    instrs.push_back(TestAstToInstr(ast));
     break;
   case AstType::SEQ_AST:
   case AstType::EXPR_AST:
@@ -132,10 +138,10 @@ InstrPtr IrGen::CstAstToInstr(AstNodePtr ast) {
   return ins;
 }
 
-InstrPtr IrGen::LtAstToInstr(AstNodePtr ast) {
+InstrPtr IrGen::TestAstToInstr(AstNodePtr ast) {
   InstrPtr ins = std::make_shared<Instruction>();
   ins->SetLabel(curr_lbl_);
-  ins->SetType(InstructionType::JMPGT_INSTR);
+  ins->SetType(GetJmpInstrTypeFromAst(ast));
 
   // We are jumping to the next label, but we don't want to advance the
   // label yet, because subsequent instructions that are included before
@@ -283,10 +289,37 @@ std::vector<InstrPtr> IrGen::BinOpAstToInstr(AstNodePtr ast) {
 InstructionType IrGen::GetBinOpInstrTypeFromAst(AstNodePtr ast) {
   auto ast_type = ast->GetType();
 
-  if (ast_type == AstType::ADD_AST) {
+  switch(ast_type) {
+  case AstType::ADD_AST:
     return InstructionType::ADD_INSTR;
-  } else {
+  case AstType::SUB_AST:
     return InstructionType::SUB_INSTR;
+  case AstType::MUL_AST:
+    return InstructionType::MUL_INSTR;
+  case AstType::DIV_AST:
+    return InstructionType::DIV_INSTR;
+  case AstType::MOD_AST:
+    return InstructionType::MOD_INSTR;
+  default:
+    // TODO: Error here
+    return InstructionType::NOP_INSTR;;
+  }
+}
+
+InstructionType IrGen::GetJmpInstrTypeFromAst(AstNodePtr ast) {
+  auto ast_type = ast->GetType();
+
+  switch(ast_type) {
+  case AstType::LT_AST:
+    return InstructionType::JMPGT_INSTR;
+  case AstType::GT_AST:
+    return InstructionType::JMPLT_INSTR;
+  case AstType::LTE_AST:
+    return InstructionType::JMPGTE_INSTR;
+  case AstType::GTE_AST:
+    return InstructionType::JMPLTE_INSTR;
+  default:
+    return InstructionType::NOP_INSTR;
   }
 }
 

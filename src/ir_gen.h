@@ -26,7 +26,7 @@ class IrGen {
 
   InstrPtr VarAstToInstr(AstNodePtr ast);
   InstrPtr CstAstToInstr(AstNodePtr ast);
-  InstrPtr LtAstToInstr(AstNodePtr ast);
+  InstrPtr TestAstToInstr(AstNodePtr ast);
 
   std::vector<InstrPtr> IfElseAstToInstr(AstNodePtr ast);
   std::vector<InstrPtr> WhileAstToInstr(AstNodePtr ast);
@@ -43,6 +43,12 @@ class IrGen {
   // so we can use the same BinOpAstToInstr method for every
   // binary op, instead of a different method for each op.
   InstructionType GetBinOpInstrTypeFromAst(AstNodePtr ast);
+
+  // Used to determine the correct instruction type for comparison
+  // test asts. The results are not a 1-1 mapping, as we want
+  // the opposite test instruction to generate the correct ir code.
+  // For example, LT_AST maps to GT_INSTR.
+  InstructionType GetJmpInstrTypeFromAst(AstNodePtr ast);
 
   // Vists nodes in the given ast, and sets their Visited value
   // to false, if it is true. This ensures we can traverse an

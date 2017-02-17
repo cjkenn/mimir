@@ -5,8 +5,9 @@
 #include "parser.h"
 #include "ast.h"
 
-Parser::Parser(std::shared_ptr<Lexer> lexer) {
+Parser::Parser(std::shared_ptr<Lexer> lexer, std::shared_ptr<SymbolTable> sym_tab) {
   lexer_ = lexer;
+  sym_tab_ = sym_tab;
 }
 
 AstNodePtr Parser::Parse() {
@@ -15,12 +16,18 @@ AstNodePtr Parser::Parse() {
 
 AstNodePtr Parser::Program() {
   auto head = std::make_shared<AstNode>(AstType::PROG_AST);
+
+  // Create top level program scope
+  sym_tab_->InitScope();
+
   GetNextTkn();
 
-  // TODO: Can only parse one statement at a time
   while (curr_tkn_.GetType() != TokenType::EOF_TKN) {
     head->AddChild(Statement());
   }
+
+  // Close top level program scope
+  sym_tab_->ExitScope();
 
   return head;
 }
@@ -96,6 +103,16 @@ AstNodePtr Parser::Expr() {
   if (expr_ast->GetType() == AstType::VAR_AST && curr_tkn_.GetType() == TokenType::EQ_TKN) {
     AstNodePtr assign_ast = expr_ast;
     expr_ast = std::make_shared<AstNode>(AstType::SET_AST);
+
+    // Check symbol table for this variable. If duplicate, we error.
+    // If not found, then we insert it into the current scope's symbol table.
+    if (sym_tab_->ExistsAtCurrentScope(assign_ast->GetText())) {
+      // TODO: Error handling badly needed here
+      std::cout << "Duplicate variable declaration found!" << std::endl;
+    } else {
+      sym_tab_->Insert(assign_ast);
+    }
+
     GetNextTkn();
 
     expr_ast->AddChild(assign_ast);

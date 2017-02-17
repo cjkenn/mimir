@@ -1,14 +1,14 @@
 #pragma once
 
 #include <memory>
-
 #include "token.h"
 #include "lexer.h"
 #include "ast.h"
+#include "symbol_table.h"
 
 class Parser {
  public:
-  Parser(std::shared_ptr<Lexer> lexer);
+  Parser(std::shared_ptr<Lexer> lexer, std::shared_ptr<SymbolTable> sym_tab);
   ~Parser() {};
   void LogError(std::string error);
   AstNodePtr Parse();
@@ -32,4 +32,5 @@ class Parser {
 
   std::shared_ptr<Lexer> lexer_;
   Token curr_tkn_;
+  std::shared_ptr<SymbolTable> sym_tab_;
 };

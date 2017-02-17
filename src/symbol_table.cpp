@@ -34,7 +34,7 @@ SymbolPtr SymbolTable::Find(std::string key) {
   int level = curr_level_;
 
   while (level > 0) {
-    auto curr_table = sym_tab_[curr_level_];
+    auto curr_table = sym_tab_[level];
     auto entry = curr_table.find(key);
 
     if (entry != curr_table.end()) {
@@ -45,6 +45,18 @@ SymbolPtr SymbolTable::Find(std::string key) {
   }
 
   return nullptr;
+}
+
+bool SymbolTable::ExistsAtCurrentScope(std::string key) {
+  if (curr_level_ < 0) {
+    std::cout << "No scope initialized!" << std::endl;
+    return false;
+  }
+
+  auto curr_table = sym_tab_[curr_level_];
+  auto entry = curr_table.find(key);
+
+  return (entry != curr_table.end());
 }
 
 void SymbolTable::InitScope() {

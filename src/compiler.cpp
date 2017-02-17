@@ -3,6 +3,7 @@
 #include <iostream>
 #include <memory>
 #include "ast.h"
+#include "symbol_table.h"
 #include "lexer.h"
 #include "parser.h"
 
@@ -16,7 +17,9 @@ int main(int argc, char *argv[]) {
   std::string filename = argv[1];
 
   auto lexer = std::make_shared<Lexer>(filename);
-  Parser parser = Parser(lexer);
+  auto sym_tab = std::make_shared<SymbolTable>();
+
+  Parser parser = Parser(lexer, sym_tab);
   auto program = parser.Parse();
 
   return 0;

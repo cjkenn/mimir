@@ -7,6 +7,15 @@
 #include "../src/token.h"
 #include "../src/symbol_table.h"
 
+Parser get_parser_for_file(std::string filename) {
+  std::string test_file = "parser_input/" + filename;
+  auto lexer = std::make_shared<Lexer>(test_file);
+  auto sym_tab = std::make_shared<SymbolTable>();
+  Parser parser(lexer, sym_tab);
+
+  return parser;
+}
+
 // Expected format:
 //
 //      Program
@@ -19,11 +28,7 @@
 //
 // where var holds the variable name and term holds the value.
 void test_parse_assign() {
-  std::string test_file = "parser_input/simple_assign";
-  auto lexer = std::make_shared<Lexer>(test_file);
-  auto sym_tab = std::make_shared<SymbolTable>();
-  Parser parser(lexer, sym_tab);
-
+  auto parser = get_parser_for_file("simple_assign");
   auto ast = parser.Parse();
 
   assert(ast->GetType() == AstType::PROG_AST);
@@ -62,11 +67,7 @@ void test_parse_assign() {
 // where var holds the variable name and op contains the terms
 // in the addition operation
 void test_parse_assign_expression() {
-  std::string test_file = "parser_input/expr_assign";
-  auto lexer = std::make_shared<Lexer>(test_file);
-  auto sym_tab = std::make_shared<SymbolTable>();
-  Parser parser(lexer, sym_tab);
-
+  auto parser = get_parser_for_file("expr_assign");
   auto ast = parser.Parse();
 
   assert(ast->GetType() == AstType::PROG_AST);
@@ -108,11 +109,7 @@ void test_parse_assign_expression() {
 //      _/  \_
 //    Num    Num
 void test_parse_mul_expr() {
-  std::string test_file = "parser_input/mul_expr";
-  auto lexer = std::make_shared<Lexer>(test_file);
-  auto sym_tab = std::make_shared<SymbolTable>();
-  Parser parser(lexer, sym_tab);
-
+  auto parser = get_parser_for_file("mul_expr");
   auto ast = parser.Parse();
 
   assert(ast->GetType() == AstType::PROG_AST);
@@ -145,11 +142,7 @@ void test_parse_mul_expr() {
 //      _/  \_
 //    Num    Num
 void test_parse_div_expr() {
-  std::string test_file = "parser_input/div_expr";
-  auto lexer = std::make_shared<Lexer>(test_file);
-  auto sym_tab = std::make_shared<SymbolTable>();
-  Parser parser(lexer, sym_tab);
-
+  auto parser = get_parser_for_file("div_expr");
   auto ast = parser.Parse();
 
   assert(ast->GetType() == AstType::PROG_AST);
@@ -183,11 +176,7 @@ void test_parse_div_expr() {
 // Num  Num
 //
 void test_parse_lte_test() {
-  std::string test_file = "parser_input/lte_test";
-  auto lexer = std::make_shared<Lexer>(test_file);
-  auto sym_tab = std::make_shared<SymbolTable>();
-  Parser parser(lexer, sym_tab);
-
+  auto parser = get_parser_for_file("lte_test");
   auto ast = parser.Parse();
 
   assert(ast->GetType() == AstType::PROG_AST);
@@ -223,11 +212,7 @@ void test_parse_lte_test() {
 // Num  Num
 //
 void test_parse_eqeq_test() {
-  std::string test_file = "parser_input/eqeq_test";
-  auto lexer = std::make_shared<Lexer>(test_file);
-  auto sym_tab = std::make_shared<SymbolTable>();
-  Parser parser(lexer, sym_tab);
-
+  auto parser = get_parser_for_file("eqeq_test");
   auto ast = parser.Parse();
 
   assert(ast->GetType() == AstType::PROG_AST);
@@ -263,11 +248,7 @@ void test_parse_eqeq_test() {
 // Num  Num
 //
 void test_parse_neq_test() {
-  std::string test_file = "parser_input/neq_test";
-  auto lexer = std::make_shared<Lexer>(test_file);
-  auto sym_tab = std::make_shared<SymbolTable>();
-  Parser parser(lexer, sym_tab);
-
+  auto parser = get_parser_for_file("neq_test");
   auto ast = parser.Parse();
 
   assert(ast->GetType() == AstType::PROG_AST);
@@ -306,11 +287,7 @@ void test_parse_neq_test() {
 //              _/  \_
 //             Var   Num
 void test_parse_if() {
-  std::string test_file = "parser_input/if_statement";
-  auto lexer = std::make_shared<Lexer>(test_file);
-  auto sym_tab = std::make_shared<SymbolTable>();
-  Parser parser(lexer, sym_tab);
-
+  auto parser = get_parser_for_file("if_statement");
   auto ast = parser.Parse();
 
   assert(ast->GetType() == AstType::PROG_AST);
@@ -367,11 +344,7 @@ void test_parse_if() {
 //         _/  \_     _/ \_
 //        Var  Num   Var  Num
 void test_parse_if_else() {
-  std::string test_file = "parser_input/if_else_statement";
-  auto lexer = std::make_shared<Lexer>(test_file);
-  auto sym_tab = std::make_shared<SymbolTable>();
-  Parser parser(lexer, sym_tab);
-
+  auto parser = get_parser_for_file("if_else_statement");
   auto ast = parser.Parse();
 
   assert(ast->GetType() == AstType::PROG_AST);
@@ -451,11 +424,7 @@ void test_parse_if_else() {
 //                    _/ \_
 //                   Var Num
 void test_parse_while() {
-  std::string test_file = "parser_input/while";
-  auto lexer = std::make_shared<Lexer>(test_file);
-  auto sym_tab = std::make_shared<SymbolTable>();
-  Parser parser(lexer, sym_tab);
-
+  auto parser = get_parser_for_file("while");
   auto ast = parser.Parse();
 
   assert(ast->GetType() == AstType::PROG_AST);
@@ -511,11 +480,7 @@ void test_parse_while() {
 //  _/  \_          _/  \_
 // Var  Num        Var  Num
 void test_parse_two_statements() {
-  std::string test_file = "parser_input/two_statements";
-  auto lexer = std::make_shared<Lexer>(test_file);
-  auto sym_tab = std::make_shared<SymbolTable>();
-  Parser parser(lexer, sym_tab);
-
+  auto parser = get_parser_for_file("two_statements");
   auto ast = parser.Parse();
 
   assert(ast->GetType() == AstType::PROG_AST);

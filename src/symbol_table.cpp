@@ -16,13 +16,12 @@ void SymbolTable::Insert(AstNodePtr var_ast) {
     return;
   }
 
-  auto curr_table = sym_tab_[curr_level_];
   std::string key = var_ast->GetText();
   SymbolPtr s = std::make_shared<Symbol>(key);
 
   std::pair<std::string, SymbolPtr> entry(key, s);
 
-  curr_table.insert(entry);
+  sym_tab_[curr_level_].insert(entry);
 }
 
 SymbolPtr SymbolTable::Find(std::string key) {
@@ -33,7 +32,7 @@ SymbolPtr SymbolTable::Find(std::string key) {
 
   int level = curr_level_;
 
-  while (level > 0) {
+  while (level >= 0) {
     auto curr_table = sym_tab_[level];
     auto entry = curr_table.find(key);
 
@@ -62,7 +61,7 @@ bool SymbolTable::ExistsAtCurrentScope(std::string key) {
 void SymbolTable::InitScope() {
   curr_level_++;
   std::unordered_map<std::string, SymbolPtr> level_map;
-  sym_tab_[curr_level_] = level_map;
+  sym_tab_.push_back(level_map);
 }
 
 void SymbolTable::ExitScope() {

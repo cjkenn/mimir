@@ -5,6 +5,7 @@
 #include "../src/lexer.h"
 #include "../src/ast.h"
 #include "../src/token.h"
+#include "../src/symbol_table.h"
 
 // Expected format:
 //
@@ -20,7 +21,8 @@
 void test_parse_assign() {
   std::string test_file = "parser_input/simple_assign";
   auto lexer = std::make_shared<Lexer>(test_file);
-  Parser parser(lexer);
+  auto sym_tab = std::make_shared<SymbolTable>();
+  Parser parser(lexer, sym_tab);
 
   auto ast = parser.Parse();
 
@@ -62,7 +64,8 @@ void test_parse_assign() {
 void test_parse_assign_expression() {
   std::string test_file = "parser_input/expr_assign";
   auto lexer = std::make_shared<Lexer>(test_file);
-  Parser parser(lexer);
+  auto sym_tab = std::make_shared<SymbolTable>();
+  Parser parser(lexer, sym_tab);
 
   auto ast = parser.Parse();
 
@@ -107,7 +110,8 @@ void test_parse_assign_expression() {
 void test_parse_mul_expr() {
   std::string test_file = "parser_input/mul_expr";
   auto lexer = std::make_shared<Lexer>(test_file);
-  Parser parser(lexer);
+  auto sym_tab = std::make_shared<SymbolTable>();
+  Parser parser(lexer, sym_tab);
 
   auto ast = parser.Parse();
 
@@ -143,7 +147,8 @@ void test_parse_mul_expr() {
 void test_parse_div_expr() {
   std::string test_file = "parser_input/div_expr";
   auto lexer = std::make_shared<Lexer>(test_file);
-  Parser parser(lexer);
+  auto sym_tab = std::make_shared<SymbolTable>();
+  Parser parser(lexer, sym_tab);
 
   auto ast = parser.Parse();
 
@@ -180,7 +185,8 @@ void test_parse_div_expr() {
 void test_parse_lte_test() {
   std::string test_file = "parser_input/lte_test";
   auto lexer = std::make_shared<Lexer>(test_file);
-  Parser parser(lexer);
+  auto sym_tab = std::make_shared<SymbolTable>();
+  Parser parser(lexer, sym_tab);
 
   auto ast = parser.Parse();
 
@@ -219,7 +225,8 @@ void test_parse_lte_test() {
 void test_parse_eqeq_test() {
   std::string test_file = "parser_input/eqeq_test";
   auto lexer = std::make_shared<Lexer>(test_file);
-  Parser parser(lexer);
+  auto sym_tab = std::make_shared<SymbolTable>();
+  Parser parser(lexer, sym_tab);
 
   auto ast = parser.Parse();
 
@@ -258,7 +265,8 @@ void test_parse_eqeq_test() {
 void test_parse_neq_test() {
   std::string test_file = "parser_input/neq_test";
   auto lexer = std::make_shared<Lexer>(test_file);
-  Parser parser(lexer);
+  auto sym_tab = std::make_shared<SymbolTable>();
+  Parser parser(lexer, sym_tab);
 
   auto ast = parser.Parse();
 
@@ -300,7 +308,8 @@ void test_parse_neq_test() {
 void test_parse_if() {
   std::string test_file = "parser_input/if_statement";
   auto lexer = std::make_shared<Lexer>(test_file);
-  Parser parser(lexer);
+  auto sym_tab = std::make_shared<SymbolTable>();
+  Parser parser(lexer, sym_tab);
 
   auto ast = parser.Parse();
 
@@ -360,7 +369,8 @@ void test_parse_if() {
 void test_parse_if_else() {
   std::string test_file = "parser_input/if_else_statement";
   auto lexer = std::make_shared<Lexer>(test_file);
-  Parser parser(lexer);
+  auto sym_tab = std::make_shared<SymbolTable>();
+  Parser parser(lexer, sym_tab);
 
   auto ast = parser.Parse();
 
@@ -443,7 +453,8 @@ void test_parse_if_else() {
 void test_parse_while() {
   std::string test_file = "parser_input/while";
   auto lexer = std::make_shared<Lexer>(test_file);
-  Parser parser(lexer);
+  auto sym_tab = std::make_shared<SymbolTable>();
+  Parser parser(lexer, sym_tab);
 
   auto ast = parser.Parse();
 
@@ -502,7 +513,8 @@ void test_parse_while() {
 void test_parse_two_statements() {
   std::string test_file = "parser_input/two_statements";
   auto lexer = std::make_shared<Lexer>(test_file);
-  Parser parser(lexer);
+  auto sym_tab = std::make_shared<SymbolTable>();
+  Parser parser(lexer, sym_tab);
 
   auto ast = parser.Parse();
 

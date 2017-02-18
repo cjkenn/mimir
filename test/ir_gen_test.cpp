@@ -8,6 +8,7 @@
 #include "../src/lexer.h"
 #include "../src/parser.h"
 #include "../src/token.h"
+#include "../src/symbol_table.h"
 
 // Input:
 //
@@ -30,7 +31,8 @@ void test_gen_if_ast() {
   // (ie. what if parsing breaks?)
   std::string test_file = "parser_input/if_statement";
   auto lexer = std::make_shared<Lexer>(test_file);
-  Parser parser(lexer);
+  auto sym_tab = std::make_shared<SymbolTable>();
+  Parser parser(lexer, sym_tab);
 
   auto ast = parser.Parse();
   IrGen ir_gen;
@@ -92,7 +94,8 @@ void test_gen_if_ast() {
 void test_gen_else_ast() {
   std::string test_file = "parser_input/if_else_statement";
   auto lexer = std::make_shared<Lexer>(test_file);
-  Parser parser(lexer);
+  auto sym_tab = std::make_shared<SymbolTable>();
+  Parser parser(lexer, sym_tab);
 
   auto ast = parser.Parse();
   IrGen ir_gen;
@@ -164,7 +167,8 @@ void test_gen_else_ast() {
 void test_gen_while_ast() {
   std::string test_file = "parser_input/while";
   auto lexer = std::make_shared<Lexer>(test_file);
-  Parser parser(lexer);
+  auto sym_tab = std::make_shared<SymbolTable>();
+  Parser parser(lexer, sym_tab);
 
   auto ast = parser.Parse();
   IrGen ir_gen;

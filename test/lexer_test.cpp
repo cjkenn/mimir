@@ -65,6 +65,8 @@ void test_lex_ident() {
   Token ident_tkn = lexer.Lex();
   assert(ident_tkn.GetType() == TokenType::ID_TKN);
   assert(ident_tkn.GetText() == "ident1");
+  assert(ident_tkn.GetLinePos() == 1);
+  assert(ident_tkn.GetCharPos() == 1);
 }
 
 // Test the Lex function on a number.
@@ -75,6 +77,8 @@ void test_lex_num() {
   Token num_tkn = lexer.Lex();
   assert(num_tkn.GetType() == TokenType::NUM_TKN);
   assert(num_tkn.GetVal() == 111);
+  assert(num_tkn.GetLinePos() == 1);
+  assert(num_tkn.GetCharPos() == 1);
 }
 
 // Run all lexer tests in this file.

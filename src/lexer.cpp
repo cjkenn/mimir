@@ -8,10 +8,14 @@
 
 Lexer::Lexer() {
   lastchar_ = ' ';
+  curr_line_pos_ = 1;
+  curr_char_pos_ = 1;
 }
 
 Lexer::Lexer(std::string filename) {
   lastchar_ = ' ';
+  curr_line_pos_ = 1;
+  curr_char_pos_ = 1;
   ifs_.open(filename.c_str());
 }
 
@@ -29,6 +33,11 @@ Token Lexer::Lex() {
 
   // Skip whitespace
   while (isspace(lastchar_)) {
+    if (lastchar_ == '\n') {
+      curr_line_pos_++;
+      curr_char_pos_ = 1;
+    }
+
     if (!ifs_.get(lastchar_)) {
       tkn = Token(TokenType::EOF_TKN);
       return tkn;
@@ -38,44 +47,36 @@ Token Lexer::Lex() {
   // Lex a single character symbol
   switch (lastchar_) {
   case '(':
-    tkn = Token(TokenType::LEFT_PAREN_TKN);
-    Advance();
+    tkn = BuildTokenAndAdvance(TokenType::LEFT_PAREN_TKN);
     return tkn;
   case ')':
-    tkn = Token(TokenType::RIGHT_PAREN_TKN);
-    Advance();
+    tkn = BuildTokenAndAdvance(TokenType::RIGHT_PAREN_TKN);
     return tkn;
   case '{':
-    tkn = Token(TokenType::LEFT_BRACE_TKN);
-    Advance();
+    tkn = BuildTokenAndAdvance(TokenType::LEFT_BRACE_TKN);
     return tkn;
   case '}':
-    tkn = Token(TokenType::RIGHT_BRACE_TKN);
-    Advance();
+    tkn = BuildTokenAndAdvance(TokenType::RIGHT_BRACE_TKN);
     return tkn;
   case '+':
-    tkn = Token(TokenType::PLUS_TKN);
-    Advance();
+    tkn = BuildTokenAndAdvance(TokenType::PLUS_TKN);
     return tkn;
   case '-':
-    tkn = Token(TokenType::MINUS_TKN);
-    Advance();
+    tkn = BuildTokenAndAdvance(TokenType::MINUS_TKN);
     return tkn;
   case '*':
-    tkn = Token(TokenType::STAR_TKN);
-    Advance();
+    tkn = BuildTokenAndAdvance(TokenType::STAR_TKN);
     return tkn;
   case '/':
-    tkn = Token(TokenType::BACKSLASH_TKN);
-    Advance();
+    tkn = BuildTokenAndAdvance(TokenType::BACKSLASH_TKN);
     return tkn;
   case '%':
-    tkn = Token(TokenType::PERCENT_TKN);
-    Advance();
+    tkn = BuildTokenAndAdvance(TokenType::PERCENT_TKN);
     return tkn;
   case '<':
     {
       char next = Peek();
+      int start_pos = curr_char_pos_;
       if (next == '=') {
 	tkn = Token(TokenType::LTE_TKN);
 	Advance();
@@ -83,11 +84,15 @@ Token Lexer::Lex() {
 	tkn = Token(TokenType::LT_TKN);
       }
       Advance();
+
+      tkn.SetLinePos(curr_line_pos_);
+      tkn.SetCharPos(start_pos);
       return tkn;
     }
   case '>':
     {
       char next = Peek();
+      int start_pos = curr_char_pos_;
       if (next == '=') {
 	tkn = Token(TokenType::GTE_TKN);
 	Advance();
@@ -95,11 +100,15 @@ Token Lexer::Lex() {
 	tkn = Token(TokenType::GT_TKN);
       }
       Advance();
+
+      tkn.SetLinePos(curr_line_pos_);
+      tkn.SetCharPos(start_pos);
       return tkn;
     }
   case '=':
     {
       char next = Peek();
+      int start_pos = curr_char_pos_;
       if (next == '=') {
 	tkn = Token(TokenType::EQEQ_TKN);
 	Advance();
@@ -107,11 +116,15 @@ Token Lexer::Lex() {
 	tkn = Token(TokenType::EQ_TKN);
       }
       Advance();
+
+      tkn.SetLinePos(curr_line_pos_);
+      tkn.SetCharPos(start_pos);
       return tkn;
     }
   case '!':
     {
       char next = Peek();
+      int start_pos = curr_char_pos_;
       if (next == '=') {
 	tkn = Token(TokenType::NEQ_TKN);
 	Advance();
@@ -119,11 +132,13 @@ Token Lexer::Lex() {
 	tkn = Token(TokenType::EXCL_TKN);
       }
       Advance();
+
+      tkn.SetLinePos(curr_line_pos_);
+      tkn.SetCharPos(start_pos);
       return tkn;
     }
   case ';':
-    tkn = Token(TokenType::SEMICOLON_TKN);
-    Advance();
+    tkn = BuildTokenAndAdvance(TokenType::SEMICOLON_TKN);
     return tkn;
   default:
     tkn = Token(TokenType::EOF_TKN);
@@ -143,50 +158,73 @@ Token Lexer::Lex() {
   return tkn;
 }
 
+Token Lexer::BuildTokenAndAdvance(TokenType curr_type) {
+  Token tkn(curr_type);
+  tkn.SetLinePos(curr_line_pos_);
+  tkn.SetCharPos(curr_char_pos_);
+
+  Advance();
+
+  return tkn;
+}
+
 Token Lexer::GetNumTkn() {
   std::string num_str = "";
+  int start_char_pos = curr_char_pos_;
   num_str += lastchar_;
-  ifs_.get(lastchar_);
+
+  Advance();
 
   while (isdigit(lastchar_)) {
     num_str += lastchar_;
-    ifs_.get(lastchar_);
+    Advance();
   }
   int val = strtod(num_str.c_str(), 0);
 
-  return Token(TokenType::NUM_TKN, val);
+  Token tkn = Token(TokenType::NUM_TKN, val);
+  tkn.SetLinePos(curr_line_pos_);
+  tkn.SetCharPos(start_char_pos);
+
+  return tkn;
 }
 
 Token Lexer::GetStrTkn() {
   std::string ident = "";
+  int start_char_pos = curr_char_pos_;
   ident += lastchar_;
 
-  ifs_.get(lastchar_);
+  Advance();
 
   while (isalnum(lastchar_)) {
     ident += lastchar_;
-    ifs_.get(lastchar_);
+    Advance();
   }
 
+  Token tkn = Token(TokenType::ID_TKN, ident);
+
   if (ident == "while") {
-    return Token(TokenType::WHILE_TKN, ident);
+    tkn = Token(TokenType::WHILE_TKN, ident);
   }
 
   if (ident == "if") {
-    return Token(TokenType::IF_TKN, ident);
+    tkn = Token(TokenType::IF_TKN, ident);
   }
 
   if (ident == "else") {
-    return Token(TokenType::ELSE_TKN, ident);
+    tkn = Token(TokenType::ELSE_TKN, ident);
   }
 
-  return Token(TokenType::ID_TKN, ident);
+  tkn.SetLinePos(curr_line_pos_);
+  tkn.SetCharPos(start_char_pos);
+
+  return tkn;
 }
 
 void Lexer::Advance() {
   if (!ifs_.get(lastchar_)) {
     lastchar_ = -1;
   }
+  curr_char_pos_++;
 }
 
 char Lexer::Peek() {

@@ -31,16 +31,21 @@ enum TokenType {
 
 class Token {
  public:
-  Token();
-  ~Token();
+  Token() {};
+  ~Token() {};
   Token(TokenType type);
   Token(TokenType type, int val);
   Token(TokenType type, std::string text);
 
-  TokenType GetType() const {return type_;}
-  int GetVal() const {return val_;}
-  std::string GetText() const {return text_;}
+  TokenType GetType() const { return type_; }
+  int GetVal() const { return val_; }
+  int GetLinePos() const { return line_pos_; }
+  int GetCharPos() const { return char_pos_; }
+  std::string GetText() const { return text_; }
   std::string GetPrettyType();
+
+  void SetLinePos(int line) { line_pos_ = line; }
+  void SetCharPos(int ch) { char_pos_ = ch; }
   void Debug();
 
  private:
@@ -50,4 +55,6 @@ class Token {
   int val_;
   std::string text_;
   std::string debug_;
+  int line_pos_;
+  int char_pos_;
 };

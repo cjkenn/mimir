@@ -2,10 +2,6 @@
 #include <sstream>
 #include "token.h"
 
-Token::Token() {}
-
-Token::~Token() {}
-
 Token::Token(TokenType type) {
   type_ = type;
   SetDebug();

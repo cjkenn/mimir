@@ -15,7 +15,8 @@ SRCS = compiler.cpp \
 	cfg_builder.cpp \
 	cfg.cpp \
 	cfg_node.cpp \
-	code_gen.cpp
+	code_gen.cpp \
+	x86_instr.cpp
 OUT = ../build/mimir
 
 mimir: $(SRCS)

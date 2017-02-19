@@ -1,18 +1,16 @@
 #include <string>
 #include <cstdio>
 #include <stdlib.h>
+#include <memory>
 #include <fstream>
 #include <iostream>
 #include "token.h"
 #include "lexer.h"
+#include "error.h"
 
-Lexer::Lexer() {
-  lastchar_ = ' ';
-  curr_line_pos_ = 1;
-  curr_char_pos_ = 1;
-}
-
-Lexer::Lexer(std::string filename) {
+Lexer::Lexer(std::string filename, std::shared_ptr<Error> error) {
+  filename_ = filename;
+  error_ = error;
   lastchar_ = ' ';
   curr_line_pos_ = 1;
   curr_char_pos_ = 1;
@@ -33,6 +31,7 @@ Token Lexer::Lex() {
 
   // Skip whitespace
   while (isspace(lastchar_)) {
+    curr_char_pos_++;
     if (lastchar_ == '\n') {
       curr_line_pos_++;
       curr_char_pos_ = 1;
@@ -44,7 +43,18 @@ Token Lexer::Lex() {
     }
   }
 
-  // Lex a single character symbol
+  // Lex a number
+  if (isdigit(lastchar_)) {
+    return GetNumTkn();
+  }
+
+  // Lex a string
+  if (isalpha(lastchar_)) {
+    return GetStrTkn();
+  }
+
+  // If we don't have a number or a string, we can lex a single
+  // character symbol.
   switch (lastchar_) {
   case '(':
     tkn = BuildTokenAndAdvance(TokenType::LEFT_PAREN_TKN);
@@ -141,18 +151,9 @@ Token Lexer::Lex() {
     tkn = BuildTokenAndAdvance(TokenType::SEMICOLON_TKN);
     return tkn;
   default:
+    error_->ReportUnknownToken(filename_, curr_line_pos_, curr_char_pos_, lastchar_);
     tkn = Token(TokenType::EOF_TKN);
     break;
-  }
-
-  // Lex a number
-  if (isdigit(lastchar_)) {
-    return GetNumTkn();
-  }
-
-  // Lex a string
-  if (isalpha(lastchar_)) {
-    return GetStrTkn();
   }
 
   return tkn;

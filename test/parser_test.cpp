@@ -6,12 +6,14 @@
 #include "../src/ast.h"
 #include "../src/token.h"
 #include "../src/symbol_table.h"
+#include "../src/error.h"
 
 Parser get_parser_for_file(std::string filename) {
   std::string test_file = "parser_input/" + filename;
-  auto lexer = std::make_shared<Lexer>(test_file);
+  auto error = std::make_shared<Error>();
+  auto lexer = std::make_shared<Lexer>(test_file, error);
   auto sym_tab = std::make_shared<SymbolTable>();
-  Parser parser(lexer, sym_tab);
+  Parser parser(lexer, sym_tab, error);
 
   return parser;
 }

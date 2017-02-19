@@ -1,12 +1,13 @@
 #pragma once
 
 #include <fstream>
+#include <memory>
 #include "token.h"
+#include "error.h"
 
 class Lexer {
  public:
-  Lexer();
-  Lexer(std::string filename);
+  Lexer(std::string filename, std::shared_ptr<Error> error_manager);
   ~Lexer();
 
   // Read the file stream and return the next Token from the file.
@@ -30,8 +31,10 @@ class Lexer {
   // consume the current char in the file stream.
   char Peek();
 
+  std::string filename_;
   std::ifstream ifs_;
   char lastchar_;
+  std::shared_ptr<Error> error_;
 
   // The lexer stores the current line number and char position within
   // that line, so we can set that in the token returned. This is

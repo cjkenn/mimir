@@ -5,6 +5,7 @@ SRCS = compiler.cpp \
 	parser.cpp \
 	ast.cpp \
 	token.cpp \
+	error.cpp \
 	symbol_table.cpp \
 	symbol.cpp \
 	ir_block.cpp \

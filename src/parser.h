@@ -5,10 +5,14 @@
 #include "lexer.h"
 #include "ast.h"
 #include "symbol_table.h"
+#include "error.h"
 
 class Parser {
  public:
-  Parser(std::shared_ptr<Lexer> lexer, std::shared_ptr<SymbolTable> sym_tab);
+  Parser(std::shared_ptr<Lexer> lexer,
+	 std::shared_ptr<SymbolTable> sym_tab,
+	 std::shared_ptr<Error> error);
+
   ~Parser() {};
   void LogError(std::string error);
   AstNodePtr Parse();
@@ -33,4 +37,5 @@ class Parser {
   std::shared_ptr<Lexer> lexer_;
   Token curr_tkn_;
   std::shared_ptr<SymbolTable> sym_tab_;
+  std::shared_ptr<Error> error_;
 };

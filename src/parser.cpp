@@ -5,9 +5,12 @@
 #include "parser.h"
 #include "ast.h"
 
-Parser::Parser(std::shared_ptr<Lexer> lexer, std::shared_ptr<SymbolTable> sym_tab) {
+Parser::Parser(std::shared_ptr<Lexer> lexer,
+	       std::shared_ptr<SymbolTable> sym_tab,
+	       std::shared_ptr<Error> error) {
   lexer_ = lexer;
   sym_tab_ = sym_tab;
+  error_ = error;
 }
 
 AstNodePtr Parser::Parse() {

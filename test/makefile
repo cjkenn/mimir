@@ -2,14 +2,16 @@ CC = clang++
 CFLAGS = -g -Wall -std=c++11 -o
 LEXERFILES = lexer_test.cpp \
 	../src/lexer.cpp \
-	../src/token.cpp
+	../src/token.cpp \
+	../src/error.cpp
 PARSERFILES = parser_test.cpp \
 	../src/lexer.cpp \
 	../src/parser.cpp \
 	../src/token.cpp \
 	../src/symbol_table.cpp \
 	../src/symbol.cpp \
-	../src/ast.cpp
+	../src/ast.cpp \
+	../src/error.cpp
 IRGENFILES = ir_gen_test.cpp \
 	../src/ir_gen.cpp \
 	../src/ir_block.cpp \
@@ -19,7 +21,8 @@ IRGENFILES = ir_gen_test.cpp \
 	../src/ast.cpp \
 	../src/lexer.cpp \
 	../src/parser.cpp \
-	../src/token.cpp
+	../src/token.cpp \
+	../src/error.cpp
 SYMTABFILES = symbol_table_test.cpp \
 	../src/ast.cpp \
 	../src/symbol.cpp \

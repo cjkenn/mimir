@@ -28,7 +28,7 @@ mv 5, r0
 mv 5, r1
 add r0, r1 ;result is in r1
 ```
-Supported operations can be found in src/instruction.h
+Supported operations can be found in src/ir_instr.h
 
 
 #### Grammar

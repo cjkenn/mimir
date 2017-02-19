@@ -3,6 +3,7 @@ CFLAGS = -g -Wall -std=c++11 -o
 SRCS = compiler.cpp \
 	lexer.cpp \
 	parser.cpp \
+	parser_result.cpp \
 	ast.cpp \
 	token.cpp \
 	error.cpp \

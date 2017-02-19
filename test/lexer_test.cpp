@@ -3,7 +3,6 @@
 #include <memory>
 #include "../src/token.h"
 #include "../src/lexer.h"
-#include "../src/error.h"
 
 // Test the Lex function on some single char symbols.
 // The order of the assert statements matters here,
@@ -11,8 +10,7 @@
 // input file.
 void test_lex_symbols() {
   std::string test_file = "lexer_input/symbol";
-  auto error = std::make_shared<Error>();
-  Lexer lexer(test_file, error);
+  Lexer lexer(test_file);
 
   Token paren_tkn = lexer.Lex();
   assert(paren_tkn.GetType() == TokenType::LEFT_PAREN_TKN);
@@ -63,8 +61,7 @@ void test_lex_symbols() {
 // Test the Lex function on an identifier.
 void test_lex_ident() {
   std::string test_file = "lexer_input/ident";
-  auto error = std::make_shared<Error>();
-  Lexer lexer(test_file, error);
+  Lexer lexer(test_file);
 
   Token ident_tkn = lexer.Lex();
   assert(ident_tkn.GetType() == TokenType::ID_TKN);
@@ -76,8 +73,7 @@ void test_lex_ident() {
 // Test the Lex function on a number.
 void test_lex_num() {
   std::string test_file = "lexer_input/num";
-  auto error = std::make_shared<Error>();
-  Lexer lexer(test_file, error);
+  Lexer lexer(test_file);
 
   Token num_tkn = lexer.Lex();
   assert(num_tkn.GetType() == TokenType::NUM_TKN);

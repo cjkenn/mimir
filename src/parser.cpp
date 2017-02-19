@@ -4,17 +4,19 @@
 #include "token.h"
 #include "parser.h"
 #include "ast.h"
+#include "parser_result.h"
+#include "error.h"
 
 Parser::Parser(std::shared_ptr<Lexer> lexer,
-	       std::shared_ptr<SymbolTable> sym_tab,
-	       std::shared_ptr<Error> error) {
+	       std::shared_ptr<SymbolTable> sym_tab) {
   lexer_ = lexer;
   sym_tab_ = sym_tab;
-  error_ = error;
 }
 
-AstNodePtr Parser::Parse() {
-  return Program();
+ParserResult Parser::Parse() {
+  result_.SetAst(Program());
+
+  return result_;
 }
 
 AstNodePtr Parser::Program() {
@@ -109,12 +111,8 @@ AstNodePtr Parser::Expr() {
 
     // Check symbol table for this variable. If duplicate, we error.
     // If not found, then we insert it into the current scope's symbol table.
-    if (sym_tab_->ExistsAtCurrentScope(assign_ast->GetText())) {
-      // TODO: Error handling badly needed here
-      std::cout << "Duplicate variable declaration found!" << std::endl;
-    } else {
-      sym_tab_->Insert(assign_ast);
-    }
+    // TODO: Determine if this is a duplicate variable declaration, or just an assignment
+    sym_tab_->Insert(assign_ast);
 
     GetNextTkn();
 
@@ -181,19 +179,16 @@ AstNodePtr Parser::Term() {
   return term_ast;
 }
 
-// TODO: Error handling module
 void Parser::Expect(TokenType expected_type) {
   if (curr_tkn_.GetType() == expected_type) {
     GetNextTkn();
   } else {
-    std::cout << "Expected " <<
-      PrettifyTokenType(expected_type) <<
-      ", but found " <<
-      curr_tkn_.GetPrettyType() << std::endl;
+    Error err(curr_tkn_.GetLinePos(),
+	      curr_tkn_.GetCharPos(),
+	      lexer_->GetFileName());
 
-    std::cout << "Current token: " << std::endl;
-    curr_tkn_.Debug();
-    std::exit(1);
+    err.SetMessageForExpect(expected_type, curr_tkn_.GetType());
+    result_.AddError(err);
   }
 }
 
@@ -257,28 +252,5 @@ AstType Parser::GetTestAstFromTkn() {
     return AstType::NEQ_AST;
   default:
     return AstType::EMPTY_AST;
-  }
-}
-
-void Parser::LogError(std::string error) {
-  std::cout << error << std::endl;
-}
-
-// TODO: Error handling module
-std::string Parser::PrettifyTokenType(TokenType type) {
-  switch (type) {
-  case TokenType::ID_TKN:
-    return "Identifier";
-  case TokenType::NUM_TKN:
-    return "Number";
-  case TokenType::IF_TKN:
-    return "'If' keyword";
-  case TokenType::ELSE_TKN:
-    return "'Else' keyword";
-  case TokenType::WHILE_TKN:
-    return "'While' keyword";
-  default:
-    std::string type_str = "";
-    return type_str + (char)type;
   }
 }

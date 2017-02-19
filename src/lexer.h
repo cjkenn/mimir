@@ -7,11 +7,13 @@
 
 class Lexer {
  public:
-  Lexer(std::string filename, std::shared_ptr<Error> error_manager);
+  Lexer(std::string filename);
   ~Lexer();
 
   // Read the file stream and return the next Token from the file.
   Token Lex();
+
+  std::string GetFileName() const { return filename_; }
 
  private:
   // Create a new token and advance characters, primarly
@@ -34,7 +36,6 @@ class Lexer {
   std::string filename_;
   std::ifstream ifs_;
   char lastchar_;
-  std::shared_ptr<Error> error_;
 
   // The lexer stores the current line number and char position within
   // that line, so we can set that in the token returned. This is

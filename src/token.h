@@ -26,6 +26,7 @@ enum TokenType {
   IF_TKN,
   ELSE_TKN,
   WHILE_TKN,
+  UNKNOWN_TKN,
   EOF_TKN
 };
 

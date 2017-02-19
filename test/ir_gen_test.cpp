@@ -9,7 +9,6 @@
 #include "../src/parser.h"
 #include "../src/token.h"
 #include "../src/symbol_table.h"
-#include "../src/error.h"
 
 // Input:
 //
@@ -31,12 +30,11 @@ void test_gen_if_ast() {
   // which should be focused only on the ir gen.
   // (ie. what if parsing breaks?)
   std::string test_file = "parser_input/if_statement";
-  auto error = std::make_shared<Error>();
-  auto lexer = std::make_shared<Lexer>(test_file, error);
+  auto lexer = std::make_shared<Lexer>(test_file);
   auto sym_tab = std::make_shared<SymbolTable>();
-  Parser parser(lexer, sym_tab, error);
+  Parser parser(lexer, sym_tab);
 
-  auto ast = parser.Parse();
+  auto ast = parser.Parse().GetAst();
   IrGen ir_gen;
   std::vector<InstrPtr> ir = ir_gen.Gen(ast);
 
@@ -95,12 +93,11 @@ void test_gen_if_ast() {
 // lbl2:
 void test_gen_else_ast() {
   std::string test_file = "parser_input/if_else_statement";
-  auto error = std::make_shared<Error>();
-  auto lexer = std::make_shared<Lexer>(test_file, error);
+  auto lexer = std::make_shared<Lexer>(test_file);
   auto sym_tab = std::make_shared<SymbolTable>();
-  Parser parser(lexer, sym_tab, error);
+  Parser parser(lexer, sym_tab);
 
-  auto ast = parser.Parse();
+  auto ast = parser.Parse().GetAst();
   IrGen ir_gen;
   std::vector<InstrPtr> ir = ir_gen.Gen(ast);
 
@@ -169,12 +166,11 @@ void test_gen_else_ast() {
 // lbl1:
 void test_gen_while_ast() {
   std::string test_file = "parser_input/while";
-  auto error = std::make_shared<Error>();
-  auto lexer = std::make_shared<Lexer>(test_file, error);
+  auto lexer = std::make_shared<Lexer>(test_file);
   auto sym_tab = std::make_shared<SymbolTable>();
-  Parser parser(lexer, sym_tab, error);
+  Parser parser(lexer, sym_tab);
 
-  auto ast = parser.Parse();
+  auto ast = parser.Parse().GetAst();
   IrGen ir_gen;
   std::vector<InstrPtr> ir = ir_gen.Gen(ast);
 

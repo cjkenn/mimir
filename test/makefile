@@ -11,6 +11,7 @@ PARSERFILES = parser_test.cpp \
 	../src/symbol_table.cpp \
 	../src/symbol.cpp \
 	../src/ast.cpp \
+	../src/parser_result.cpp \
 	../src/error.cpp
 IRGENFILES = ir_gen_test.cpp \
 	../src/ir_gen.cpp \
@@ -21,6 +22,7 @@ IRGENFILES = ir_gen_test.cpp \
 	../src/ast.cpp \
 	../src/lexer.cpp \
 	../src/parser.cpp \
+	../src/parser_result.cpp \
 	../src/token.cpp \
 	../src/error.cpp
 SYMTABFILES = symbol_table_test.cpp \

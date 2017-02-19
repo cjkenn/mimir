@@ -17,13 +17,18 @@ int main(int argc, char *argv[]) {
 
   std::string filename = argv[1];
 
-  // TODO: Add in the error module here, use in lexer and parser
-  auto error_manager = std::make_shared<Error>();
-  auto lexer = std::make_shared<Lexer>(filename, error_manager);
+  auto lexer = std::make_shared<Lexer>(filename);
   auto sym_tab = std::make_shared<SymbolTable>();
 
-  Parser parser = Parser(lexer, sym_tab, error_manager);
-  auto program = parser.Parse();
+  Parser parser = Parser(lexer, sym_tab);
+  ParserResult parser_result = parser.Parse();
+
+  if (parser_result.HasError()) {
+    parser_result.ReportErrors();
+    return -1;
+  }
+
+  auto ast = parser_result.GetAst();
 
   return 0;
 }

@@ -10,10 +10,9 @@
 
 Parser get_parser_for_file(std::string filename) {
   std::string test_file = "parser_input/" + filename;
-  auto error = std::make_shared<Error>();
-  auto lexer = std::make_shared<Lexer>(test_file, error);
+  auto lexer = std::make_shared<Lexer>(test_file);
   auto sym_tab = std::make_shared<SymbolTable>();
-  Parser parser(lexer, sym_tab, error);
+  Parser parser(lexer, sym_tab);
 
   return parser;
 }
@@ -31,7 +30,7 @@ Parser get_parser_for_file(std::string filename) {
 // where var holds the variable name and term holds the value.
 void test_parse_assign() {
   auto parser = get_parser_for_file("simple_assign");
-  auto ast = parser.Parse();
+  auto ast = parser.Parse().GetAst();
 
   assert(ast->GetType() == AstType::PROG_AST);
   assert(ast->GetChildren().size() == 1);
@@ -70,7 +69,7 @@ void test_parse_assign() {
 // in the addition operation
 void test_parse_assign_expression() {
   auto parser = get_parser_for_file("expr_assign");
-  auto ast = parser.Parse();
+  auto ast = parser.Parse().GetAst();
 
   assert(ast->GetType() == AstType::PROG_AST);
   assert(ast->GetChildren().size() == 1);
@@ -112,7 +111,7 @@ void test_parse_assign_expression() {
 //    Num    Num
 void test_parse_mul_expr() {
   auto parser = get_parser_for_file("mul_expr");
-  auto ast = parser.Parse();
+  auto ast = parser.Parse().GetAst();
 
   assert(ast->GetType() == AstType::PROG_AST);
   assert(ast->GetChildren().size() == 1);
@@ -145,7 +144,7 @@ void test_parse_mul_expr() {
 //    Num    Num
 void test_parse_div_expr() {
   auto parser = get_parser_for_file("div_expr");
-  auto ast = parser.Parse();
+  auto ast = parser.Parse().GetAst();
 
   assert(ast->GetType() == AstType::PROG_AST);
   assert(ast->GetChildren().size() == 1);
@@ -179,7 +178,7 @@ void test_parse_div_expr() {
 //
 void test_parse_lte_test() {
   auto parser = get_parser_for_file("lte_test");
-  auto ast = parser.Parse();
+  auto ast = parser.Parse().GetAst();
 
   assert(ast->GetType() == AstType::PROG_AST);
   assert(ast->GetChildren().size() == 1);
@@ -215,7 +214,7 @@ void test_parse_lte_test() {
 //
 void test_parse_eqeq_test() {
   auto parser = get_parser_for_file("eqeq_test");
-  auto ast = parser.Parse();
+  auto ast = parser.Parse().GetAst();
 
   assert(ast->GetType() == AstType::PROG_AST);
   assert(ast->GetChildren().size() == 1);
@@ -251,7 +250,7 @@ void test_parse_eqeq_test() {
 //
 void test_parse_neq_test() {
   auto parser = get_parser_for_file("neq_test");
-  auto ast = parser.Parse();
+  auto ast = parser.Parse().GetAst();
 
   assert(ast->GetType() == AstType::PROG_AST);
   assert(ast->GetChildren().size() == 1);
@@ -290,7 +289,7 @@ void test_parse_neq_test() {
 //             Var   Num
 void test_parse_if() {
   auto parser = get_parser_for_file("if_statement");
-  auto ast = parser.Parse();
+  auto ast = parser.Parse().GetAst();
 
   assert(ast->GetType() == AstType::PROG_AST);
   assert(ast->GetChildren().size() == 1);
@@ -347,7 +346,7 @@ void test_parse_if() {
 //        Var  Num   Var  Num
 void test_parse_if_else() {
   auto parser = get_parser_for_file("if_else_statement");
-  auto ast = parser.Parse();
+  auto ast = parser.Parse().GetAst();
 
   assert(ast->GetType() == AstType::PROG_AST);
   assert(ast->GetChildren().size() == 1);
@@ -427,7 +426,7 @@ void test_parse_if_else() {
 //                   Var Num
 void test_parse_while() {
   auto parser = get_parser_for_file("while");
-  auto ast = parser.Parse();
+  auto ast = parser.Parse().GetAst();
 
   assert(ast->GetType() == AstType::PROG_AST);
   assert(ast->GetChildren().size() == 1);
@@ -483,7 +482,7 @@ void test_parse_while() {
 // Var  Num        Var  Num
 void test_parse_two_statements() {
   auto parser = get_parser_for_file("two_statements");
-  auto ast = parser.Parse();
+  auto ast = parser.Parse().GetAst();
 
   assert(ast->GetType() == AstType::PROG_AST);
   assert(ast->GetChildren().size() == 2);

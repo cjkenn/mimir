@@ -53,15 +53,10 @@ class AstNode {
   std::vector<AstNodePtr> GetChildren() const {return children_;}
   void SetChildren(std::vector<AstNodePtr> children) {children_ = children;}
 
-  void SetDebug();
-  std::string GetDebug() const {return debug_;}
-
   void Visit() { visited_ = true; }
   bool IsVisited() const { return visited_; }
   void SetVisited(bool v) { visited_ = v; }
-
   void VisitNodeAndChildren();
-  void Debug();
 
  private:
   AstType type_;
@@ -76,7 +71,4 @@ class AstNode {
   std::vector<AstNodePtr> children_;
   bool visited_;
   bool needs_ir_label_;
-
-  std::string GetPrettyType();
-  std::string GetChildDebugString(AstNodePtr child);
 };

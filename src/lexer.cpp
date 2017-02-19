@@ -8,9 +8,8 @@
 #include "lexer.h"
 #include "error.h"
 
-Lexer::Lexer(std::string filename, std::shared_ptr<Error> error) {
+Lexer::Lexer(std::string filename) {
   filename_ = filename;
-  error_ = error;
   lastchar_ = ' ';
   curr_line_pos_ = 1;
   curr_char_pos_ = 1;
@@ -151,8 +150,9 @@ Token Lexer::Lex() {
     tkn = BuildTokenAndAdvance(TokenType::SEMICOLON_TKN);
     return tkn;
   default:
-    error_->ReportUnknownToken(filename_, curr_line_pos_, curr_char_pos_, lastchar_);
-    tkn = Token(TokenType::EOF_TKN);
+    // Set the token type as unknown is we don't recognize it here. This
+    // will cause an expect error to be reported by the parser later on.
+    tkn = Token(TokenType::UNKNOWN_TKN);
     break;
   }
 

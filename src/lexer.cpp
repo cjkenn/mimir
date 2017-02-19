@@ -10,10 +10,10 @@
 
 Lexer::Lexer(std::string filename) {
   filename_ = filename;
-  lastchar_ = ' ';
   curr_line_pos_ = 1;
   curr_char_pos_ = 1;
   ifs_.open(filename.c_str());
+  ifs_.get(lastchar_);
 }
 
 Lexer::~Lexer() {

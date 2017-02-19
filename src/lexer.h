@@ -20,10 +20,10 @@ class Lexer {
   // used when lexing single characters. Also moves the
   // char count.
   Token BuildTokenAndAdvance(TokenType curr_type);
+  Token BuildToken(TokenType curr_type);
 
   Token GetNumTkn();
   Token GetStrTkn();
-
 
   // Move the char pointer ahead one, and if we are at the end, ensure
   // that we will get and EOF token.

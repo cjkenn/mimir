@@ -12,10 +12,17 @@ Error::Error(int line, int pos, std::string filename) {
 void Error::SetMessageForExpect(TokenType expected, TokenType found) {
   std::string output;
   output += BuildLocErrorPrefix();
-  output += "Expected " +
-    PrettifyTokenType(expected) +
-    ", but found " +
-    PrettifyTokenType(found);
+  output += "Expected '" +
+    PrettifyTokenType(expected) + "'"
+    ", but found '" +
+    PrettifyTokenType(found) + "'";
+
+  message_ = output;
+}
+
+void Error::SetMessageForUnknownToken(std::string tkn_val) {
+  std::string output = BuildLocErrorPrefix();
+  output += "Unknown token '" + tkn_val + "' found.";
 
   message_ = output;
 }
@@ -76,6 +83,8 @@ std::string Error::PrettifyTokenType(TokenType tkn_type) {
     return ">=";
   case TokenType::EQEQ_TKN:
     return "==";
+  case TokenType::EOF_TKN:
+    return "EOF";
   default:
     return "Unknown token type";
   }

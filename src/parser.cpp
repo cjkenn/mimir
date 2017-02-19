@@ -172,6 +172,16 @@ AstNodePtr Parser::Term() {
     term_ast->SetVal(curr_tkn_.GetVal());
     GetNextTkn();
     break;
+  case TokenType::UNKNOWN_TKN:
+    {
+      Error err(curr_tkn_.GetLinePos(),
+		curr_tkn_.GetCharPos(),
+		lexer_->GetFileName());
+      err.SetMessageForUnknownToken(curr_tkn_.GetText());
+      result_.AddError(err);
+      GetNextTkn();
+      break;
+    }
   default:
     term_ast = ParenExpr();
   }

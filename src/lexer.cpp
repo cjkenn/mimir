@@ -24,7 +24,7 @@ Token Lexer::Lex() {
   Token tkn;
 
   if (lastchar_ == -1) {
-    tkn = Token(TokenType::EOF_TKN);
+    tkn = BuildToken(TokenType::EOF_TKN);
     return tkn;
   }
 
@@ -37,7 +37,7 @@ Token Lexer::Lex() {
     }
 
     if (!ifs_.get(lastchar_)) {
-      tkn = Token(TokenType::EOF_TKN);
+      tkn = BuildToken(TokenType::EOF_TKN);
       return tkn;
     }
   }
@@ -150,10 +150,12 @@ Token Lexer::Lex() {
     tkn = BuildTokenAndAdvance(TokenType::SEMICOLON_TKN);
     return tkn;
   default:
-    // Set the token type as unknown is we don't recognize it here. This
-    // will cause an expect error to be reported by the parser later on.
-    tkn = Token(TokenType::UNKNOWN_TKN);
-    break;
+    {
+      // Set the token type as unknown is we don't recognize it here. This
+      // should cause an expect error to be reported by the parser later on.
+      tkn = BuildTokenAndAdvance(TokenType::UNKNOWN_TKN);
+      break;
+    }
   }
 
   return tkn;
@@ -163,8 +165,18 @@ Token Lexer::BuildTokenAndAdvance(TokenType curr_type) {
   Token tkn(curr_type);
   tkn.SetLinePos(curr_line_pos_);
   tkn.SetCharPos(curr_char_pos_);
+  tkn.SetText(std::string(1, lastchar_));
 
   Advance();
+
+  return tkn;
+}
+
+Token Lexer::BuildToken(TokenType curr_type) {
+  Token tkn(curr_type);
+  tkn.SetLinePos(curr_line_pos_);
+  tkn.SetCharPos(curr_char_pos_);
+  tkn.SetText(std::string(1, lastchar_));
 
   return tkn;
 }

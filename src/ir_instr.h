@@ -5,11 +5,11 @@
 #include <string>
 #include <memory>
 
-class Instruction;
+class IrInstr;
 
-typedef std::shared_ptr<Instruction> InstrPtr;
+typedef std::shared_ptr<IrInstr> IrInstrPtr;
 
-enum InstructionType {
+enum IrInstrType {
   MV_INSTR,
   LD_INSTR,
   SV_INSTR,
@@ -29,29 +29,29 @@ enum InstructionType {
   CMP_INSTR
 };
 
-class Instruction {
+class IrInstr {
  public:
-  Instruction() {};
+  IrInstr() {};
 
-  Instruction(InstructionType type, std::string dest);
+  IrInstr(IrInstrType type, std::string dest);
 
-  Instruction(InstructionType type,
+  IrInstr(IrInstrType type,
 	      std::pair<std::string, std::string> args,
 	      std::string dest);
 
-  Instruction(InstructionType type,
+  IrInstr(IrInstrType type,
 	      std::string arg1,
 	      std::string arg2,
 	      std::string dest);
 
-  ~Instruction() {};
+  ~IrInstr() {};
 
-  InstructionType GetType() const { return type_; }
+  IrInstrType GetType() const { return type_; }
   std::string GetDest() const { return dest_; }
   std::pair<std::string, std::string> GetArgs() const { return args_; }
   std::string GetLabel() const { return label_; }
 
-  void SetType(InstructionType type) { type_ = type; }
+  void SetType(IrInstrType type) { type_ = type; }
   void SetArgs(std::pair<std::string, std::string> args) { args_ = args; }
   void SetDest(std::string dest) { dest_ = dest; }
   void SetLabel(std::string l) { label_ = l; }
@@ -60,7 +60,7 @@ class Instruction {
 
  private:
   // The type of instruction. This roughly corresponds to an opcode
-  InstructionType type_;
+  IrInstrType type_;
 
   // The pair or arguments given to this instruction. If the intstruction
   // only uses on argument (like sv), this is put into the

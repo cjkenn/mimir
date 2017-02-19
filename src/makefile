@@ -11,10 +11,11 @@ SRCS = compiler.cpp \
 	symbol.cpp \
 	ir_block.cpp \
 	ir_gen.cpp \
-	instruction.cpp \
+	ir_instr.cpp \
 	cfg_builder.cpp \
 	cfg.cpp \
-	cfg_node.cpp
+	cfg_node.cpp \
+	code_gen.cpp
 OUT = ../build/mimir
 
 mimir: $(SRCS)

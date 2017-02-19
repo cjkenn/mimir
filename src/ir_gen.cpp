@@ -5,7 +5,7 @@
 #include <assert.h>
 #include "ast.h"
 #include "ir_block.h"
-#include "instruction.h"
+#include "ir_instr.h"
 #include "ir_gen.h"
 
 IrGen::IrGen() {
@@ -15,8 +15,8 @@ IrGen::IrGen() {
   curr_lbl_ = "lbl" + std::to_string(lbl_count_);
 }
 
-std::vector<InstrPtr> IrGen::Gen(AstNodePtr ast) {
-  std::vector<InstrPtr> ir;
+std::vector<IrInstrPtr> IrGen::Gen(AstNodePtr ast) {
+  std::vector<IrInstrPtr> ir;
   AstNodePtr start_ast = ast->GetChildAtIndex(0);
 
   // Ensure that no ast nodes have been marked as visited.
@@ -33,7 +33,7 @@ std::vector<InstrPtr> IrGen::Gen(AstNodePtr ast) {
     auto node = q.front();
     q.pop();
 
-    std::vector<InstrPtr> instrs = ConvertAstToInstr(node);
+    std::vector<IrInstrPtr> instrs = ConvertAstToInstr(node);
     MergeInstrVecs(ir, instrs);
 
     node->Visit();
@@ -47,8 +47,8 @@ std::vector<InstrPtr> IrGen::Gen(AstNodePtr ast) {
   return ir;
 }
 
-std::vector<InstrPtr> IrGen::ConvertAstToInstr(AstNodePtr ast) {
-  std::vector<InstrPtr> instrs;
+std::vector<IrInstrPtr> IrGen::ConvertAstToInstr(AstNodePtr ast) {
+  std::vector<IrInstrPtr> instrs;
 
   if (ast == nullptr) {
     return instrs;
@@ -119,10 +119,10 @@ std::vector<InstrPtr> IrGen::ConvertAstToInstr(AstNodePtr ast) {
   return instrs;
 }
 
-InstrPtr IrGen::VarAstToInstr(AstNodePtr ast) {
+IrInstrPtr IrGen::VarAstToInstr(AstNodePtr ast) {
   assert(ast->GetType() == AstType::VAR_AST);
   std::pair<std::string, std::string> args(ast->GetText(), curr_reg_);
-  InstrPtr ins = std::make_shared<Instruction>(InstructionType::LD_INSTR,
+  IrInstrPtr ins = std::make_shared<IrInstr>(IrInstrType::LD_INSTR,
 					       args,
 					       curr_reg_);
   ins->SetLabel(curr_lbl_);
@@ -131,10 +131,10 @@ InstrPtr IrGen::VarAstToInstr(AstNodePtr ast) {
   return ins;
 }
 
-InstrPtr IrGen::CstAstToInstr(AstNodePtr ast) {
+IrInstrPtr IrGen::CstAstToInstr(AstNodePtr ast) {
   assert(ast->GetType() == AstType::CST_AST);
   std::pair<std::string, std::string> args(std::to_string(ast->GetVal()), curr_reg_);
-  InstrPtr ins = std::make_shared<Instruction>(InstructionType::MV_INSTR,
+  IrInstrPtr ins = std::make_shared<IrInstr>(IrInstrType::MV_INSTR,
 					       args,
 					       curr_reg_);
   ins->SetLabel(curr_lbl_);
@@ -143,8 +143,8 @@ InstrPtr IrGen::CstAstToInstr(AstNodePtr ast) {
   return ins;
 }
 
-InstrPtr IrGen::TestAstToInstr(AstNodePtr ast) {
-  InstrPtr ins = std::make_shared<Instruction>();
+IrInstrPtr IrGen::TestAstToInstr(AstNodePtr ast) {
+  IrInstrPtr ins = std::make_shared<IrInstr>();
   ins->SetLabel(curr_lbl_);
   ins->SetType(GetJmpInstrTypeFromAst(ast));
 
@@ -157,8 +157,8 @@ InstrPtr IrGen::TestAstToInstr(AstNodePtr ast) {
 }
 
 // We expect the ast param to be of type IF_AST or ELSE_AST
-std::vector<InstrPtr> IrGen::IfElseAstToInstr(AstNodePtr ast) {
-  std::vector<InstrPtr> v;
+std::vector<IrInstrPtr> IrGen::IfElseAstToInstr(AstNodePtr ast) {
+  std::vector<IrInstrPtr> v;
 
   auto expr_test = ComparisonAstToInstr(ast);
   MergeInstrVecs(v, expr_test);
@@ -190,16 +190,16 @@ std::vector<InstrPtr> IrGen::IfElseAstToInstr(AstNodePtr ast) {
   return v;
 }
 
-std::vector<InstrPtr> IrGen::WhileAstToInstr(AstNodePtr ast) {
+std::vector<IrInstrPtr> IrGen::WhileAstToInstr(AstNodePtr ast) {
   assert(ast->GetType() == AstType::WHILE_AST);
-  std::vector<InstrPtr> v;
+  std::vector<IrInstrPtr> v;
 
   auto expr_test = ComparisonAstToInstr(ast);
   MergeInstrVecs(v, expr_test);
 
   auto while_true_ast = ast->GetChildAtIndex(1);
   auto while_true_instrs = ConvertAstToInstr(while_true_ast);
-  InstrPtr always_jmp = std::make_shared<Instruction>(InstructionType::JMP_INSTR,
+  IrInstrPtr always_jmp = std::make_shared<IrInstr>(IrInstrType::JMP_INSTR,
 						      curr_lbl_);
 
   // Order should be maintained here. The unconditional jump instruction
@@ -217,14 +217,14 @@ std::vector<InstrPtr> IrGen::WhileAstToInstr(AstNodePtr ast) {
   return v;
 }
 
-std::vector<InstrPtr> IrGen::ComparisonAstToInstr(AstNodePtr ast) {
-  std::vector<InstrPtr> v;
+std::vector<IrInstrPtr> IrGen::ComparisonAstToInstr(AstNodePtr ast) {
+  std::vector<IrInstrPtr> v;
 
   auto expr_ast = ast->GetChildAtIndex(0);
   auto left_side = ConvertAstToInstr(expr_ast->GetChildAtIndex(0));
   auto right_side = ConvertAstToInstr(expr_ast->GetChildAtIndex(1));
 
-  InstrPtr compare = std::make_shared<Instruction>(InstructionType::CMP_INSTR,
+  IrInstrPtr compare = std::make_shared<IrInstr>(IrInstrType::CMP_INSTR,
 						   left_side[0]->GetDest(),
 						   right_side[0]->GetDest(),
 						   left_side[0]->GetDest());
@@ -242,15 +242,15 @@ std::vector<InstrPtr> IrGen::ComparisonAstToInstr(AstNodePtr ast) {
   return v;
 }
 
-std::vector<InstrPtr> IrGen::SetAstToInstr(AstNodePtr ast) {
+std::vector<IrInstrPtr> IrGen::SetAstToInstr(AstNodePtr ast) {
   assert(ast->GetType() == AstType::SET_AST);
-  std::vector<InstrPtr> v;
+  std::vector<IrInstrPtr> v;
 
   // Set contains the var name in the left child, and the value in the right.
   // We don't use the typical var instruction here since this a set, so we build
   // our own sv instruction here.
   auto right_side = ConvertAstToInstr(ast->GetChildAtIndex(1));
-  InstrPtr save = std::make_shared<Instruction>(InstructionType::SV_INSTR,
+  IrInstrPtr save = std::make_shared<IrInstr>(IrInstrType::SV_INSTR,
 						PrevRegister());
   save->SetLabel(curr_lbl_);
 
@@ -264,8 +264,8 @@ std::vector<InstrPtr> IrGen::SetAstToInstr(AstNodePtr ast) {
   return v;
 }
 
-std::vector<InstrPtr> IrGen::BinOpAstToInstr(AstNodePtr ast) {
-  std::vector<InstrPtr> v;
+std::vector<IrInstrPtr> IrGen::BinOpAstToInstr(AstNodePtr ast) {
+  std::vector<IrInstrPtr> v;
   auto op_instr_type = GetBinOpInstrTypeFromAst(ast);
 
   auto left_side = ConvertAstToInstr(ast->GetChildAtIndex(0));
@@ -276,7 +276,7 @@ std::vector<InstrPtr> IrGen::BinOpAstToInstr(AstNodePtr ast) {
   auto right_side = ConvertAstToInstr(ast->GetChildAtIndex(1));
 
   std::pair<std::string, std::string> args(first_add_arg, PrevRegister());
-  InstrPtr add = std::make_shared<Instruction>(op_instr_type,
+  IrInstrPtr add = std::make_shared<IrInstr>(op_instr_type,
 					       args,
 					       PrevRegister());
   add->SetLabel(curr_lbl_);
@@ -290,45 +290,45 @@ std::vector<InstrPtr> IrGen::BinOpAstToInstr(AstNodePtr ast) {
   return v;
 }
 
-InstructionType IrGen::GetBinOpInstrTypeFromAst(AstNodePtr ast) {
+IrInstrType IrGen::GetBinOpInstrTypeFromAst(AstNodePtr ast) {
   assert(ast->IsBinOp() == true);
   auto ast_type = ast->GetType();
 
   switch(ast_type) {
   case AstType::ADD_AST:
-    return InstructionType::ADD_INSTR;
+    return IrInstrType::ADD_INSTR;
   case AstType::SUB_AST:
-    return InstructionType::SUB_INSTR;
+    return IrInstrType::SUB_INSTR;
   case AstType::MUL_AST:
-    return InstructionType::MUL_INSTR;
+    return IrInstrType::MUL_INSTR;
   case AstType::DIV_AST:
-    return InstructionType::DIV_INSTR;
+    return IrInstrType::DIV_INSTR;
   case AstType::MOD_AST:
-    return InstructionType::MOD_INSTR;
+    return IrInstrType::MOD_INSTR;
   default:
-    return InstructionType::NOP_INSTR;
+    return IrInstrType::NOP_INSTR;
   }
 }
 
-InstructionType IrGen::GetJmpInstrTypeFromAst(AstNodePtr ast) {
+IrInstrType IrGen::GetJmpInstrTypeFromAst(AstNodePtr ast) {
   assert(ast->IsCmp() == true);
   auto ast_type = ast->GetType();
 
   switch(ast_type) {
   case AstType::LT_AST:
-    return InstructionType::JMPGT_INSTR;
+    return IrInstrType::JMPGT_INSTR;
   case AstType::GT_AST:
-    return InstructionType::JMPLT_INSTR;
+    return IrInstrType::JMPLT_INSTR;
   case AstType::LTE_AST:
-    return InstructionType::JMPGTE_INSTR;
+    return IrInstrType::JMPGTE_INSTR;
   case AstType::GTE_AST:
-    return InstructionType::JMPLTE_INSTR;
+    return IrInstrType::JMPLTE_INSTR;
   case AstType::EQEQ_AST:
-    return InstructionType::JMPNEQ_INSTR;
+    return IrInstrType::JMPNEQ_INSTR;
   case AstType::NEQ_AST:
-    return InstructionType::JMPEQ_INSTR;
+    return IrInstrType::JMPEQ_INSTR;
   default:
-    return InstructionType::NOP_INSTR;
+    return IrInstrType::NOP_INSTR;
   }
 }
 
@@ -350,7 +350,7 @@ void IrGen::ResetAst(AstNodePtr ast) {
 }
 
 // Puts the contents of v2 into v1.
-void IrGen::MergeInstrVecs(std::vector<InstrPtr>& v1, std::vector<InstrPtr>& v2) {
+void IrGen::MergeInstrVecs(std::vector<IrInstrPtr>& v1, std::vector<IrInstrPtr>& v2) {
   v1.insert(v1.end(), v2.begin(), v2.end());
 }
 

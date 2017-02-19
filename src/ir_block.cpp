@@ -6,16 +6,16 @@ IrBlock::IrBlock() {
   isLeader_ = false;
 }
 
-IrBlock::IrBlock(std::vector<Instruction> instructions) {
+IrBlock::IrBlock(std::vector<IrInstr> instructions) {
   isLeader_ = false;
   instructions_ = instructions;
 }
 
-void IrBlock::AddInstruction(Instruction instr) {
+void IrBlock::AddInstruction(IrInstr instr) {
   instructions_.push_back(instr);
 }
 
-void IrBlock::PrependInstruction(Instruction instr) {
+void IrBlock::PrependInstruction(IrInstr instr) {
   instructions_.insert(instructions_.begin(), instr);
 }
 
@@ -23,7 +23,7 @@ void IrBlock::AddAdjacentBlock(IrBlockPtr next) {
   adjacent_.push_back(next);
 }
 
-void IrBlock::MergeInstructions(std::vector<Instruction>& instrs) {
+void IrBlock::MergeInstructions(std::vector<IrInstr>& instrs) {
   if (instrs.empty()) {
     return;
   }

@@ -3,7 +3,7 @@
 #include <memory>
 #include "../src/ir_block.h"
 #include "../src/ir_gen.h"
-#include "../src/instruction.h"
+#include "../src/ir_instr.h"
 #include "../src/ast.h"
 #include "../src/lexer.h"
 #include "../src/parser.h"
@@ -36,40 +36,40 @@ void test_gen_if_ast() {
 
   auto ast = parser.Parse().GetAst();
   IrGen ir_gen;
-  std::vector<InstrPtr> ir = ir_gen.Gen(ast);
+  std::vector<IrInstrPtr> ir = ir_gen.Gen(ast);
 
   assert(ir.size() == 6);
 
   // assert we have the correct instructions
-  assert(ir[0]->GetType() == InstructionType::LD_INSTR);
+  assert(ir[0]->GetType() == IrInstrType::LD_INSTR);
   assert(ir[0]->GetLabel() == "lbl0");
   assert(ir[0]->GetArgs().first == "x");
   assert(ir[0]->GetArgs().second == "r0");
   assert(ir[0]->GetDest() == "r0");
 
-  assert(ir[1]->GetType() == InstructionType::MV_INSTR);
+  assert(ir[1]->GetType() == IrInstrType::MV_INSTR);
   assert(ir[1]->GetLabel() == "lbl0");
   assert(ir[1]->GetArgs().first == "1");
   assert(ir[1]->GetArgs().second == "r1");
   assert(ir[1]->GetDest() == "r1");
 
-  assert(ir[2]->GetType() == InstructionType::CMP_INSTR);
+  assert(ir[2]->GetType() == IrInstrType::CMP_INSTR);
   assert(ir[2]->GetLabel() == "lbl0");
   assert(ir[2]->GetArgs().first == "r0");
   assert(ir[2]->GetArgs().second == "r1");
   assert(ir[2]->GetDest() == "r0");
 
-  assert(ir[3]->GetType() == InstructionType::JMPGT_INSTR);
+  assert(ir[3]->GetType() == IrInstrType::JMPGT_INSTR);
   assert(ir[3]->GetLabel() == "lbl0");
   assert(ir[3]->GetDest() == "lbl1");
 
-  assert(ir[4]->GetType() == InstructionType::MV_INSTR);
+  assert(ir[4]->GetType() == IrInstrType::MV_INSTR);
   assert(ir[4]->GetLabel() == "lbl0");
   assert(ir[4]->GetArgs().first == "2");
   assert(ir[4]->GetArgs().second == "r2");
   assert(ir[4]->GetDest() == "r2");
 
-  assert(ir[5]->GetType() == InstructionType::SV_INSTR);
+  assert(ir[5]->GetType() == IrInstrType::SV_INSTR);
   assert(ir[5]->GetLabel() == "lbl0");
   assert(ir[5]->GetDest() == "r2");
 }
@@ -99,50 +99,50 @@ void test_gen_else_ast() {
 
   auto ast = parser.Parse().GetAst();
   IrGen ir_gen;
-  std::vector<InstrPtr> ir = ir_gen.Gen(ast);
+  std::vector<IrInstrPtr> ir = ir_gen.Gen(ast);
 
   assert(ir.size() == 8);
 
   // assert we have the correct instructions
-  assert(ir[0]->GetType() == InstructionType::LD_INSTR);
+  assert(ir[0]->GetType() == IrInstrType::LD_INSTR);
   assert(ir[0]->GetLabel() == "lbl0");
   assert(ir[0]->GetArgs().first == "x");
   assert(ir[0]->GetArgs().second == "r0");
   assert(ir[0]->GetDest() == "r0");
 
-  assert(ir[1]->GetType() == InstructionType::MV_INSTR);
+  assert(ir[1]->GetType() == IrInstrType::MV_INSTR);
   assert(ir[1]->GetLabel() == "lbl0");
   assert(ir[1]->GetArgs().first == "1");
   assert(ir[1]->GetArgs().second == "r1");
   assert(ir[1]->GetDest() == "r1");
 
-  assert(ir[2]->GetType() == InstructionType::CMP_INSTR);
+  assert(ir[2]->GetType() == IrInstrType::CMP_INSTR);
   assert(ir[2]->GetLabel() == "lbl0");
   assert(ir[2]->GetArgs().first == "r0");
   assert(ir[2]->GetArgs().second == "r1");
   assert(ir[2]->GetDest() == "r0");
 
-  assert(ir[3]->GetType() == InstructionType::JMPGT_INSTR);
+  assert(ir[3]->GetType() == IrInstrType::JMPGT_INSTR);
   assert(ir[3]->GetLabel() == "lbl0");
   assert(ir[3]->GetDest() == "lbl1");
 
-  assert(ir[4]->GetType() == InstructionType::MV_INSTR);
+  assert(ir[4]->GetType() == IrInstrType::MV_INSTR);
   assert(ir[4]->GetLabel() == "lbl0");
   assert(ir[4]->GetArgs().first == "2");
   assert(ir[4]->GetArgs().second == "r2");
   assert(ir[4]->GetDest() == "r2");
 
-  assert(ir[5]->GetType() == InstructionType::SV_INSTR);
+  assert(ir[5]->GetType() == IrInstrType::SV_INSTR);
   assert(ir[5]->GetLabel() == "lbl0");
   assert(ir[5]->GetDest() == "r2");
 
-  assert(ir[6]->GetType() == InstructionType::MV_INSTR);
+  assert(ir[6]->GetType() == IrInstrType::MV_INSTR);
   assert(ir[6]->GetLabel() == "lbl1");
   assert(ir[6]->GetArgs().first == "3");
   assert(ir[6]->GetArgs().second == "r3");
   assert(ir[6]->GetDest() == "r3");
 
-  assert(ir[7]->GetType() == InstructionType::SV_INSTR);
+  assert(ir[7]->GetType() == IrInstrType::SV_INSTR);
   assert(ir[7]->GetLabel() == "lbl1");
   assert(ir[7]->GetDest() == "r3");
 }
@@ -172,56 +172,56 @@ void test_gen_while_ast() {
 
   auto ast = parser.Parse().GetAst();
   IrGen ir_gen;
-  std::vector<InstrPtr> ir = ir_gen.Gen(ast);
+  std::vector<IrInstrPtr> ir = ir_gen.Gen(ast);
 
   assert(ir.size() == 9);
 
   // assert we have the correct instructions
-  assert(ir[0]->GetType() == InstructionType::LD_INSTR);
+  assert(ir[0]->GetType() == IrInstrType::LD_INSTR);
   assert(ir[0]->GetLabel() == "lbl0");
   assert(ir[0]->GetArgs().first == "x");
   assert(ir[0]->GetArgs().second == "r0");
   assert(ir[0]->GetDest() == "r0");
 
-  assert(ir[1]->GetType() == InstructionType::MV_INSTR);
+  assert(ir[1]->GetType() == IrInstrType::MV_INSTR);
   assert(ir[1]->GetLabel() == "lbl0");
   assert(ir[1]->GetArgs().first == "10");
   assert(ir[1]->GetArgs().second == "r1");
   assert(ir[1]->GetDest() == "r1");
 
-  assert(ir[2]->GetType() == InstructionType::CMP_INSTR);
+  assert(ir[2]->GetType() == IrInstrType::CMP_INSTR);
   assert(ir[2]->GetLabel() == "lbl0");
   assert(ir[2]->GetArgs().first == "r0");
   assert(ir[2]->GetArgs().second == "r1");
   assert(ir[2]->GetDest() == "r0");
 
-  assert(ir[3]->GetType() == InstructionType::JMPGT_INSTR);
+  assert(ir[3]->GetType() == IrInstrType::JMPGT_INSTR);
   assert(ir[3]->GetLabel() == "lbl0");
   assert(ir[3]->GetDest() == "lbl1");
 
-  assert(ir[4]->GetType() == InstructionType::LD_INSTR);
+  assert(ir[4]->GetType() == IrInstrType::LD_INSTR);
   assert(ir[4]->GetLabel() == "lbl0");
   assert(ir[4]->GetArgs().first == "x");
   assert(ir[4]->GetArgs().second == "r2");
   assert(ir[4]->GetDest() == "r2");
 
-  assert(ir[5]->GetType() == InstructionType::MV_INSTR);
+  assert(ir[5]->GetType() == IrInstrType::MV_INSTR);
   assert(ir[5]->GetLabel() == "lbl0");
   assert(ir[5]->GetArgs().first == "1");
   assert(ir[5]->GetArgs().second == "r3");
   assert(ir[5]->GetDest() == "r3");
 
-  assert(ir[6]->GetType() == InstructionType::ADD_INSTR);
+  assert(ir[6]->GetType() == IrInstrType::ADD_INSTR);
   assert(ir[6]->GetLabel() == "lbl0");
   assert(ir[6]->GetArgs().first == "r2");
   assert(ir[6]->GetArgs().second == "r3");
   assert(ir[6]->GetDest() == "r3");
 
-  assert(ir[7]->GetType() == InstructionType::SV_INSTR);
+  assert(ir[7]->GetType() == IrInstrType::SV_INSTR);
   assert(ir[7]->GetLabel() == "lbl0");
   assert(ir[7]->GetDest() == "r3");
 
-  assert(ir[8]->GetType() == InstructionType::JMP_INSTR);
+  assert(ir[8]->GetType() == IrInstrType::JMP_INSTR);
   assert(ir[8]->GetDest() == "lbl0");
 }
 

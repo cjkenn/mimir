@@ -6,7 +6,9 @@
 #include "symbol_table.h"
 #include "lexer.h"
 #include "parser.h"
-#include "error.h"
+#include "ir_gen.h"
+#include "ir_instr.h"
+#include "code_gen.h"
 
 int main(int argc, char *argv[]) {
   if (argc < 2) {
@@ -15,20 +17,35 @@ int main(int argc, char *argv[]) {
     exit(1);
   }
 
+  // Parse command line options.
   std::string filename = argv[1];
 
+  // Lex and parse the input file, storing variables
+  // in our symbol table.
   auto lexer = std::make_shared<Lexer>(filename);
   auto sym_tab = std::make_shared<SymbolTable>();
-
-  Parser parser = Parser(lexer, sym_tab);
+  Parser parser(lexer, sym_tab);
   ParserResult parser_result = parser.Parse();
 
+  // If the parser contains any errors, we don't continue
+  // with analysis/ generation. Show the user the errors
+  // and return.
   if (parser_result.HasError()) {
     parser_result.ReportErrors();
     return -1;
   }
 
-  auto ast = parser_result.GetAst();
+  AstNodePtr ast = parser_result.GetAst();
+
+  // Convert the ast to ir for analysis and x86 generation.
+  IrGen ir_gen;
+  std::vector<IrInstrPtr> ir = ir_gen.Gen(ast);
+
+  // TODO: Analysis and some optimizations on ir here
+
+  // Convert the ir to valid x86 and write to a file
+  CodeGen code_gen(filename + ".out");
+  code_gen.Gen(ir);
 
   return 0;
 }

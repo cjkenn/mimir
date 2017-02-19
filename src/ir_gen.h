@@ -3,7 +3,7 @@
 #include <memory>
 #include <vector>
 #include "ast.h"
-#include "instruction.h"
+#include "ir_instr.h"
 #include "ir_block.h"
 
 class IrGen {
@@ -16,39 +16,39 @@ class IrGen {
   // structure corresponds to a series of instructions and ast nodes,
   // a dfs-esque search may be performed if several nodes need to be visited
   // to generate instructions.
-  std::vector<InstrPtr> Gen(AstNodePtr ast);
+  std::vector<IrInstrPtr> Gen(AstNodePtr ast);
 
  private:
   // Converts an ast branch to a series of instructions. Some ast's
   // will only require a single instructions, but many require more than
   // one, so this returns a vector.
-  std::vector<InstrPtr> ConvertAstToInstr(AstNodePtr ast);
+  std::vector<IrInstrPtr> ConvertAstToInstr(AstNodePtr ast);
 
-  InstrPtr VarAstToInstr(AstNodePtr ast);
-  InstrPtr CstAstToInstr(AstNodePtr ast);
-  InstrPtr TestAstToInstr(AstNodePtr ast);
+  IrInstrPtr VarAstToInstr(AstNodePtr ast);
+  IrInstrPtr CstAstToInstr(AstNodePtr ast);
+  IrInstrPtr TestAstToInstr(AstNodePtr ast);
 
-  std::vector<InstrPtr> IfElseAstToInstr(AstNodePtr ast);
-  std::vector<InstrPtr> WhileAstToInstr(AstNodePtr ast);
-  std::vector<InstrPtr> SetAstToInstr(AstNodePtr ast);
-  std::vector<InstrPtr> BinOpAstToInstr(AstNodePtr ast);
+  std::vector<IrInstrPtr> IfElseAstToInstr(AstNodePtr ast);
+  std::vector<IrInstrPtr> WhileAstToInstr(AstNodePtr ast);
+  std::vector<IrInstrPtr> SetAstToInstr(AstNodePtr ast);
+  std::vector<IrInstrPtr> BinOpAstToInstr(AstNodePtr ast);
 
   // The parenthetical expressions that are used the test
   // whether we enter ifs or whiles can be generated in the
   // same manner, so we extract that functionality to this method.
-  std::vector<InstrPtr> ComparisonAstToInstr(AstNodePtr ast);
+  std::vector<IrInstrPtr> ComparisonAstToInstr(AstNodePtr ast);
 
   // Maps the ast types for binary operations to the
   // instruction types for the same ops. This function exists
   // so we can use the same BinOpAstToInstr method for every
   // binary op, instead of a different method for each op.
-  InstructionType GetBinOpInstrTypeFromAst(AstNodePtr ast);
+  IrInstrType GetBinOpInstrTypeFromAst(AstNodePtr ast);
 
   // Used to determine the correct instruction type for comparison
   // test asts. The results are not a 1-1 mapping, as we want
   // the opposite test instruction to generate the correct ir code.
   // For example, LT_AST maps to GT_INSTR.
-  InstructionType GetJmpInstrTypeFromAst(AstNodePtr ast);
+  IrInstrType GetJmpInstrTypeFromAst(AstNodePtr ast);
 
   // Vists nodes in the given ast, and sets their Visited value
   // to false, if it is true. This ensures we can traverse an
@@ -57,7 +57,7 @@ class IrGen {
   void ResetAst(AstNodePtr ast);
 
   // Concatenate two instruction vectors in place.
-  void MergeInstrVecs(std::vector<InstrPtr>& v1, std::vector<InstrPtr>& v2);
+  void MergeInstrVecs(std::vector<IrInstrPtr>& v1, std::vector<IrInstrPtr>& v2);
 
   // Get the last register used. Useful for statements that want to
   // check the immediately last used, but still allowing other

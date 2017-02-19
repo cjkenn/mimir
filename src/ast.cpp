@@ -31,3 +31,20 @@ void AstNode::VisitNodeAndChildren() {
     node->Visit();
   }
 }
+
+bool AstNode::IsBinOp() {
+  return (type_ == AstType::ADD_AST ||
+	  type_ == AstType::SUB_AST ||
+	  type_ == AstType::DIV_AST ||
+	  type_ == AstType::MUL_AST ||
+	  type_ == AstType::MOD_AST);
+}
+
+bool AstNode::IsCmp() {
+  return (type_ == AstType::EQEQ_AST ||
+	  type_ == AstType::NEQ_AST ||
+	  type_ == AstType::LT_AST ||
+	  type_ == AstType::GT_AST ||
+	  type_ == AstType::LTE_AST ||
+	  type_ == AstType::GTE_AST);
+}

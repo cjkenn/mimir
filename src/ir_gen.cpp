@@ -2,6 +2,7 @@
 #include <queue>
 #include <vector>
 #include <iostream>
+#include <assert.h>
 #include "ast.h"
 #include "ir_block.h"
 #include "instruction.h"
@@ -119,6 +120,7 @@ std::vector<InstrPtr> IrGen::ConvertAstToInstr(AstNodePtr ast) {
 }
 
 InstrPtr IrGen::VarAstToInstr(AstNodePtr ast) {
+  assert(ast->GetType() == AstType::VAR_AST);
   std::pair<std::string, std::string> args(ast->GetText(), curr_reg_);
   InstrPtr ins = std::make_shared<Instruction>(InstructionType::LD_INSTR,
 					       args,
@@ -130,6 +132,7 @@ InstrPtr IrGen::VarAstToInstr(AstNodePtr ast) {
 }
 
 InstrPtr IrGen::CstAstToInstr(AstNodePtr ast) {
+  assert(ast->GetType() == AstType::CST_AST);
   std::pair<std::string, std::string> args(std::to_string(ast->GetVal()), curr_reg_);
   InstrPtr ins = std::make_shared<Instruction>(InstructionType::MV_INSTR,
 					       args,
@@ -188,6 +191,7 @@ std::vector<InstrPtr> IrGen::IfElseAstToInstr(AstNodePtr ast) {
 }
 
 std::vector<InstrPtr> IrGen::WhileAstToInstr(AstNodePtr ast) {
+  assert(ast->GetType() == AstType::WHILE_AST);
   std::vector<InstrPtr> v;
 
   auto expr_test = ComparisonAstToInstr(ast);
@@ -239,10 +243,8 @@ std::vector<InstrPtr> IrGen::ComparisonAstToInstr(AstNodePtr ast) {
 }
 
 std::vector<InstrPtr> IrGen::SetAstToInstr(AstNodePtr ast) {
+  assert(ast->GetType() == AstType::SET_AST);
   std::vector<InstrPtr> v;
-  if (ast->GetType() != AstType::SET_AST) {
-    return v;
-  }
 
   // Set contains the var name in the left child, and the value in the right.
   // We don't use the typical var instruction here since this a set, so we build
@@ -289,6 +291,7 @@ std::vector<InstrPtr> IrGen::BinOpAstToInstr(AstNodePtr ast) {
 }
 
 InstructionType IrGen::GetBinOpInstrTypeFromAst(AstNodePtr ast) {
+  assert(ast->IsBinOp() == true);
   auto ast_type = ast->GetType();
 
   switch(ast_type) {
@@ -303,12 +306,12 @@ InstructionType IrGen::GetBinOpInstrTypeFromAst(AstNodePtr ast) {
   case AstType::MOD_AST:
     return InstructionType::MOD_INSTR;
   default:
-    // TODO: Error here
     return InstructionType::NOP_INSTR;
   }
 }
 
 InstructionType IrGen::GetJmpInstrTypeFromAst(AstNodePtr ast) {
+  assert(ast->IsCmp() == true);
   auto ast_type = ast->GetType();
 
   switch(ast_type) {
@@ -325,7 +328,6 @@ InstructionType IrGen::GetJmpInstrTypeFromAst(AstNodePtr ast) {
   case AstType::NEQ_AST:
     return InstructionType::JMPEQ_INSTR;
   default:
-    // TODO: Error here
     return InstructionType::NOP_INSTR;
   }
 }

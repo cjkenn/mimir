@@ -4,7 +4,6 @@
 #include <vector>
 #include "ast.h"
 #include "ir_instr.h"
-#include "ir_block.h"
 
 class IrGen {
  public:

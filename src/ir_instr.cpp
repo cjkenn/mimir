@@ -5,6 +5,7 @@
 IrInstr::IrInstr(IrInstrType type, std::string dest) {
   type_ = type;
   dest_ = dest;
+  is_leader_ = false;
 }
 
 IrInstr::IrInstr(IrInstrType type,
@@ -13,6 +14,7 @@ IrInstr::IrInstr(IrInstrType type,
   type_ = type;
   args_ = args;
   dest_ = dest;
+  is_leader_ = false;
 }
 
 IrInstr::IrInstr(IrInstrType type,
@@ -25,11 +27,15 @@ IrInstr::IrInstr(IrInstrType type,
   arg_pair.second = arg2;
   args_ = arg_pair;
   dest_ = dest;
+  is_leader_ = false;
 }
 
 bool IrInstr::IsJmp() {
   return (type_ == IrInstrType::JMP_INSTR ||
 	  type_ == IrInstrType::JMPLT_INSTR ||
+	  type_ == IrInstrType::JMPLTE_INSTR ||
 	  type_ == IrInstrType::JMPGT_INSTR ||
-	  type_ == IrInstrType::JMPEQ_INSTR);
+	  type_ == IrInstrType::JMPGTE_INSTR ||
+	  type_ == IrInstrType::JMPEQ_INSTR ||
+	  type_ == IrInstrType::JMPNEQ_INSTR );
 }

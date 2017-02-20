@@ -9,10 +9,9 @@ SRCS = compiler.cpp \
 	error.cpp \
 	symbol_table.cpp \
 	symbol.cpp \
-	ir_block.cpp \
 	ir_gen.cpp \
 	ir_instr.cpp \
-	cfg_builder.cpp \
+	cfg_gen.cpp \
 	cfg.cpp \
 	cfg_node.cpp \
 	code_gen.cpp \

@@ -8,7 +8,8 @@
 #include "parser.h"
 #include "ir_gen.h"
 #include "ir_instr.h"
-#include "code_gen.h"
+#include "cfg_gen.h"
+#include "cfg.h"
 
 int main(int argc, char *argv[]) {
   if (argc < 2) {
@@ -41,11 +42,13 @@ int main(int argc, char *argv[]) {
   IrGen ir_gen;
   std::vector<IrInstrPtr> ir = ir_gen.Gen(ast);
 
-  // TODO: Analysis and some optimizations on ir here
+  // Cfg construction and analysis
+  CfgGen cfg_gen;
+  Cfg cfg = cfg_gen.Gen(ir);
 
-  // Convert the ir to valid x86 and write to a file
-  CodeGen code_gen(filename + ".out");
-  code_gen.Gen(ir);
+  // TODO: Convert the ir to valid x86 and write to a file using
+  // code_gen
+
 
   return 0;
 }

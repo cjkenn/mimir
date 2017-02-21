@@ -1,5 +1,7 @@
 #include <memory>
 #include <string>
+#include <assert.h>
+#include <iostream>
 #include "cfg_gen.h"
 #include "cfg_node.h"
 #include "cfg.h"
@@ -12,6 +14,11 @@ CfgGen::CfgGen() {
 Cfg CfgGen::Gen(std::vector<IrInstrPtr> ir) {
   CfgNodePtr root = std::make_shared<CfgNode>(GetNextName());
   std::vector<CfgNodePtr> leader;
+
+  if (ir.empty()) {
+    Cfg cfg(root);
+    return cfg;
+  }
 
   // First, mark all relevant instructions as leaders.
   // This requires a single pass over the ir. Each leader
@@ -63,11 +70,14 @@ std::string CfgGen::GetNextName() {
 }
 
 int CfgGen::FindBlockIndex(IrInstrPtr instr) {
-  std::string label = instr->GetLabel();
+  assert(instr->IsJmp() == true);
+  assert(instr->GetDest().size() != 0);
+
+  std::string label = instr->GetDest();
   // Label is guaranteed to end with an int. This int should correspond
   // to the count of the leader block, because a leader block is created
   // once a label is found.
   // TODO: Will this change when procedures are implemented?
-  char lbl_num = label[label.size()-1];
-  return (int)lbl_num;
+  char lbl_num = label.back();
+  return lbl_num - '0';
 }

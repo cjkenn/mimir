@@ -10,6 +10,8 @@ class Cfg {
   Cfg(CfgNodePtr root);
   ~Cfg() {};
 
+  CfgNodePtr GetCfg() const { return root_; }
+
   // Calculates and builds the dominance sets for each node in this CFG.
   void Dominance();
 

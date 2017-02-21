@@ -29,8 +29,13 @@ SYMTABFILES = symbol_table_test.cpp \
 	../src/ast.cpp \
 	../src/symbol.cpp \
 	../src/symbol_table.cpp
+CFGGENFILES = cfg_gen_test.cpp \
+	../src/ir_instr.cpp \
+	../src/cfg_gen.cpp \
+	../src/cfg.cpp \
+	../src/cfg_node.cpp
 
-all: lexer_test parser_test ir_gen_test sym_tab_test
+all: lexer_test parser_test ir_gen_test sym_tab_test cfg_gen_test
 
 lexer_test: $(LEXERFILES)
 	$(CC) $(CFLAGS) lexer.test $(LEXERFILES)
@@ -44,5 +49,8 @@ ir_gen_test: $(IRGENFILES)
 sym_tab_test: $(SYMTABFILES)
 	$(CC) $(CFLAGS) symtab.test $(SYMTABFILES)
 
+cfg_gen_test: $(CFGGENFILES)
+	$(CC) $(CFLAGS) cfggen.test $(CFGGENFILES)
+
 clean:
-	$(RM) lexer.test parser.test irgen.test symtab.test *.o
+	$(RM) lexer.test parser.test irgen.test symtab.test cfggen.test *.o

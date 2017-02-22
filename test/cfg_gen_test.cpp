@@ -105,7 +105,7 @@ std::vector<IrInstrPtr> build_while_ir() {
 void test_gen_if_ir() {
   auto ir = build_if_ir();
   CfgGen cfg_gen;
-  auto root = cfg_gen.Gen(ir).GetCfg();
+  auto root = cfg_gen.Gen(ir).GetCfg()->GetAdj()[0];
 
   assert(root->GetAdj().size() == 1);
   assert(root->GetInstrs().size() == 6);
@@ -119,7 +119,7 @@ void test_gen_if_ir() {
   assert(root_instrs[5]->GetType() == IrInstrType::SV_INSTR);
 
   auto second = root->GetAdj()[0];
-  assert(second->GetAdj().size() == 0);
+  assert(second->GetAdj().size() == 1); // has a dummy exit child
   assert(second->GetInstrs().size() == 1);
 
   auto second_instrs = second->GetInstrs();
@@ -149,7 +149,7 @@ void test_gen_while_ir() {
   auto ir = build_while_ir();
   CfgGen cfg_gen;
 
-  auto root = cfg_gen.Gen(ir).GetCfg();
+  auto root = cfg_gen.Gen(ir).GetCfg()->GetAdj()[0];
 
   assert(root->GetAdj().size() == 2);
   assert(root->GetInstrs().size() == 9);
@@ -166,7 +166,7 @@ void test_gen_while_ir() {
   assert(root_instrs[8]->GetType() == IrInstrType::JMP_INSTR);
 
   auto next = root->GetAdj()[0];
-  assert(next->GetAdj().size() == 0);
+  assert(next->GetAdj().size() == 1); // has a dummy exit child
   assert(next->GetInstrs().size() == 1);
 
   auto next_instrs = next->GetInstrs();

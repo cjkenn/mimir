@@ -1,7 +1,6 @@
 #include <assert.h>
 #include <iostream>
 #include <memory>
-#include "../src/ir_block.h"
 #include "../src/ir_gen.h"
 #include "../src/ir_instr.h"
 #include "../src/ast.h"
@@ -38,7 +37,7 @@ void test_gen_if_ast() {
   IrGen ir_gen;
   std::vector<IrInstrPtr> ir = ir_gen.Gen(ast);
 
-  assert(ir.size() == 6);
+  assert(ir.size() == 7);
 
   // assert we have the correct instructions
   assert(ir[0]->GetType() == IrInstrType::LD_INSTR);
@@ -72,6 +71,9 @@ void test_gen_if_ast() {
   assert(ir[5]->GetType() == IrInstrType::SV_INSTR);
   assert(ir[5]->GetLabel() == "lbl0");
   assert(ir[5]->GetDest() == "r2");
+
+  assert(ir[6]->GetType() == IrInstrType::NOP_INSTR);
+  assert(ir[6]->GetLabel() == "lbl1");
 }
 
 // Input:
@@ -101,7 +103,7 @@ void test_gen_else_ast() {
   IrGen ir_gen;
   std::vector<IrInstrPtr> ir = ir_gen.Gen(ast);
 
-  assert(ir.size() == 8);
+  assert(ir.size() == 9);
 
   // assert we have the correct instructions
   assert(ir[0]->GetType() == IrInstrType::LD_INSTR);
@@ -145,6 +147,9 @@ void test_gen_else_ast() {
   assert(ir[7]->GetType() == IrInstrType::SV_INSTR);
   assert(ir[7]->GetLabel() == "lbl1");
   assert(ir[7]->GetDest() == "r3");
+
+  assert(ir[8]->GetType() == IrInstrType::NOP_INSTR);
+  assert(ir[8]->GetLabel() == "lbl1");
 }
 
 // Input:
@@ -174,7 +179,7 @@ void test_gen_while_ast() {
   IrGen ir_gen;
   std::vector<IrInstrPtr> ir = ir_gen.Gen(ast);
 
-  assert(ir.size() == 9);
+  assert(ir.size() == 10);
 
   // assert we have the correct instructions
   assert(ir[0]->GetType() == IrInstrType::LD_INSTR);
@@ -223,6 +228,9 @@ void test_gen_while_ast() {
 
   assert(ir[8]->GetType() == IrInstrType::JMP_INSTR);
   assert(ir[8]->GetDest() == "lbl0");
+
+  assert(ir[9]->GetType() == IrInstrType::NOP_INSTR);
+  assert(ir[9]->GetLabel() == "lbl1");
 }
 
 int main(int argc, char** argv) {

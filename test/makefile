@@ -15,7 +15,6 @@ PARSERFILES = parser_test.cpp \
 	../src/error.cpp
 IRGENFILES = ir_gen_test.cpp \
 	../src/ir_gen.cpp \
-	../src/ir_block.cpp \
 	../src/ir_instr.cpp \
 	../src/symbol_table.cpp \
 	../src/symbol.cpp \

@@ -2,6 +2,10 @@
 #include <utility>
 #include "ir_instr.h"
 
+IrInstr::IrInstr(IrInstrType type) {
+  type_ = type;
+}
+
 IrInstr::IrInstr(IrInstrType type, std::string dest) {
   type_ = type;
   dest_ = dest;

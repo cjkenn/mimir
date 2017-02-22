@@ -32,18 +32,15 @@ enum IrInstrType {
 class IrInstr {
  public:
   IrInstr() {};
-
+  IrInstr(IrInstrType type);
   IrInstr(IrInstrType type, std::string dest);
-
   IrInstr(IrInstrType type,
 	      std::pair<std::string, std::string> args,
 	      std::string dest);
-
   IrInstr(IrInstrType type,
 	      std::string arg1,
 	      std::string arg2,
 	      std::string dest);
-
   ~IrInstr() {};
 
   IrInstrType GetType() const { return type_; }

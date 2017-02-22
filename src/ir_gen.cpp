@@ -43,6 +43,13 @@ std::vector<IrInstrPtr> IrGen::Gen(AstNodePtr ast) {
     }
   }
 
+  // If a jmp is needed to a label that has no instructions under it,
+  // this label might not be added to the ir, so we do that here by
+  // creating a dummy instruction to ensure the label exists.
+  auto dummy = std::make_shared<IrInstr>(IrInstrType::NOP_INSTR);
+  dummy->SetLabel(curr_lbl_);
+  ir.push_back(dummy);
+
   return ir;
 }
 
@@ -210,7 +217,7 @@ std::vector<IrInstrPtr> IrGen::WhileAstToInstr(AstNodePtr ast) {
 
   // Now that we've visited both both relevant branches in this ast,
   // we need to advance the label so the subsequent instructions are
-  // jumped to correctly if the if expression evaluates to false.
+  // jumped to correctly if the while expression evaluates to false.
   AdvanceLabel();
 
   return v;

@@ -2,73 +2,46 @@
 #include <utility>
 #include "local_optimizer.h"
 
-void LocalOptimizer::Lvn(CfgNodePtr root) {
-  int val_count = 0;
-  std::unordered_map<std::string, int> val_map;
-  std::unordered_map<std::string, std::string> op_map;
+LocalOptimizer::LocalOptimizer() {
+  val_count_ = 0;
+}
 
-  // TODO: Traverse each block here, or call this function for every block?
-  for (auto instr : root->GetInstrs()) {
-    // Skip everything but saves and binops
+void LocalOptimizer::Lvn(CfgNodePtr root) {
+  auto instrs = root->GetInstrs();
+  for (int i = 0; i < instrs.size() - 1; i++) {
+    auto instr = instrs[i];
+    // Skip everything but saves, loads, and binops
     if (!IsInstrLvnValid(instr)) {
       continue;
     }
 
-    // TODO: Refactor these two steps into a helper function
-    // TODO: Rename those iterator variables
-    std::string first_arg = instr->GetArgs().first;
-    int first_val;
-    auto look = val_map.find(first_arg);
+    int first_val = GetLvnForFirstArg(instr);
+    int second_val = GetLvnForSecondArg(instr, first_val);
+    std::string key = BuildLvnMapKey(instr, first_val, second_val);
+    auto op_map_result = op_map_.find(key);
 
-    if (look == val_map.end()) {
-      first_val = val_count;
-      val_map.insert(std::pair<std::string, int>(first_arg, first_val));
-      val_count++;
-    } else {
-      first_val = look->second;
-    }
-
-    auto second_arg = instr->GetArgs().second;
-    int second_val;
-    auto look2 = val_map.find(second_arg);
-
-    if (look2 == val_map.end()) {
-      // On a load instruction, we set the local value to be
-      // equal to the variable being loaded. Otherwise, we create
-      // a new value.
-      if (instr->GetType() == IrInstrType::LD_INSTR) {
-	second_val = first_val;
-      } else {
-	second_val = val_count;
-	val_count++;
+    if (op_map_result == op_map_.end()) {
+      // If the instruction key doesn't exist already, we need to decide if
+      // we want to store it. If the value of the operation is never stored in
+      // a var, there is nothing to save (because there's nothing to load from
+      // later on).
+      if (instrs[i+1]->GetType() == IrInstrType::SV_INSTR) {
+	std::string dest = instrs[i+1]->GetDest();
+	op_map_.insert(std::pair<std::string, std::string>(key, dest));
       }
-      val_map.insert(std::pair<std::string, int>(second_arg, second_val));
     } else {
-      second_val = look->second;
-    }
-
-    // Now we have both value numbers, so we construct a string to act as the
-    // key for the op_map
-    std::string key = std::to_string(first_val);
-    key += instr->GetTypeAsStr();
-    key += std::to_string(second_val);
-
-    // Check the op_map for this key. If it exists, we can replace the
-    // instruction(s) with whatever is stored in the table.
-    auto look3 = op_map.find(key);
-
-    if (look3 == op_map.end()) {
-
-    } else {
-      // We found a redundant instruction, so we replace the next sv
-      // instr with the existing one, and remove the binary operation
-      // For example:
-      // sv b (sub a, d)
-      // sub a, d
-      // sv d, c
-      // becomes
-      // sv b, c
-
+      // If we've found the calculation, we need to check if we plan to store it.
+      // To do that, we look at the next instruction and see if it's a SV
+      if (instrs[i+1]->GetType() == IrInstrType::SV_INSTR) {
+	// We do plan to store it. Now we can remove the original operation,
+	// and replace the sv instruction destination with the value from
+	// the op_map table
+	// TODO: Altering vector as we iterate it?
+	// TODO: O(n) runtime by calling erase
+	instrs.erase(instrs.begin() + (i-1));
+	std::string new_dest = op_map_result->second;
+	instrs[i+1]->SetDest(new_dest);
+      }
     }
   }
 }
@@ -77,4 +50,51 @@ bool LocalOptimizer::IsInstrLvnValid(IrInstrPtr instr) {
   return (instr->IsBinOp() ||
 	  instr->GetType() == IrInstrType::SV_INSTR ||
 	  instr->GetType() == IrInstrType::LD_INSTR);
+}
+
+int LocalOptimizer::GetLvnForFirstArg(IrInstrPtr instr) {
+  int first_val;
+  std::string first_arg = instr->GetArgs().first;
+  auto val_map_result = val_map_.find(first_arg);
+
+  if (val_map_result == val_map_.end()) {
+    first_val = val_count_;
+    val_map_.insert(std::pair<std::string, int>(first_arg, first_val));
+    val_count_++;
+  } else {
+    first_val = val_map_result->second;
+  }
+
+  return first_val;
+}
+
+int LocalOptimizer::GetLvnForSecondArg(IrInstrPtr instr, int val1) {
+  int second_val;
+  std::string second_arg = instr->GetArgs().second;
+  auto val_map_result = val_map_.find(second_arg);
+
+  if (val_map_result == val_map_.end()) {
+    // On a load instruction, we set the local value to be
+    // equal to the variable being loaded. Otherwise, we create
+    // a new value.
+    if (instr->GetType() == IrInstrType::LD_INSTR) {
+      second_val = val1;
+    } else {
+      second_val = val_count_;
+      val_count_++;
+    }
+    val_map_.insert(std::pair<std::string, int>(second_arg, second_val));
+  } else {
+    second_val = val_map_result->second;
+  }
+
+  return second_val;
+}
+
+std::string LocalOptimizer::BuildLvnMapKey(IrInstrPtr instr, int val1, int val2) {
+  std::string key = std::to_string(val1);
+  key += instr->GetTypeAsStr();
+  key += std::to_string(val2);
+
+  return key;
 }

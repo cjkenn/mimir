@@ -33,8 +33,12 @@ CFGGENFILES = cfg_gen_test.cpp \
 	../src/cfg_gen.cpp \
 	../src/cfg.cpp \
 	../src/cfg_node.cpp
+LOCALOPTFILES = local_optimizer_test.cpp \
+	../src/local_optimizer.cpp \
+	../src/cfg_node.cpp \
+	../src/ir_instr.cpp
 
-all: lexer_test parser_test ir_gen_test sym_tab_test cfg_gen_test
+all: lexer_test parser_test ir_gen_test sym_tab_test cfg_gen_test local_opt_test
 
 lexer_test: $(LEXERFILES)
 	$(CC) $(CFLAGS) lexer.test $(LEXERFILES)
@@ -51,5 +55,8 @@ sym_tab_test: $(SYMTABFILES)
 cfg_gen_test: $(CFGGENFILES)
 	$(CC) $(CFLAGS) cfggen.test $(CFGGENFILES)
 
+local_opt_test: $(LOCALOPTFILES)
+	$(CC) $(CFLAGS) localopt.test $(LOCALOPTFILES)
+
 clean:
-	$(RM) lexer.test parser.test irgen.test symtab.test cfggen.test *.o
+	$(RM) lexer.test parser.test irgen.test symtab.test cfggen.test localopt.test *.o

@@ -21,7 +21,7 @@
 // cmp r0, r1
 // jmpgt lbl1
 // mv 2, r2
-// sv r2
+// sv r2, y
 // lbl1:
 void test_gen_if_ast() {
   // TODO: Probably better to manually construct an ast rather
@@ -70,7 +70,9 @@ void test_gen_if_ast() {
 
   assert(ir[5]->GetType() == IrInstrType::SV_INSTR);
   assert(ir[5]->GetLabel() == "lbl0");
-  assert(ir[5]->GetDest() == "r2");
+  assert(ir[5]->GetArgs().first == "r2");
+  assert(ir[5]->GetArgs().second == "y");
+  assert(ir[5]->GetDest() == "y");
 
   assert(ir[6]->GetType() == IrInstrType::NOP_INSTR);
   assert(ir[6]->GetLabel() == "lbl1");
@@ -88,10 +90,10 @@ void test_gen_if_ast() {
 // cmp r0, r1
 // jmpgt lbl1
 // mv 2, r2
-// sv r2
+// sv r2, y
 // lbl1:
 // mv 3, r3
-// sv r3
+// sv r3, y
 // lbl2:
 void test_gen_else_ast() {
   std::string test_file = "parser_input/if_else_statement";
@@ -136,7 +138,9 @@ void test_gen_else_ast() {
 
   assert(ir[5]->GetType() == IrInstrType::SV_INSTR);
   assert(ir[5]->GetLabel() == "lbl0");
-  assert(ir[5]->GetDest() == "r2");
+  assert(ir[5]->GetArgs().first == "r2");
+  assert(ir[5]->GetArgs().second == "y");
+  assert(ir[5]->GetDest() == "y");
 
   assert(ir[6]->GetType() == IrInstrType::MV_INSTR);
   assert(ir[6]->GetLabel() == "lbl1");
@@ -146,7 +150,9 @@ void test_gen_else_ast() {
 
   assert(ir[7]->GetType() == IrInstrType::SV_INSTR);
   assert(ir[7]->GetLabel() == "lbl1");
-  assert(ir[7]->GetDest() == "r3");
+  assert(ir[7]->GetArgs().first == "r3");
+  assert(ir[7]->GetArgs().second == "y");
+  assert(ir[7]->GetDest() == "y");
 
   assert(ir[8]->GetType() == IrInstrType::NOP_INSTR);
   assert(ir[8]->GetLabel() == "lbl1");
@@ -166,7 +172,7 @@ void test_gen_else_ast() {
 // ld x, r2
 // mv 1, r3
 // add r2, r3
-// sv r3
+// sv r3, x
 // jmp lbl0
 // lbl1:
 void test_gen_while_ast() {
@@ -224,7 +230,9 @@ void test_gen_while_ast() {
 
   assert(ir[7]->GetType() == IrInstrType::SV_INSTR);
   assert(ir[7]->GetLabel() == "lbl0");
-  assert(ir[7]->GetDest() == "r3");
+  assert(ir[7]->GetArgs().first == "r3");
+  assert(ir[7]->GetArgs().second == "x");
+  assert(ir[7]->GetDest() == "x");
 
   assert(ir[8]->GetType() == IrInstrType::JMP_INSTR);
   assert(ir[8]->GetDest() == "lbl0");

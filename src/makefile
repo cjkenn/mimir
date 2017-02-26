@@ -15,7 +15,8 @@ SRCS = compiler.cpp \
 	cfg.cpp \
 	cfg_node.cpp \
 	code_gen.cpp \
-	x86_instr.cpp
+	x86_instr.cpp \
+	local_optimizer.cpp
 OUT = ../build/mimir
 
 mimir: $(SRCS)

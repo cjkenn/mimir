@@ -43,3 +43,34 @@ bool IrInstr::IsJmp() {
 	  type_ == IrInstrType::JMPEQ_INSTR ||
 	  type_ == IrInstrType::JMPNEQ_INSTR );
 }
+
+bool IrInstr::IsBinOp() {
+  return (type_ == IrInstrType::ADD_INSTR ||
+	  type_ == IrInstrType::SUB_INSTR ||
+	  type_ == IrInstrType::MUL_INSTR ||
+	  type_ == IrInstrType::DIV_INSTR ||
+	  type_ == IrInstrType::MOD_INSTR);
+}
+
+std::string IrInstr::GetTypeAsStr() {
+  switch(type_) {
+  case IrInstrType::MV_INSTR:
+    return "MV";
+  case IrInstrType::LD_INSTR:
+    return "LD";
+  case IrInstrType::SV_INSTR:
+    return "SV";
+  case IrInstrType::ADD_INSTR:
+    return "ADD";
+  case IrInstrType::SUB_INSTR:
+    return "SUB";
+  case IrInstrType::MUL_INSTR:
+    return "MUL";
+  case IrInstrType::DIV_INSTR:
+    return "DIV";
+  case IrInstrType::MOD_INSTR:
+    return "MOD";
+  default:
+    return "OP";
+  }
+}

@@ -10,6 +10,7 @@
 #include "ir_instr.h"
 #include "cfg_gen.h"
 #include "cfg.h"
+#include "local_optimizer.h"
 
 int main(int argc, char *argv[]) {
   if (argc < 2) {
@@ -45,6 +46,9 @@ int main(int argc, char *argv[]) {
   // Cfg construction and analysis
   CfgGen cfg_gen;
   Cfg cfg = cfg_gen.Gen(ir);
+
+  LocalOptimizer lo;
+  lo.Lvn(cfg.GetRoot());
 
   // TODO: Convert the ir to valid x86 and write to a file using
   // code_gen

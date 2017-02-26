@@ -56,6 +56,8 @@ class IrInstr {
   void SetIsLeader(bool is_leader) { is_leader_ = is_leader; }
 
   bool IsJmp();
+  bool IsBinOp();
+  std::string GetTypeAsStr();
 
  private:
   // The type of instruction. This roughly corresponds to an opcode

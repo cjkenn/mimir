@@ -129,8 +129,8 @@ IrInstrPtr IrGen::VarAstToInstr(AstNodePtr ast) {
   assert(ast->GetType() == AstType::VAR_AST);
   std::pair<std::string, std::string> args(ast->GetText(), curr_reg_);
   IrInstrPtr ins = std::make_shared<IrInstr>(IrInstrType::LD_INSTR,
-					       args,
-					       curr_reg_);
+					     args,
+					     curr_reg_);
   ins->SetLabel(curr_lbl_);
   AdvanceRegister();
 
@@ -141,8 +141,8 @@ IrInstrPtr IrGen::CstAstToInstr(AstNodePtr ast) {
   assert(ast->GetType() == AstType::CST_AST);
   std::pair<std::string, std::string> args(std::to_string(ast->GetVal()), curr_reg_);
   IrInstrPtr ins = std::make_shared<IrInstr>(IrInstrType::MV_INSTR,
-					       args,
-					       curr_reg_);
+					     args,
+					     curr_reg_);
   ins->SetLabel(curr_lbl_);
   AdvanceRegister();
 
@@ -206,7 +206,7 @@ std::vector<IrInstrPtr> IrGen::WhileAstToInstr(AstNodePtr ast) {
   auto while_true_ast = ast->GetChildAtIndex(1);
   auto while_true_instrs = ConvertAstToInstr(while_true_ast);
   IrInstrPtr always_jmp = std::make_shared<IrInstr>(IrInstrType::JMP_INSTR,
-						      curr_lbl_);
+						    curr_lbl_);
 
   // Order should be maintained here. The unconditional jump instruction
   // should be added last.
@@ -231,9 +231,9 @@ std::vector<IrInstrPtr> IrGen::ComparisonAstToInstr(AstNodePtr ast) {
   auto right_side = ConvertAstToInstr(expr_ast->GetChildAtIndex(1));
 
   IrInstrPtr compare = std::make_shared<IrInstr>(IrInstrType::CMP_INSTR,
-						   left_side[0]->GetDest(),
-						   right_side[0]->GetDest(),
-						   left_side[0]->GetDest());
+						 left_side[0]->GetDest(),
+						 right_side[0]->GetDest(),
+						 left_side[0]->GetDest());
   compare->SetLabel(curr_lbl_);
 
   auto jmp = ConvertAstToInstr(expr_ast);
@@ -256,8 +256,11 @@ std::vector<IrInstrPtr> IrGen::SetAstToInstr(AstNodePtr ast) {
   // We don't use the typical var instruction here since this a set, so we build
   // our own sv instruction here.
   auto right_side = ConvertAstToInstr(ast->GetChildAtIndex(1));
+  std::string name = ast->GetChildAtIndex(0)->GetText();
   IrInstrPtr save = std::make_shared<IrInstr>(IrInstrType::SV_INSTR,
-						PrevRegister());
+					      PrevRegister(),
+					      name,
+					      name);
   save->SetLabel(curr_lbl_);
 
   MergeInstrVecs(v, right_side);
@@ -283,8 +286,8 @@ std::vector<IrInstrPtr> IrGen::BinOpAstToInstr(AstNodePtr ast) {
 
   std::pair<std::string, std::string> args(first_add_arg, PrevRegister());
   IrInstrPtr add = std::make_shared<IrInstr>(op_instr_type,
-					       args,
-					       PrevRegister());
+					     args,
+					     PrevRegister());
   add->SetLabel(curr_lbl_);
 
   MergeInstrVecs(v, left_side);

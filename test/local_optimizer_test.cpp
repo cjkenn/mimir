@@ -6,7 +6,7 @@
 #include "../src/cfg_node.h"
 #include "../src/ir_instr.h"
 
-CfgNodePtr get_cfg_block_for_lvn() {
+CfgNodePtr get_redundant_cfg_block() {
   // ALl we care about is the instruction vecotr here, so we
   // don't bother setting any of the other cfg properties.
   CfgNodePtr block = std::make_shared<CfgNode>("n0");
@@ -45,6 +45,62 @@ CfgNodePtr get_cfg_block_for_lvn() {
   return block;
 }
 
+CfgNodePtr get_comm_cfg_block() {
+  CfgNodePtr block = std::make_shared<CfgNode>("n0");
+
+  std::vector<IrInstrPtr> instrs;
+  auto instr1 = std::make_shared<IrInstr>(IrInstrType::LD_INSTR, "a", "r0", "r0");
+  auto instr2 = std::make_shared<IrInstr>(IrInstrType::LD_INSTR, "d", "r1", "r1");
+  auto instr3 = std::make_shared<IrInstr>(IrInstrType::ADD_INSTR, "r0", "r1", "r1");
+  auto instr4 = std::make_shared<IrInstr>(IrInstrType::SV_INSTR, "r1", "a", "a");
+
+  auto instr5 = std::make_shared<IrInstr>(IrInstrType::LD_INSTR, "d", "r2", "r2");
+  auto instr6 = std::make_shared<IrInstr>(IrInstrType::LD_INSTR, "a", "r3", "r3");
+  auto instr7 = std::make_shared<IrInstr>(IrInstrType::ADD_INSTR, "r2", "r3", "r3");
+  auto instr8 = std::make_shared<IrInstr>(IrInstrType::SV_INSTR, "r3", "b", "b");
+
+  instrs.push_back(instr1);
+  instrs.push_back(instr2);
+  instrs.push_back(instr3);
+  instrs.push_back(instr4);
+  instrs.push_back(instr5);
+  instrs.push_back(instr6);
+  instrs.push_back(instr7);
+  instrs.push_back(instr8);
+
+  block->SetInstrs(instrs);
+
+  return block;
+}
+
+CfgNodePtr get_non_comm_cfg_block() {
+  CfgNodePtr block = std::make_shared<CfgNode>("n0");
+
+  std::vector<IrInstrPtr> instrs;
+  auto instr1 = std::make_shared<IrInstr>(IrInstrType::LD_INSTR, "a", "r0", "r0");
+  auto instr2 = std::make_shared<IrInstr>(IrInstrType::LD_INSTR, "d", "r1", "r1");
+  auto instr3 = std::make_shared<IrInstr>(IrInstrType::SUB_INSTR, "r0", "r1", "r1");
+  auto instr4 = std::make_shared<IrInstr>(IrInstrType::SV_INSTR, "r1", "a", "a");
+
+  auto instr5 = std::make_shared<IrInstr>(IrInstrType::LD_INSTR, "d", "r2", "r2");
+  auto instr6 = std::make_shared<IrInstr>(IrInstrType::LD_INSTR, "a", "r3", "r3");
+  auto instr7 = std::make_shared<IrInstr>(IrInstrType::SUB_INSTR, "r2", "r3", "r3");
+  auto instr8 = std::make_shared<IrInstr>(IrInstrType::SV_INSTR, "r3", "b", "b");
+
+  instrs.push_back(instr1);
+  instrs.push_back(instr2);
+  instrs.push_back(instr3);
+  instrs.push_back(instr4);
+  instrs.push_back(instr5);
+  instrs.push_back(instr6);
+  instrs.push_back(instr7);
+  instrs.push_back(instr8);
+
+  block->SetInstrs(instrs);
+
+  return block;
+}
+
 // Expected input instructions:
 // ld a, r0
 // ld d, r1
@@ -69,8 +125,8 @@ CfgNodePtr get_cfg_block_for_lvn() {
 // add r2, r3
 // sv r3, c
 // sv b, d
-void test_lvn() {
-  auto block = get_cfg_block_for_lvn();
+void test_lvn_for_redundancy() {
+  auto block = get_redundant_cfg_block();
   LocalOptimizer lo;
 
   assert(block->GetInstrs().size() == 12);
@@ -95,8 +151,75 @@ void test_lvn() {
   assert(second_last_instr->GetDest() == "c");
 }
 
+// Expected input instructions:
+// ld a, r0
+// ld d, r1
+// add r0, r1
+// sv r1, a
+// ld d, r2
+// ld a, r3
+// add r2, r3
+// sv r3, b
+//
+// Expected output instructions:
+// ld a, r0
+// ld d, r1
+// add r0, r1
+// sv r1, a
+// sv a, b
+void test_lvn_for_commutivity() {
+  auto block = get_comm_cfg_block();
+  LocalOptimizer lo;
+
+  assert(block->GetInstrs().size() == 8);
+
+  lo.Lvn(block);
+
+  assert(block->GetInstrs().size() == 5);
+  auto last_instr = block->GetInstrs().back();
+
+  assert(last_instr->GetType() == IrInstrType::SV_INSTR);
+  assert(last_instr->GetArgs().first == "a");
+  assert(last_instr->GetArgs().second == "b");
+  assert(last_instr->GetDest() == "b");
+
+  // assert that the second last instruction is a sv as well, to ensure
+  // that the ld instructions were removed
+  auto second_last_instr = block->GetInstrs()[3];
+
+  assert(second_last_instr->GetType() == IrInstrType::SV_INSTR);
+  assert(second_last_instr->GetArgs().first == "r1");
+  assert(second_last_instr->GetArgs().second == "a");
+  assert(second_last_instr->GetDest() == "a");
+}
+
+
+// Expected input instructions:
+// ld a, r0
+// ld d, r1
+// sub r0, r1
+// sv r1, a
+// ld d, r2
+// ld a, r3
+// sub r2, r3
+// sv r3, b
+//
+// Expected output is the same, there is nothing to optimize here!
+void test_lvn_for_non_commutivity() {
+  auto block = get_non_comm_cfg_block();
+  LocalOptimizer lo;
+
+  assert(block->GetInstrs().size() == 8);
+
+  lo.Lvn(block);
+
+  assert(block->GetInstrs().size() == 8);
+}
+
 int main(int argc, char **argv) {
-  test_lvn();
+  test_lvn_for_redundancy();
+  test_lvn_for_commutivity();
+  test_lvn_for_non_commutivity();
 
   std::cout << "Lvn tests passed!" << std::endl;
 

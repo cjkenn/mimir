@@ -60,6 +60,7 @@ class IrInstr {
   bool IsJmp();
   bool IsBinOp();
   std::string GetTypeAsStr();
+  bool IsCommutative();
 
  private:
   // The type of instruction. This roughly corresponds to an opcode

@@ -36,6 +36,12 @@ class LocalOptimizer {
   // The key takes the form of "V1OPV2". For example,
   // the operation "add r0, r1", with v(r0) = 0 and v(r1) = 1, will result in
   // a key of "0ADD1".
+  // We also want operations like a + b and b + a to have the same hash key,
+  // because they are commutative operations. To account for this, the key
+  // is contructed by always placing the small value number first. So, given the
+  // same value numbers as above, the operation "add r1, r0" will also hash to
+  // "0ADD1". Note that this is only done when the operation is commutative,
+  // so only for ADD and MUL.
   std::string BuildLvnMapKey(const IrInstrPtr& instr, int val1, int val2);
 
   // Helper function to check for redundant LD instructions, assuming

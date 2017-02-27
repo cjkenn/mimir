@@ -78,3 +78,8 @@ std::string IrInstr::GetTypeAsStr() {
     return "OP";
   }
 }
+
+bool IrInstr::IsCommutative() {
+  return (type_ == IrInstrType::ADD_INSTR ||
+	  type_ == IrInstrType::MUL_INSTR);
+}

@@ -1,6 +1,8 @@
 #include <unordered_map>
 #include <utility>
 #include <iostream>
+#include <assert.h>
+#include <algorithm>
 #include "local_optimizer.h"
 
 LocalOptimizer::LocalOptimizer() {
@@ -44,7 +46,8 @@ void LocalOptimizer::Lvn(CfgNodePtr& block) {
 	const std::string new_input = op_map_result->second;
 	const std::string dest = instrs[i+1]->GetDest();
 
-	// TODO: Should we load the stored calc value into a register first?
+	// TODO: Should we load the stored calc value into a register first? (ie.
+	// how should the sv instr actually work)
         instrs[i+1]->SetArgs(std::pair<std::string, std::string>(new_input, dest));
 	instr->SetRedundant(true);
 	MarkPreviousLdInstrs(instrs, i);
@@ -110,9 +113,20 @@ int LocalOptimizer::GetLvnForSecondArg(const IrInstrPtr& instr, int val1) {
 }
 
 std::string LocalOptimizer::BuildLvnMapKey(const IrInstrPtr& instr, int val1, int val2) {
-  std::string key = std::to_string(val1);
+  int min_val;
+  int max_val;
+
+  if (instr->IsCommutative()) {
+    min_val = std::min(val1, val2);
+    max_val = std::max(val1, val2);
+  } else {
+    min_val = val1;
+    max_val = val2;
+  }
+
+  std::string key = std::to_string(min_val);
   key += instr->GetTypeAsStr();
-  key += std::to_string(val2);
+  key += std::to_string(max_val);
 
   return key;
 }

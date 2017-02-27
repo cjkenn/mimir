@@ -3,5 +3,7 @@
 make all
 ./lexer.test
 ./parser.test
-./irgen.test
 ./symtab.test
+./irgen.test
+./cfggen.test
+./localopt.test

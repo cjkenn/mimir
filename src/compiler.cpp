@@ -48,7 +48,8 @@ int main(int argc, char *argv[]) {
   Cfg cfg = cfg_gen.Gen(ir);
 
   LocalOptimizer lo;
-  lo.Lvn(cfg.GetRoot());
+  auto root = cfg.GetRoot();
+  lo.Lvn(root);
 
   // TODO: Convert the ir to valid x86 and write to a file using
   // code_gen

@@ -7,19 +7,11 @@ LocalOptimizer::LocalOptimizer() {
   val_count_ = 0;
 }
 
-void LocalOptimizer::Lvn(CfgNodePtr block) {
+void LocalOptimizer::Lvn(CfgNodePtr& block) {
   val_count_ = 0;
   val_map_.clear();
   op_map_.clear();
-
-  // We iterate over instrs, but we may also need to alter the instructions
-  // vector if we want to remove redundant instructions. So we also keep a copy
-  // of the instrs vector to alter at the same time
-  // TODO: Maybe better to mark instruction as "erasable" then remove them
-  // in a second pass.. If we remove instructions in the middle of the vector
-  // the indices might not match up anymore when we want to remove more.
   const auto instrs = block->GetInstrs();
-  auto new_instrs = block->GetInstrs();
 
   for (int i = 0; i < instrs.size() - 1; i++) {
     const auto instr = instrs[i];
@@ -28,9 +20,9 @@ void LocalOptimizer::Lvn(CfgNodePtr block) {
       continue;
     }
 
-    int first_val = GetLvnForFirstArg(instr);
-    int second_val = GetLvnForSecondArg(instr, first_val);
-    std::string key = BuildLvnMapKey(instr, first_val, second_val);
+    const int first_val = GetLvnForFirstArg(instr);
+    const int second_val = GetLvnForSecondArg(instr, first_val);
+    const std::string key = BuildLvnMapKey(instr, first_val, second_val);
     auto op_map_result = op_map_.find(key);
 
     if (op_map_result == op_map_.end()) {
@@ -39,7 +31,7 @@ void LocalOptimizer::Lvn(CfgNodePtr block) {
       // a var, there is nothing to save (because there's nothing to load from
       // later on).
       if (instrs[i+1]->GetType() == IrInstrType::SV_INSTR) {
-	std::string dest = instrs[i+1]->GetDest();
+	const std::string dest = instrs[i+1]->GetDest();
 	op_map_.insert(std::pair<std::string, std::string>(key, dest));
       }
     } else {
@@ -49,15 +41,23 @@ void LocalOptimizer::Lvn(CfgNodePtr block) {
 	// We do plan to store it. Now we can remove the original operation,
 	// and replace the sv instruction destination with the value from
 	// the op_map table
-	// TODO: O(n) runtime by calling erase
-	// TODO: Eliminate the earlier LD instructions here too
-	std::string new_input = op_map_result->second;
-	std::string dest = instrs[i+1]->GetDest();
+	const std::string new_input = op_map_result->second;
+	const std::string dest = instrs[i+1]->GetDest();
 
 	// TODO: Should we load the stored calc value into a register first?
-	new_instrs[i+1]->SetArgs(std::pair<std::string, std::string>(new_input, dest));
-	new_instrs.erase(new_instrs.begin() + (i-1));
+        instrs[i+1]->SetArgs(std::pair<std::string, std::string>(new_input, dest));
+	instr->SetRedundant(true);
+	MarkPreviousLdInstrs(instrs, i);
       }
+    }
+  }
+
+  // New we iterate through the instrs and skip any that are marked as redundant.
+  std::vector<IrInstrPtr> new_instrs;
+
+  for (auto instr : instrs) {
+    if (!instr->IsRedundant()) {
+      new_instrs.push_back(instr);
     }
   }
 
@@ -115,4 +115,14 @@ std::string LocalOptimizer::BuildLvnMapKey(const IrInstrPtr& instr, int val1, in
   key += std::to_string(val2);
 
   return key;
+}
+
+void LocalOptimizer::MarkPreviousLdInstrs(const std::vector<IrInstrPtr>& instrs, const int i) {
+  if (i >= 1 && instrs[i-1]->GetType() == IrInstrType::LD_INSTR) {
+    instrs[i-1]->SetRedundant(true);
+  }
+
+  if (i >= 2 && instrs[i-2]->GetType() == IrInstrType::LD_INSTR) {
+    instrs[i-2]->SetRedundant(true);
+  }
 }

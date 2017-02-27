@@ -17,7 +17,7 @@ class LocalOptimizer {
   // on all blocks, this must be called for each of them
   // (but the order of those calls is not important, since only
   // the block itself is affected).
-  void Lvn(CfgNodePtr block);
+  void Lvn(CfgNodePtr& block);
 
  private:
   // We only care about certain instructions for local optimizations. There
@@ -37,6 +37,11 @@ class LocalOptimizer {
   // the operation "add r0, r1", with v(r0) = 0 and v(r1) = 1, will result in
   // a key of "0ADD1".
   std::string BuildLvnMapKey(const IrInstrPtr& instr, int val1, int val2);
+
+  // Helper function to check for redundant LD instructions, assuming
+  // the the instruction we pass in has been flagged as redundant
+  // itself.
+  void MarkPreviousLdInstrs(const std::vector<IrInstrPtr>& instrs, const int i);
 
   int val_count_;
   std::unordered_map<std::string, int> val_map_;

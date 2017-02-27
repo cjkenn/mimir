@@ -68,8 +68,6 @@ CfgNodePtr get_cfg_block_for_lvn() {
 // ld c, r3
 // add r2, r3
 // sv r3, c
-// ld a, r4 --> now useless
-// ld d, r5 --> now useless
 // sv b, d
 void test_lvn() {
   auto block = get_cfg_block_for_lvn();
@@ -79,13 +77,22 @@ void test_lvn() {
 
   lo.Lvn(block);
 
-  assert(block->GetInstrs().size() == 11);
+  assert(block->GetInstrs().size() == 9);
   auto last_instr = block->GetInstrs().back();
 
   assert(last_instr->GetType() == IrInstrType::SV_INSTR);
   assert(last_instr->GetArgs().first == "b");
   assert(last_instr->GetArgs().second == "d");
   assert(last_instr->GetDest() == "d");
+
+  // assert that the second last instruction is a sv as well, to ensure
+  // that the ld instructions were removed
+  auto second_last_instr = block->GetInstrs()[7];
+
+  assert(second_last_instr->GetType() == IrInstrType::SV_INSTR);
+  assert(second_last_instr->GetArgs().first == "r3");
+  assert(second_last_instr->GetArgs().second == "c");
+  assert(second_last_instr->GetDest() == "c");
 }
 
 int main(int argc, char **argv) {

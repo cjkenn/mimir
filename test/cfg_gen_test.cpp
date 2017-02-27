@@ -105,7 +105,7 @@ std::vector<IrInstrPtr> build_while_ir() {
 void test_gen_if_ir() {
   auto ir = build_if_ir();
   CfgGen cfg_gen;
-  auto root = cfg_gen.Gen(ir).GetCfg()->GetAdj()[0];
+  auto root = cfg_gen.Gen(ir).GetRoot()->GetAdj()[0];
 
   assert(root->GetAdj().size() == 1);
   assert(root->GetInstrs().size() == 6);
@@ -149,7 +149,7 @@ void test_gen_while_ir() {
   auto ir = build_while_ir();
   CfgGen cfg_gen;
 
-  auto root = cfg_gen.Gen(ir).GetCfg()->GetAdj()[0];
+  auto root = cfg_gen.Gen(ir).GetRoot()->GetAdj()[0];
 
   assert(root->GetAdj().size() == 2);
   assert(root->GetInstrs().size() == 9);

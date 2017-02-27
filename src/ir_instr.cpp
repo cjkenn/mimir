@@ -4,12 +4,14 @@
 
 IrInstr::IrInstr(IrInstrType type) {
   type_ = type;
+  redundant_ = false;
 }
 
 IrInstr::IrInstr(IrInstrType type, std::string dest) {
   type_ = type;
   dest_ = dest;
   is_leader_ = false;
+  redundant_ = false;
 }
 
 IrInstr::IrInstr(IrInstrType type,
@@ -19,6 +21,7 @@ IrInstr::IrInstr(IrInstrType type,
   args_ = args;
   dest_ = dest;
   is_leader_ = false;
+  redundant_ = false;
 }
 
 IrInstr::IrInstr(IrInstrType type,
@@ -32,6 +35,7 @@ IrInstr::IrInstr(IrInstrType type,
   args_ = arg_pair;
   dest_ = dest;
   is_leader_ = false;
+  redundant_ = false;
 }
 
 bool IrInstr::IsJmp() {

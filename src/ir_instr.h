@@ -48,12 +48,14 @@ class IrInstr {
   std::pair<std::string, std::string> GetArgs() const { return args_; }
   std::string GetLabel() const { return label_; }
   bool GetIsLeader() const { return is_leader_; }
+  bool IsRedundant() const { return redundant_; }
 
   void SetType(IrInstrType type) { type_ = type; }
   void SetArgs(std::pair<std::string, std::string> args) { args_ = args; }
   void SetDest(std::string dest) { dest_ = dest; }
   void SetLabel(std::string l) { label_ = l; }
   void SetIsLeader(bool is_leader) { is_leader_ = is_leader; }
+  void SetRedundant(bool redundant) {redundant_ = redundant; }
 
   bool IsJmp();
   bool IsBinOp();
@@ -83,4 +85,8 @@ class IrInstr {
   // is called a leader if it is the first instruction in a procedure, or it
   // has a label that is a potential jump target.
   bool is_leader_;
+
+  // Instructions can be marked as redundant during optimization phases. Depending
+  // on the optimization, this might mean the instruction can be deleted or moved.
+  bool redundant_;
 };

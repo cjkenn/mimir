@@ -22,6 +22,12 @@ void LocalOptimizer::Lvn(CfgNodePtr& block) {
       continue;
     }
 
+    // Check if an operation has a constant value. If it does, we can
+    // mark the previous MV instructions as redundant, and flag the current op
+    // as constant. later, when we alter the instrs vector, we can change
+    // constant operations to MVs.
+    CheckAndMarkConstantOp(instrs, i);
+
     const int first_val = GetLvnForFirstArg(instr);
     const int second_val = GetLvnForSecondArg(instr, first_val);
     const std::string key = BuildLvnMapKey(instr, first_val, second_val);
@@ -55,11 +61,17 @@ void LocalOptimizer::Lvn(CfgNodePtr& block) {
     }
   }
 
-  // New we iterate through the instrs and skip any that are marked as redundant.
+  // New we iterate through the instrs and skip any that are marked as redundant,
+  // as well as fold constant operations by converting them to moves.
   std::vector<IrInstrPtr> new_instrs;
 
   for (auto instr : instrs) {
     if (!instr->IsRedundant()) {
+
+      if (instr->IsConstantOp()) {
+	instr->ConvertConstant();
+      }
+
       new_instrs.push_back(instr);
     }
   }
@@ -70,7 +82,45 @@ void LocalOptimizer::Lvn(CfgNodePtr& block) {
 bool LocalOptimizer::IsInstrLvnValid(const IrInstrPtr& instr) {
   return (instr->IsBinOp() ||
 	  instr->GetType() == IrInstrType::SV_INSTR ||
-	  instr->GetType() == IrInstrType::LD_INSTR);
+	  instr->GetType() == IrInstrType::LD_INSTR ||
+	  instr->GetType() == IrInstrType::MV_INSTR);
+}
+
+void LocalOptimizer::CheckAndMarkConstantOp(const std::vector<IrInstrPtr>& instrs, const int i) {
+  if (!instrs[i]->IsBinOp() || i < 2) {
+    return;
+  }
+
+  if (instrs[i-1]->GetType() == IrInstrType::MV_INSTR &&
+      instrs[i-2]->GetType() == IrInstrType::MV_INSTR) {
+    const int first_cst = std::stoi(instrs[i-2]->GetArgs().first);
+    const int second_cst = std::stoi(instrs[i-1]->GetArgs().first);
+    const int val = EvalConstantOp(instrs[i], first_cst, second_cst);
+
+    instrs[i]->SetConstantOp(true);
+    instrs[i]->SetConstantVal(val);
+    instrs[i-1]->SetRedundant(true);
+    instrs[i-2]->SetRedundant(true);
+  }
+}
+
+int LocalOptimizer::EvalConstantOp(const IrInstrPtr& instr, const int val1, const int val2) {
+  assert(instr->IsBinOp() == true);
+
+  switch(instr->GetType()) {
+  case IrInstrType::ADD_INSTR:
+    return val1 + val2;
+  case IrInstrType::SUB_INSTR:
+    return val1 - val2;
+  case IrInstrType::MUL_INSTR:
+    return val1 * val2;
+  case IrInstrType::DIV_INSTR:
+    return val1 / val2;
+  case IrInstrType::MOD_INSTR:
+    return val1 % val2;
+  default:
+    return 0;
+  }
 }
 
 int LocalOptimizer::GetLvnForFirstArg(const IrInstrPtr& instr) {

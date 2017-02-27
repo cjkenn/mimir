@@ -49,18 +49,23 @@ class IrInstr {
   std::string GetLabel() const { return label_; }
   bool GetIsLeader() const { return is_leader_; }
   bool IsRedundant() const { return redundant_; }
+  bool IsConstantOp() const { return constant_op_; }
+  bool GetConstantVal() const { return constant_val_; }
 
   void SetType(IrInstrType type) { type_ = type; }
   void SetArgs(std::pair<std::string, std::string> args) { args_ = args; }
   void SetDest(std::string dest) { dest_ = dest; }
   void SetLabel(std::string l) { label_ = l; }
   void SetIsLeader(bool is_leader) { is_leader_ = is_leader; }
-  void SetRedundant(bool redundant) {redundant_ = redundant; }
+  void SetRedundant(bool redundant) { redundant_ = redundant; }
+  void SetConstantOp(bool constant_op) { constant_op_ = constant_op; }
+  void SetConstantVal(bool constant_val) { constant_val_ = constant_val; }
 
   bool IsJmp();
   bool IsBinOp();
   std::string GetTypeAsStr();
   bool IsCommutative();
+  void ConvertConstant();
 
  private:
   // The type of instruction. This roughly corresponds to an opcode
@@ -90,4 +95,11 @@ class IrInstr {
   // Instructions can be marked as redundant during optimization phases. Depending
   // on the optimization, this might mean the instruction can be deleted or moved.
   bool redundant_;
+
+  // Flag indicating that this instruction is a constant operation, and thus can
+  // be altered during optimizations.
+  bool constant_op_;
+
+  // The constant value that this instruction actually evaluates to
+  int constant_val_;
 };

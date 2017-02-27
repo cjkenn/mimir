@@ -25,6 +25,14 @@ class LocalOptimizer {
   // with this method.
   bool IsInstrLvnValid(const IrInstrPtr& instr);
 
+  // Determine if an instr is a candidate for constant folding. This method
+  // will mark the instructions for deletion or alteration, to happen
+  // at a later time during optimization.
+  void CheckAndMarkConstantOp(const std::vector<IrInstrPtr>& instrs, const int i);
+
+  // Evaluate an instruction if it has constant operands, given those operands.
+  int EvalConstantOp(const IrInstrPtr& instr, const int val1, const int val2);
+
   // Determine the lvn value for the first argument to an instruction.
   int GetLvnForFirstArg(const IrInstrPtr& instr);
 

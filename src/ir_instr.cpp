@@ -5,6 +5,8 @@
 IrInstr::IrInstr(IrInstrType type) {
   type_ = type;
   redundant_ = false;
+  constant_op_ = false;
+  constant_val_ = 0;
 }
 
 IrInstr::IrInstr(IrInstrType type, std::string dest) {
@@ -12,6 +14,8 @@ IrInstr::IrInstr(IrInstrType type, std::string dest) {
   dest_ = dest;
   is_leader_ = false;
   redundant_ = false;
+  constant_op_ = false;
+  constant_val_ = 0;
 }
 
 IrInstr::IrInstr(IrInstrType type,
@@ -22,6 +26,8 @@ IrInstr::IrInstr(IrInstrType type,
   dest_ = dest;
   is_leader_ = false;
   redundant_ = false;
+  constant_op_ = false;
+  constant_val_ = 0;
 }
 
 IrInstr::IrInstr(IrInstrType type,
@@ -36,6 +42,8 @@ IrInstr::IrInstr(IrInstrType type,
   dest_ = dest;
   is_leader_ = false;
   redundant_ = false;
+  constant_op_ = false;
+  constant_val_ = 0;
 }
 
 bool IrInstr::IsJmp() {
@@ -82,4 +90,9 @@ std::string IrInstr::GetTypeAsStr() {
 bool IrInstr::IsCommutative() {
   return (type_ == IrInstrType::ADD_INSTR ||
 	  type_ == IrInstrType::MUL_INSTR);
+}
+
+void IrInstr::ConvertConstant() {
+  type_ = IrInstrType::MV_INSTR;
+  args_.first = constant_val_;
 }

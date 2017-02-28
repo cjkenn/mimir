@@ -39,7 +39,6 @@ CfgNodePtr get_redundant_cfg_block() {
   instrs.push_back(instr10);
   instrs.push_back(instr11);
   instrs.push_back(instr12);
-
   block->SetInstrs(instrs);
 
   return block;
@@ -67,7 +66,6 @@ CfgNodePtr get_comm_cfg_block() {
   instrs.push_back(instr6);
   instrs.push_back(instr7);
   instrs.push_back(instr8);
-
   block->SetInstrs(instrs);
 
   return block;
@@ -95,7 +93,24 @@ CfgNodePtr get_non_comm_cfg_block() {
   instrs.push_back(instr6);
   instrs.push_back(instr7);
   instrs.push_back(instr8);
+  block->SetInstrs(instrs);
 
+  return block;
+}
+
+CfgNodePtr get_const_fold_cfg_block() {
+  CfgNodePtr block = std::make_shared<CfgNode>("n0");
+// mv 2, r0
+// mv 3, r1
+// add r0, r1
+  std::vector<IrInstrPtr> instrs;
+  auto instr1 = std::make_shared<IrInstr>(IrInstrType::MV_INSTR, "2", "r0", "r0");
+  auto instr2 = std::make_shared<IrInstr>(IrInstrType::MV_INSTR, "3", "r1", "r1");
+  auto instr3 = std::make_shared<IrInstr>(IrInstrType::ADD_INSTR, "r0", "r1", "r1");
+
+  instrs.push_back(instr1);
+  instrs.push_back(instr2);
+  instrs.push_back(instr3);
   block->SetInstrs(instrs);
 
   return block;
@@ -205,6 +220,8 @@ void test_lvn_for_commutivity() {
 // sv r3, b
 //
 // Expected output is the same, there is nothing to optimize here!
+// This test is intended to make sure that non-commutative operations
+// aren't accidentally optimized.
 void test_lvn_for_non_commutivity() {
   auto block = get_non_comm_cfg_block();
   LocalOptimizer lo;
@@ -216,10 +233,35 @@ void test_lvn_for_non_commutivity() {
   assert(block->GetInstrs().size() == 8);
 }
 
+// Expected input instructions:
+// mv 2, r0
+// mv 3, r1
+// add r0, r1
+//
+// Expected output instructions:
+// mv 5, r1
+void test_lvn_constant_folding() {
+  auto block = get_const_fold_cfg_block();
+  LocalOptimizer lo;
+
+  assert(block->GetInstrs().size() == 3);
+
+  lo.Lvn(block);
+
+  assert(block->GetInstrs().size() == 1);
+  auto instr = block->GetInstrs()[0];
+
+  assert(instr->GetType() == IrInstrType::MV_INSTR);
+  assert(instr->GetArgs().first == "5");
+  assert(instr->GetArgs().second == "r1");
+  assert(instr->GetDest() == "r1");
+}
+
 int main(int argc, char **argv) {
   test_lvn_for_redundancy();
   test_lvn_for_commutivity();
   test_lvn_for_non_commutivity();
+  test_lvn_constant_folding();
 
   std::cout << "Lvn tests passed!" << std::endl;
 

@@ -15,7 +15,7 @@ void LocalOptimizer::Lvn(CfgNodePtr& block) {
   op_map_.clear();
   const auto instrs = block->GetInstrs();
 
-  for (int i = 0; i < instrs.size() - 1; i++) {
+  for (int i = 0; i < instrs.size(); i++) {
     const auto instr = instrs[i];
     // Skip everything but saves, loads, and binops
     if (!IsInstrLvnValid(instr)) {
@@ -27,6 +27,12 @@ void LocalOptimizer::Lvn(CfgNodePtr& block) {
     // as constant. later, when we alter the instrs vector, we can change
     // constant operations to MVs.
     CheckAndMarkConstantOp(instrs, i);
+
+    // Bounds check, because if this is the last instruction we won't be
+    // concerned with lvn below.
+    if (i == instrs.size() - 1) {
+      break;
+    }
 
     const int first_val = GetLvnForFirstArg(instr);
     const int second_val = GetLvnForSecondArg(instr, first_val);

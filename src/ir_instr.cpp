@@ -94,5 +94,5 @@ bool IrInstr::IsCommutative() {
 
 void IrInstr::ConvertConstant() {
   type_ = IrInstrType::MV_INSTR;
-  args_.first = constant_val_;
+  args_.first = std::to_string(constant_val_);
 }

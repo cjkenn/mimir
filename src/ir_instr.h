@@ -50,7 +50,7 @@ class IrInstr {
   bool GetIsLeader() const { return is_leader_; }
   bool IsRedundant() const { return redundant_; }
   bool IsConstantOp() const { return constant_op_; }
-  bool GetConstantVal() const { return constant_val_; }
+  int GetConstantVal() const { return constant_val_; }
 
   void SetType(IrInstrType type) { type_ = type; }
   void SetArgs(std::pair<std::string, std::string> args) { args_ = args; }
@@ -59,7 +59,7 @@ class IrInstr {
   void SetIsLeader(bool is_leader) { is_leader_ = is_leader; }
   void SetRedundant(bool redundant) { redundant_ = redundant; }
   void SetConstantOp(bool constant_op) { constant_op_ = constant_op; }
-  void SetConstantVal(bool constant_val) { constant_val_ = constant_val; }
+  void SetConstantVal(int constant_val) { constant_val_ = constant_val; }
 
   bool IsJmp();
   bool IsBinOp();

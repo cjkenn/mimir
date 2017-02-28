@@ -100,12 +100,28 @@ CfgNodePtr get_non_comm_cfg_block() {
 
 CfgNodePtr get_const_fold_cfg_block() {
   CfgNodePtr block = std::make_shared<CfgNode>("n0");
-// mv 2, r0
-// mv 3, r1
-// add r0, r1
+
   std::vector<IrInstrPtr> instrs;
   auto instr1 = std::make_shared<IrInstr>(IrInstrType::MV_INSTR, "2", "r0", "r0");
   auto instr2 = std::make_shared<IrInstr>(IrInstrType::MV_INSTR, "3", "r1", "r1");
+  auto instr3 = std::make_shared<IrInstr>(IrInstrType::ADD_INSTR, "r0", "r1", "r1");
+  auto instr4 = std::make_shared<IrInstr>(IrInstrType::SV_INSTR, "r1", "b", "b");
+
+  instrs.push_back(instr1);
+  instrs.push_back(instr2);
+  instrs.push_back(instr3);
+  instrs.push_back(instr4);
+  block->SetInstrs(instrs);
+
+  return block;
+}
+
+CfgNodePtr get_add_id_cfg_block() {
+  CfgNodePtr block = std::make_shared<CfgNode>("n0");
+
+  std::vector<IrInstrPtr> instrs;
+  auto instr1 = std::make_shared<IrInstr>(IrInstrType::MV_INSTR, "0", "r0", "r0");
+  auto instr2 = std::make_shared<IrInstr>(IrInstrType::LD_INSTR, "a", "r1", "r1");
   auto instr3 = std::make_shared<IrInstr>(IrInstrType::ADD_INSTR, "r0", "r1", "r1");
 
   instrs.push_back(instr1);
@@ -237,11 +253,37 @@ void test_lvn_for_non_commutivity() {
 // mv 2, r0
 // mv 3, r1
 // add r0, r1
+// sv r1, b
 //
 // Expected output instructions:
 // mv 5, r1
+// sv r1, b
 void test_lvn_constant_folding() {
   auto block = get_const_fold_cfg_block();
+  LocalOptimizer lo;
+
+  assert(block->GetInstrs().size() == 4);
+
+  lo.Lvn(block);
+
+  assert(block->GetInstrs().size() == 2);
+  auto instr = block->GetInstrs()[0];
+
+  assert(instr->GetType() == IrInstrType::MV_INSTR);
+  assert(instr->GetArgs().first == "5");
+  assert(instr->GetArgs().second == "r1");
+  assert(instr->GetDest() == "r1");
+}
+
+// Expected input instructions:
+// mv 0, r0
+// ld a, r1
+// add r0, r1
+//
+// Expected output instructions:
+// ld a, r1
+void test_lvn_add_id() {
+  auto block = get_add_id_cfg_block();
   LocalOptimizer lo;
 
   assert(block->GetInstrs().size() == 3);
@@ -251,8 +293,8 @@ void test_lvn_constant_folding() {
   assert(block->GetInstrs().size() == 1);
   auto instr = block->GetInstrs()[0];
 
-  assert(instr->GetType() == IrInstrType::MV_INSTR);
-  assert(instr->GetArgs().first == "5");
+  assert(instr->GetType() == IrInstrType::LD_INSTR);
+  assert(instr->GetArgs().first == "a");
   assert(instr->GetArgs().second == "r1");
   assert(instr->GetDest() == "r1");
 }
@@ -262,6 +304,7 @@ int main(int argc, char **argv) {
   test_lvn_for_commutivity();
   test_lvn_for_non_commutivity();
   test_lvn_constant_folding();
+  test_lvn_add_id();
 
   std::cout << "Lvn tests passed!" << std::endl;
 

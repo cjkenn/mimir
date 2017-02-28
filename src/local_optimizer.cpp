@@ -27,6 +27,7 @@ void LocalOptimizer::Lvn(CfgNodePtr& block) {
     // as constant. later, when we alter the instrs vector, we can change
     // constant operations to MVs.
     CheckAndMarkConstantOp(instrs, i);
+    CheckAndMarkIdentities(instrs, i);
 
     // Bounds check, because if this is the last instruction we won't be
     // concerned with lvn below.
@@ -129,6 +130,29 @@ int LocalOptimizer::EvalConstantOp(const IrInstrPtr& instr, const int val1, cons
   }
 }
 
+void LocalOptimizer::CheckAndMarkIdentities(const std::vector<IrInstrPtr>& instrs, const int i) {
+  if (!instrs[i]->IsBinOp()) {
+    return;
+  }
+
+  switch (instrs[i]->GetType()) {
+  case IrInstrType::ADD_INSTR:
+    CheckAndMarkAddIdentity(instrs, i);
+    return;
+  case IrInstrType::SUB_INSTR:
+    CheckAndMarkSubIdentity(instrs, i);
+    return;
+  case IrInstrType::MUL_INSTR:
+    CheckAndMarkMulIdentity(instrs, i);
+    return;
+  case IrInstrType::DIV_INSTR:
+    CheckAndMarkDivIdentity(instrs, i);
+    return;
+  default:
+    return;
+  }
+}
+
 int LocalOptimizer::GetLvnForFirstArg(const IrInstrPtr& instr) {
   int first_val;
   std::string first_arg = instr->GetArgs().first;
@@ -168,7 +192,7 @@ int LocalOptimizer::GetLvnForSecondArg(const IrInstrPtr& instr, int val1) {
   return second_val;
 }
 
-std::string LocalOptimizer::BuildLvnMapKey(const IrInstrPtr& instr, int val1, int val2) {
+std::string LocalOptimizer::BuildLvnMapKey(const IrInstrPtr& instr, const int val1, const int val2) {
   int min_val;
   int max_val;
 
@@ -195,4 +219,53 @@ void LocalOptimizer::MarkPreviousLdInstrs(const std::vector<IrInstrPtr>& instrs,
   if (i >= 2 && instrs[i-2]->GetType() == IrInstrType::LD_INSTR) {
     instrs[i-2]->SetRedundant(true);
   }
+}
+
+void LocalOptimizer::CheckAndMarkAddIdentity(const std::vector<IrInstrPtr>& instrs, const int i) {
+  assert(instrs[i]->GetType() == IrInstrType::ADD_INSTR);
+  if (i < 2) {
+    return;
+  }
+  const auto instr1 = instrs[i-2];
+  const auto instr2 = instrs[i-1];
+  IrInstrPtr mv_instr;
+  IrInstrPtr ld_instr;
+
+  // When performing an ADD, we can only have MVs or LDs before.
+  // If both instructions are MVs or LDs, we dont optimize. We want one MV and one LD.
+  if ((instr1->GetType() == IrInstrType::MV_INSTR && instr2->GetType() == IrInstrType::MV_INSTR) ||
+      (instr1->GetType() == IrInstrType::LD_INSTR && instr2->GetType() == IrInstrType::LD_INSTR)) {
+    return;
+  }
+
+  if (instr1->GetType() == IrInstrType::MV_INSTR) {
+    mv_instr = instr1;
+    ld_instr = instr2;
+  } else {
+    mv_instr = instr2;
+    ld_instr = instr1;
+  }
+
+  if (mv_instr->GetArgs().first != "0") {
+    return;
+  }
+
+  // If we're this far, we know we can optimize.
+  // TODO: Possible to remove a following SV instruction too?
+  std::string new_dest = instrs[i]->GetDest();
+  ld_instr->SetDest(new_dest);
+  mv_instr->SetRedundant(true);
+  instrs[i]->SetRedundant(true);
+}
+
+void LocalOptimizer::CheckAndMarkSubIdentity(const std::vector<IrInstrPtr>& instrs, const int i) {
+  // TODO
+}
+
+void LocalOptimizer::CheckAndMarkMulIdentity(const std::vector<IrInstrPtr>& instrs, const int i) {
+  // TODO
+}
+
+void LocalOptimizer::CheckAndMarkDivIdentity(const std::vector<IrInstrPtr>& instrs, const int i) {
+  // TODO
 }

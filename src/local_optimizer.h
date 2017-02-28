@@ -33,6 +33,10 @@ class LocalOptimizer {
   // Evaluate an instruction if it has constant operands, given those operands.
   int EvalConstantOp(const IrInstrPtr& instr, const int val1, const int val2);
 
+  // Check binary operations for identity functions. This function checks
+  // the type of the op and delegates to a helper function to handle each one.
+  void CheckAndMarkIdentities(const std::vector<IrInstrPtr>& instrs, const int i);
+
   // Determine the lvn value for the first argument to an instruction.
   int GetLvnForFirstArg(const IrInstrPtr& instr);
 
@@ -50,12 +54,24 @@ class LocalOptimizer {
   // same value numbers as above, the operation "add r1, r0" will also hash to
   // "0ADD1". Note that this is only done when the operation is commutative,
   // so only for ADD and MUL.
-  std::string BuildLvnMapKey(const IrInstrPtr& instr, int val1, int val2);
+  std::string BuildLvnMapKey(const IrInstrPtr& instr, const int val1, const int val2);
 
   // Helper function to check for redundant LD instructions, assuming
   // the the instruction we pass in has been flagged as redundant
   // itself.
   void MarkPreviousLdInstrs(const std::vector<IrInstrPtr>& instrs, const int i);
+
+  // We are only concerned with one identity for add: a + 0 = a. Note that we
+  // do not try to optimize away any constant identities like 5 + 0 = 5, because
+  // that's already handled by constant folding and we don't need to evaluate it
+  // again. The order of optimizations does not matter here.
+  void CheckAndMarkAddIdentity(const std::vector<IrInstrPtr>& instrs, const int i);
+
+  void CheckAndMarkSubIdentity(const std::vector<IrInstrPtr>& instrs, const int i);
+
+  void CheckAndMarkMulIdentity(const std::vector<IrInstrPtr>& instrs, const int i);
+
+  void CheckAndMarkDivIdentity(const std::vector<IrInstrPtr>& instrs, const int i);
 
   int val_count_;
   std::unordered_map<std::string, int> val_map_;

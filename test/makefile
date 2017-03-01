@@ -34,6 +34,7 @@ CFGGENFILES = cfg_gen_test.cpp \
 	../src/cfg.cpp \
 	../src/cfg_node.cpp
 LOCALOPTFILES = local_optimizer_test.cpp \
+	helper/local_optimizer.cpp \
 	../src/local_optimizer.cpp \
 	../src/cfg_node.cpp \
 	../src/ir_instr.cpp

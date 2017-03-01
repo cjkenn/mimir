@@ -17,7 +17,7 @@ class LocalOptimizer {
   // on all blocks, this must be called for each of them
   // (but the order of those calls is not important, since only
   // the block itself is affected).
-  void Lvn(CfgNodePtr& block);
+  void OptimizeBlock(CfgNodePtr& block);
 
  private:
   // We only care about certain instructions for local optimizations. There

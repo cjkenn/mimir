@@ -9,7 +9,7 @@ LocalOptimizer::LocalOptimizer() {
   val_count_ = 0;
 }
 
-void LocalOptimizer::Lvn(CfgNodePtr& block) {
+void LocalOptimizer::OptimizeBlock(CfgNodePtr& block) {
   val_count_ = 0;
   val_map_.clear();
   op_map_.clear();

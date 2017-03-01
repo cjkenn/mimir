@@ -49,7 +49,7 @@ int main(int argc, char *argv[]) {
 
   LocalOptimizer lo;
   auto root = cfg.GetRoot();
-  lo.Lvn(root);
+  lo.OptimizeBlock(root);
 
   // TODO: Convert the ir to valid x86 and write to a file using
   // code_gen

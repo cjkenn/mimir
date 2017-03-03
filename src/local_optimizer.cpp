@@ -276,11 +276,30 @@ void LocalOptimizer::CheckAndMarkSubIdentity(const std::vector<IrInstrPtr>& inst
 }
 
 void LocalOptimizer::CheckAndMarkMulIdentity(const std::vector<IrInstrPtr>& instrs, const int i) {
-  // TODO
+  assert(instrs[i]->GetType() == IrInstrType::MUL_INSTR);
+  if (i < 2) {
+    return;
+  }
+
+  const auto first_instr = instrs[i-2];
+  const auto second_instr = instrs[i-1];
+  const auto mul_instr = instrs[i];
+
+  // 2 x a = a + a
+  OptMulByTwo(first_instr, second_instr, mul_instr);
+
+  // a x 1 = a
+  OptMulByOne(first_instr, second_instr, mul_instr);
+
+  // a x 0 = 0
+  OptMulByZero(first_instr, second_instr, mul_instr);
 }
 
 void LocalOptimizer::CheckAndMarkDivIdentity(const std::vector<IrInstrPtr>& instrs, const int i) {
   // TODO
+  // a / 1 = a
+  // TODO: a / a = 1, as long as a != 0. Do we check the value of a in the symbol table here?
+  // We don't have scope information
 }
 
 void LocalOptimizer::OptSubByZero(const IrInstrPtr& first_instr,
@@ -318,5 +337,90 @@ void LocalOptimizer::OptSubBySelf(const IrInstrPtr& first_instr,
     sub_instr->SetType(IrInstrType::MV_INSTR);
     std::pair<std::string, std::string> args("0", sub_instr->GetDest());
     sub_instr->SetArgs(args);
+  }
+}
+
+void LocalOptimizer::OptMulByTwo(const IrInstrPtr& first_instr,
+				 const IrInstrPtr& second_instr,
+				 const IrInstrPtr& mul_instr) {
+  if ((first_instr->GetType() == IrInstrType::MV_INSTR && second_instr->GetType() == IrInstrType::MV_INSTR) ||
+      (first_instr->GetType() == IrInstrType::LD_INSTR && second_instr->GetType() == IrInstrType::LD_INSTR)) {
+    return;
+  }
+
+  IrInstrPtr mv_instr;
+  IrInstrPtr ld_instr;
+
+  if (first_instr->GetType() == IrInstrType::MV_INSTR) {
+    mv_instr = first_instr;
+    ld_instr = second_instr;
+  } else {
+    mv_instr = second_instr;
+    ld_instr = first_instr;
+  }
+
+  if (mv_instr->GetArgs().first == "2") {
+    // Convert the mv to a ld, of the same value as the other ld instr
+    mv_instr->SetType(IrInstrType::LD_INSTR);
+    std::pair<std::string, std::string> args(ld_instr->GetArgs().first, mv_instr->GetArgs().second);
+    mv_instr->SetArgs(args);
+
+    // Convert the mul to an add
+    mul_instr->SetType(IrInstrType::ADD_INSTR);
+  }
+}
+
+void LocalOptimizer::OptMulByOne(const IrInstrPtr& first_instr,
+				 const IrInstrPtr& second_instr,
+				 const IrInstrPtr& mul_instr) {
+  if ((first_instr->GetType() == IrInstrType::MV_INSTR && second_instr->GetType() == IrInstrType::MV_INSTR) ||
+      (first_instr->GetType() == IrInstrType::LD_INSTR && second_instr->GetType() == IrInstrType::LD_INSTR)) {
+    return;
+  }
+
+  IrInstrPtr mv_instr;
+  IrInstrPtr ld_instr;
+
+  if (first_instr->GetType() == IrInstrType::MV_INSTR) {
+    mv_instr = first_instr;
+    ld_instr = second_instr;
+  } else {
+    mv_instr = second_instr;
+    ld_instr = first_instr;
+  }
+
+  if (mv_instr->GetArgs().first == "1") {
+    std::pair<std::string, std::string> args(ld_instr->GetArgs().first, mul_instr->GetDest());
+    ld_instr->SetArgs(args);
+    ld_instr->SetDest(mul_instr->GetDest());
+
+    mv_instr->SetRedundant(true);
+    mul_instr->SetRedundant(true);
+  }
+}
+
+void LocalOptimizer::OptMulByZero(const IrInstrPtr& first_instr,
+				  const IrInstrPtr& second_instr,
+				  const IrInstrPtr& mul_instr) {
+  if ((first_instr->GetType() == IrInstrType::MV_INSTR && second_instr->GetType() == IrInstrType::MV_INSTR) ||
+      (first_instr->GetType() == IrInstrType::LD_INSTR && second_instr->GetType() == IrInstrType::LD_INSTR)) {
+    return;
+  }
+
+  IrInstrPtr mv_instr;
+  IrInstrPtr ld_instr;
+
+  if (first_instr->GetType() == IrInstrType::MV_INSTR) {
+    mv_instr = first_instr;
+    ld_instr = second_instr;
+  } else {
+    mv_instr = second_instr;
+    ld_instr = first_instr;
+  }
+
+  if (mv_instr->GetArgs().first == "0") {
+    mv_instr->SetDest(mul_instr->GetDest());
+    ld_instr->SetRedundant(true);
+    mul_instr->SetRedundant(true);
   }
 }

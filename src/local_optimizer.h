@@ -73,17 +73,32 @@ class LocalOptimizer {
 
   void CheckAndMarkDivIdentity(const std::vector<IrInstrPtr>& instrs, const int i);
 
-  // We can reduce a - 0 = a to one instruction, a LD into the destination
+  // Reduce a - 0 = a to one instruction, a LD into the destination
   // of the original SUB instruction.
   void OptSubByZero(const IrInstrPtr& first_instr,
 		    const IrInstrPtr& second_instr,
 		    const IrInstrPtr& sub_instr);
 
-  // We can reduce a - a = 0 to a single instruction, a MV into the destination
+  // Reduce a - a = 0 to a single instruction, a MV into the destination
   // of the original SUB instruction.
   void OptSubBySelf(const IrInstrPtr& first_instr,
 		    const IrInstrPtr& second_instr,
 		    const IrInstrPtr& sub_instr);
+
+  // Recude 2 x a to a + a, to avoid a more expensive mul operation.
+  void OptMulByTwo(const IrInstrPtr& first_instr,
+		   const IrInstrPtr& second_instr,
+		   const IrInstrPtr& mul_instr);
+
+  // Reduce 1 x a = a to a single ld instruction.
+  void OptMulByOne(const IrInstrPtr& first_instr,
+		   const IrInstrPtr& second_instr,
+		   const IrInstrPtr& mul_instr);
+
+  // Reduce 0 x a = 0 to a single mv instruction.
+  void OptMulByZero(const IrInstrPtr& first_instr,
+		    const IrInstrPtr& second_instr,
+		    const IrInstrPtr& mul_instr);
 
   int val_count_;
   std::unordered_map<std::string, int> val_map_;

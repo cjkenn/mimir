@@ -15,4 +15,7 @@ class LocalOptimizerTestHelper {
   CfgNodePtr GetAddIdBlock();
   CfgNodePtr GetSubByZeroBlock();
   CfgNodePtr GetSubBySelfBlock();
+  CfgNodePtr GetMulByTwoBlock();
+  CfgNodePtr GetMulByOneBlock();
+  CfgNodePtr GetMulByZeroBlock();
 };

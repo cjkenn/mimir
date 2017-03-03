@@ -203,3 +203,19 @@ CfgNodePtr LocalOptimizerTestHelper::GetMulByZeroBlock() {
 
   return block;
 }
+
+CfgNodePtr LocalOptimizerTestHelper::GetDivByOneBlock() {
+  CfgNodePtr block = std::make_shared<CfgNode>("n0");
+
+  std::vector<IrInstrPtr> instrs;
+  auto instr1 = std::make_shared<IrInstr>(IrInstrType::LD_INSTR, "a", "r0", "r0");
+  auto instr2 = std::make_shared<IrInstr>(IrInstrType::MV_INSTR, "1", "r1", "r1");
+  auto instr3 = std::make_shared<IrInstr>(IrInstrType::DIV_INSTR, "r0", "r1", "r1");
+
+  instrs.push_back(instr1);
+  instrs.push_back(instr2);
+  instrs.push_back(instr3);
+  block->SetInstrs(instrs);
+
+  return block;
+}

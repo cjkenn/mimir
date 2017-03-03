@@ -310,6 +310,30 @@ void test_opt_mul_by_zero(LocalOptimizerTestHelper helper) {
   assert(instr->GetDest() == "r1");
 }
 
+// Expected input instructions:
+// ld a, r0
+// mv 1, r1
+// div r0, r1
+//
+// Expected output instructions:
+// ld a, r1
+void test_opt_div_by_one(LocalOptimizerTestHelper helper) {
+  auto block = helper.GetDivByOneBlock();
+  LocalOptimizer lo;
+
+  assert(block->GetInstrs().size() == 3);
+
+  lo.OptimizeBlock(block);
+
+  assert(block->GetInstrs().size() == 1);
+  auto instr = block->GetInstrs()[0];
+
+  assert(instr->GetType() == IrInstrType::LD_INSTR);
+  assert(instr->GetArgs().first == "a");
+  assert(instr->GetArgs().second == "r1");
+  assert(instr->GetDest() == "r1");
+}
+
 int main(int argc, char **argv) {
   LocalOptimizerTestHelper helper;
   test_opt_for_redundancy(helper);
@@ -327,6 +351,8 @@ int main(int argc, char **argv) {
   test_opt_mul_by_two(helper);
   test_opt_mul_by_one(helper);
   test_opt_mul_by_zero(helper);
+
+  test_opt_div_by_one(helper);
 
   std::cout << "Local optimization tests passed!" << std::endl;
 

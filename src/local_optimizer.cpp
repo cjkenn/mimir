@@ -296,10 +296,19 @@ void LocalOptimizer::CheckAndMarkMulIdentity(const std::vector<IrInstrPtr>& inst
 }
 
 void LocalOptimizer::CheckAndMarkDivIdentity(const std::vector<IrInstrPtr>& instrs, const int i) {
-  // TODO
-  // a / 1 = a
   // TODO: a / a = 1, as long as a != 0. Do we check the value of a in the symbol table here?
   // We don't have scope information
+  assert(instrs[i]->GetType() == IrInstrType::DIV_INSTR);
+  if (i < 2) {
+    return;
+  }
+
+  const auto first_instr = instrs[i-2];
+  const auto second_instr = instrs[i-1];
+  const auto div_instr = instrs[i];
+
+  // a / 1 = a
+  OptDivByOne(first_instr, second_instr, div_instr);
 }
 
 void LocalOptimizer::OptSubByZero(const IrInstrPtr& first_instr,
@@ -422,5 +431,20 @@ void LocalOptimizer::OptMulByZero(const IrInstrPtr& first_instr,
     mv_instr->SetDest(mul_instr->GetDest());
     ld_instr->SetRedundant(true);
     mul_instr->SetRedundant(true);
+  }
+}
+
+void LocalOptimizer::OptDivByOne(const IrInstrPtr& first_instr,
+				 const IrInstrPtr& second_instr,
+				 const IrInstrPtr& div_instr) {
+  // a / 1 = a
+  if ((first_instr->GetType() == IrInstrType::LD_INSTR &&
+       second_instr->GetType() == IrInstrType::MV_INSTR) &&
+      (second_instr->GetArgs().first == "1")) {
+    std::pair<std::string, std::string> args(first_instr->GetArgs().first, div_instr->GetDest());
+    first_instr->SetArgs(args);
+    first_instr->SetDest(div_instr->GetDest());
+    second_instr->SetRedundant(true);
+    div_instr->SetRedundant(true);
   }
 }

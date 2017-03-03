@@ -174,6 +174,54 @@ void test_opt_add_id(LocalOptimizerTestHelper helper) {
   assert(instr->GetDest() == "r1");
 }
 
+// Expected input instructions:
+// ld a, r0
+// mv 0, r1
+// sub r0, r1
+//
+// Expected output instructions:
+// ld a, r1
+void test_opt_sub_by_zero(LocalOptimizerTestHelper helper) {
+  auto block = helper.GetSubByZeroBlock();
+  LocalOptimizer lo;
+
+  assert(block->GetInstrs().size() == 3);
+
+  lo.OptimizeBlock(block);
+
+  assert(block->GetInstrs().size() == 1);
+  auto instr = block->GetInstrs()[0];
+
+  assert(instr->GetType() == IrInstrType::LD_INSTR);
+  assert(instr->GetArgs().first == "a");
+  assert(instr->GetArgs().second == "r1");
+  assert(instr->GetDest() == "r1");
+}
+
+// Expected input instructions:
+// ld a, r0
+// ld a, r1
+// sub r0, r1
+//
+// Expected output instructions:
+// mv 0, r1
+void test_opt_sub_by_self(LocalOptimizerTestHelper helper) {
+  auto block = helper.GetSubBySelfBlock();
+  LocalOptimizer lo;
+
+  assert(block->GetInstrs().size() == 3);
+
+  lo.OptimizeBlock(block);
+
+  assert(block->GetInstrs().size() == 1);
+  auto instr = block->GetInstrs()[0];
+
+  assert(instr->GetType() == IrInstrType::MV_INSTR);
+  assert(instr->GetArgs().first == "0");
+  assert(instr->GetArgs().second == "r1");
+  assert(instr->GetDest() == "r1");
+}
+
 int main(int argc, char **argv) {
   LocalOptimizerTestHelper helper;
   test_opt_for_redundancy(helper);
@@ -181,6 +229,8 @@ int main(int argc, char **argv) {
   test_opt_for_non_commutivity(helper);
   test_opt_constant_folding(helper);
   test_opt_add_id(helper);
+  test_opt_sub_by_self(helper);
+  test_opt_sub_by_zero(helper);
 
   std::cout << "Local optimization tests passed!" << std::endl;
 

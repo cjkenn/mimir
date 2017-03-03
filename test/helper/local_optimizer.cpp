@@ -123,3 +123,35 @@ CfgNodePtr LocalOptimizerTestHelper::GetAddIdBlock() {
 
   return block;
 }
+
+CfgNodePtr LocalOptimizerTestHelper::GetSubByZeroBlock() {
+  CfgNodePtr block = std::make_shared<CfgNode>("n0");
+
+  std::vector<IrInstrPtr> instrs;
+  auto instr1 = std::make_shared<IrInstr>(IrInstrType::LD_INSTR, "a", "r0", "r0");
+  auto instr2 = std::make_shared<IrInstr>(IrInstrType::MV_INSTR, "0", "r1", "r1");
+  auto instr3 = std::make_shared<IrInstr>(IrInstrType::SUB_INSTR, "r0", "r1", "r1");
+
+  instrs.push_back(instr1);
+  instrs.push_back(instr2);
+  instrs.push_back(instr3);
+  block->SetInstrs(instrs);
+
+  return block;
+}
+
+CfgNodePtr LocalOptimizerTestHelper::GetSubBySelfBlock() {
+  CfgNodePtr block = std::make_shared<CfgNode>("n0");
+
+  std::vector<IrInstrPtr> instrs;
+  auto instr1 = std::make_shared<IrInstr>(IrInstrType::LD_INSTR, "a", "r0", "r0");
+  auto instr2 = std::make_shared<IrInstr>(IrInstrType::LD_INSTR, "a", "r1", "r1");
+  auto instr3 = std::make_shared<IrInstr>(IrInstrType::SUB_INSTR, "r0", "r1", "r1");
+
+  instrs.push_back(instr1);
+  instrs.push_back(instr2);
+  instrs.push_back(instr3);
+  block->SetInstrs(instrs);
+
+  return block;
+}

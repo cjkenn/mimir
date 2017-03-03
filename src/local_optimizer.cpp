@@ -259,7 +259,20 @@ void LocalOptimizer::CheckAndMarkAddIdentity(const std::vector<IrInstrPtr>& inst
 }
 
 void LocalOptimizer::CheckAndMarkSubIdentity(const std::vector<IrInstrPtr>& instrs, const int i) {
-  // TODO
+  assert(instrs[i]->GetType() == IrInstrType::SUB_INSTR);
+  if (i < 2) {
+    return;
+  }
+
+  const auto first_instr = instrs[i-2];
+  const auto second_instr = instrs[i-1];
+  const auto sub_instr = instrs[i];
+
+  // Optimize a - 0 = a
+  OptSubByZero(first_instr, second_instr, sub_instr);
+
+  // Optimize a - a = 0
+  OptSubBySelf(first_instr, second_instr, sub_instr);
 }
 
 void LocalOptimizer::CheckAndMarkMulIdentity(const std::vector<IrInstrPtr>& instrs, const int i) {
@@ -268,4 +281,42 @@ void LocalOptimizer::CheckAndMarkMulIdentity(const std::vector<IrInstrPtr>& inst
 
 void LocalOptimizer::CheckAndMarkDivIdentity(const std::vector<IrInstrPtr>& instrs, const int i) {
   // TODO
+}
+
+void LocalOptimizer::OptSubByZero(const IrInstrPtr& first_instr,
+				  const IrInstrPtr& second_instr,
+				  const IrInstrPtr& sub_instr) {
+  if ((first_instr->GetType() == IrInstrType::LD_INSTR &&
+       second_instr->GetType() == IrInstrType::MV_INSTR) &&
+      (second_instr->GetArgs().first == "0")) {
+
+    // If we have a candidate for optimization, we can replace the first ld
+    // instruction's arguments and mark the others for removal.
+    std::string new_dest = sub_instr->GetDest();
+    std::pair<std::string, std::string> args(first_instr->GetArgs().first, new_dest);
+    first_instr->SetDest(new_dest);
+    first_instr->SetArgs(args);
+
+    second_instr->SetRedundant(true);
+    sub_instr->SetRedundant(true);
+  }
+}
+
+void LocalOptimizer::OptSubBySelf(const IrInstrPtr& first_instr,
+				  const IrInstrPtr& second_instr,
+				  const IrInstrPtr& sub_instr) {
+  if ((first_instr->GetType() == IrInstrType::LD_INSTR &&
+       second_instr->GetType() == IrInstrType::LD_INSTR) &&
+      (first_instr->GetArgs().first == second_instr->GetArgs().first)) {
+
+    // We convert the sub instruction to a mv instruction, and set the value
+    // to 0.
+    std::string new_dest = sub_instr->GetDest();
+    first_instr->SetRedundant(true);
+    second_instr->SetRedundant(true);
+
+    sub_instr->SetType(IrInstrType::MV_INSTR);
+    std::pair<std::string, std::string> args("0", sub_instr->GetDest());
+    sub_instr->SetArgs(args);
+  }
 }

@@ -13,4 +13,6 @@ class LocalOptimizerTestHelper {
   CfgNodePtr GetNonCommutativeBlock();
   CfgNodePtr GetConstFoldBlock();
   CfgNodePtr GetAddIdBlock();
+  CfgNodePtr GetSubByZeroBlock();
+  CfgNodePtr GetSubBySelfBlock();
 };

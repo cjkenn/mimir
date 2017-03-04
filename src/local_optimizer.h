@@ -85,7 +85,7 @@ class LocalOptimizer {
 		    const IrInstrPtr& second_instr,
 		    const IrInstrPtr& sub_instr);
 
-  // Recude 2 x a to a + a, to avoid a more expensive MUL operation.
+  // Reduce 2 x a to a + a, to avoid a more expensive MUL operation.
   void OptMulByTwo(const IrInstrPtr& first_instr,
 		   const IrInstrPtr& second_instr,
 		   const IrInstrPtr& mul_instr);
@@ -104,6 +104,15 @@ class LocalOptimizer {
   void OptDivByOne(const IrInstrPtr& first_instr,
 		   const IrInstrPtr& second_instr,
 		   const IrInstrPtr& div_instr);
+
+  bool IsLdOrMvOrder(const IrInstrPtr& first_instr,
+		      const IrInstrPtr& second_instr);
+
+  bool IsLdThenMvOrder(const IrInstrPtr& first_instr,
+		       const IrInstrPtr& second_instr);
+
+  bool IsLdThenLdOrder(const IrInstrPtr& first_instr,
+		       const IrInstrPtr& second_instr);
 
   int val_count_;
   std::unordered_map<std::string, int> val_map_;

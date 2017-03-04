@@ -233,29 +233,23 @@ void LocalOptimizer::CheckAndMarkAddIdentity(const std::vector<IrInstrPtr>& inst
 
   // When performing an ADD, we can only have MVs or LDs before.
   // If both instructions are MVs or LDs, we dont optimize. We want one MV and one LD.
-  if ((instr1->GetType() == IrInstrType::MV_INSTR && instr2->GetType() == IrInstrType::MV_INSTR) ||
-      (instr1->GetType() == IrInstrType::LD_INSTR && instr2->GetType() == IrInstrType::LD_INSTR)) {
-    return;
-  }
+  if (IsLdOrMvOrder(instr1, instr2)) {
+    if (instr1->GetType() == IrInstrType::MV_INSTR) {
+      mv_instr = instr1;
+      ld_instr = instr2;
+    } else {
+      mv_instr = instr2;
+      ld_instr = instr1;
+    }
 
-  if (instr1->GetType() == IrInstrType::MV_INSTR) {
-    mv_instr = instr1;
-    ld_instr = instr2;
-  } else {
-    mv_instr = instr2;
-    ld_instr = instr1;
+    if (mv_instr->GetArgs().first == "0") {
+      // TODO: Possible to remove a following SV instruction too?
+      std::string new_dest = instrs[i]->GetDest();
+      ld_instr->SetDest(new_dest);
+      mv_instr->SetRedundant(true);
+      instrs[i]->SetRedundant(true);
+    }
   }
-
-  if (mv_instr->GetArgs().first != "0") {
-    return;
-  }
-
-  // If we're this far, we know we can optimize.
-  // TODO: Possible to remove a following SV instruction too?
-  std::string new_dest = instrs[i]->GetDest();
-  ld_instr->SetDest(new_dest);
-  mv_instr->SetRedundant(true);
-  instrs[i]->SetRedundant(true);
 }
 
 void LocalOptimizer::CheckAndMarkSubIdentity(const std::vector<IrInstrPtr>& instrs, const int i) {
@@ -285,19 +279,18 @@ void LocalOptimizer::CheckAndMarkMulIdentity(const std::vector<IrInstrPtr>& inst
   const auto second_instr = instrs[i-1];
   const auto mul_instr = instrs[i];
 
-  // 2 x a = a + a
+  // Optimize 2 x a = a + a
   OptMulByTwo(first_instr, second_instr, mul_instr);
 
-  // a x 1 = a
+  // Optimize a x 1 = a
   OptMulByOne(first_instr, second_instr, mul_instr);
 
-  // a x 0 = 0
+  // Optimize a x 0 = 0
   OptMulByZero(first_instr, second_instr, mul_instr);
 }
 
 void LocalOptimizer::CheckAndMarkDivIdentity(const std::vector<IrInstrPtr>& instrs, const int i) {
   // TODO: a / a = 1, as long as a != 0. Do we check the value of a in the symbol table here?
-  // We don't have scope information
   assert(instrs[i]->GetType() == IrInstrType::DIV_INSTR);
   if (i < 2) {
     return;
@@ -307,17 +300,14 @@ void LocalOptimizer::CheckAndMarkDivIdentity(const std::vector<IrInstrPtr>& inst
   const auto second_instr = instrs[i-1];
   const auto div_instr = instrs[i];
 
-  // a / 1 = a
+  // Optimize a / 1 = a
   OptDivByOne(first_instr, second_instr, div_instr);
 }
 
 void LocalOptimizer::OptSubByZero(const IrInstrPtr& first_instr,
 				  const IrInstrPtr& second_instr,
 				  const IrInstrPtr& sub_instr) {
-  if ((first_instr->GetType() == IrInstrType::LD_INSTR &&
-       second_instr->GetType() == IrInstrType::MV_INSTR) &&
-      (second_instr->GetArgs().first == "0")) {
-
+  if (IsLdThenMvOrder(first_instr, second_instr) && second_instr->GetArgs().first == "0") {
     // If we have a candidate for optimization, we can replace the first ld
     // instruction's arguments and mark the others for removal.
     std::string new_dest = sub_instr->GetDest();
@@ -333,8 +323,7 @@ void LocalOptimizer::OptSubByZero(const IrInstrPtr& first_instr,
 void LocalOptimizer::OptSubBySelf(const IrInstrPtr& first_instr,
 				  const IrInstrPtr& second_instr,
 				  const IrInstrPtr& sub_instr) {
-  if ((first_instr->GetType() == IrInstrType::LD_INSTR &&
-       second_instr->GetType() == IrInstrType::LD_INSTR) &&
+  if (IsLdThenLdOrder(first_instr, second_instr) &&
       (first_instr->GetArgs().first == second_instr->GetArgs().first)) {
 
     // We convert the sub instruction to a mv instruction, and set the value
@@ -352,99 +341,114 @@ void LocalOptimizer::OptSubBySelf(const IrInstrPtr& first_instr,
 void LocalOptimizer::OptMulByTwo(const IrInstrPtr& first_instr,
 				 const IrInstrPtr& second_instr,
 				 const IrInstrPtr& mul_instr) {
-  if ((first_instr->GetType() == IrInstrType::MV_INSTR && second_instr->GetType() == IrInstrType::MV_INSTR) ||
-      (first_instr->GetType() == IrInstrType::LD_INSTR && second_instr->GetType() == IrInstrType::LD_INSTR)) {
-    return;
-  }
+  if (IsLdOrMvOrder(first_instr, second_instr)) {
+    IrInstrPtr mv_instr;
+    IrInstrPtr ld_instr;
 
-  IrInstrPtr mv_instr;
-  IrInstrPtr ld_instr;
+    if (first_instr->GetType() == IrInstrType::MV_INSTR) {
+      mv_instr = first_instr;
+      ld_instr = second_instr;
+    } else {
+      mv_instr = second_instr;
+      ld_instr = first_instr;
+    }
 
-  if (first_instr->GetType() == IrInstrType::MV_INSTR) {
-    mv_instr = first_instr;
-    ld_instr = second_instr;
-  } else {
-    mv_instr = second_instr;
-    ld_instr = first_instr;
-  }
+    if (mv_instr->GetArgs().first == "2") {
+      // Convert the mv to a ld, of the same value as the other ld instr
+      mv_instr->SetType(IrInstrType::LD_INSTR);
+      std::pair<std::string, std::string> args(ld_instr->GetArgs().first, mv_instr->GetArgs().second);
+      mv_instr->SetArgs(args);
 
-  if (mv_instr->GetArgs().first == "2") {
-    // Convert the mv to a ld, of the same value as the other ld instr
-    mv_instr->SetType(IrInstrType::LD_INSTR);
-    std::pair<std::string, std::string> args(ld_instr->GetArgs().first, mv_instr->GetArgs().second);
-    mv_instr->SetArgs(args);
-
-    // Convert the mul to an add
-    mul_instr->SetType(IrInstrType::ADD_INSTR);
+      // Convert the mul to an add
+      mul_instr->SetType(IrInstrType::ADD_INSTR);
+    }
   }
 }
 
 void LocalOptimizer::OptMulByOne(const IrInstrPtr& first_instr,
 				 const IrInstrPtr& second_instr,
 				 const IrInstrPtr& mul_instr) {
-  if ((first_instr->GetType() == IrInstrType::MV_INSTR && second_instr->GetType() == IrInstrType::MV_INSTR) ||
-      (first_instr->GetType() == IrInstrType::LD_INSTR && second_instr->GetType() == IrInstrType::LD_INSTR)) {
-    return;
-  }
+  if (IsLdOrMvOrder(first_instr, second_instr)) {
+    IrInstrPtr mv_instr;
+    IrInstrPtr ld_instr;
 
-  IrInstrPtr mv_instr;
-  IrInstrPtr ld_instr;
+    if (first_instr->GetType() == IrInstrType::MV_INSTR) {
+      mv_instr = first_instr;
+      ld_instr = second_instr;
+    } else {
+      mv_instr = second_instr;
+      ld_instr = first_instr;
+    }
 
-  if (first_instr->GetType() == IrInstrType::MV_INSTR) {
-    mv_instr = first_instr;
-    ld_instr = second_instr;
-  } else {
-    mv_instr = second_instr;
-    ld_instr = first_instr;
-  }
+    if (mv_instr->GetArgs().first == "1") {
+      std::pair<std::string, std::string> args(ld_instr->GetArgs().first, mul_instr->GetDest());
+      ld_instr->SetArgs(args);
+      ld_instr->SetDest(mul_instr->GetDest());
 
-  if (mv_instr->GetArgs().first == "1") {
-    std::pair<std::string, std::string> args(ld_instr->GetArgs().first, mul_instr->GetDest());
-    ld_instr->SetArgs(args);
-    ld_instr->SetDest(mul_instr->GetDest());
-
-    mv_instr->SetRedundant(true);
-    mul_instr->SetRedundant(true);
+      mv_instr->SetRedundant(true);
+      mul_instr->SetRedundant(true);
+    }
   }
 }
 
 void LocalOptimizer::OptMulByZero(const IrInstrPtr& first_instr,
 				  const IrInstrPtr& second_instr,
 				  const IrInstrPtr& mul_instr) {
-  if ((first_instr->GetType() == IrInstrType::MV_INSTR && second_instr->GetType() == IrInstrType::MV_INSTR) ||
-      (first_instr->GetType() == IrInstrType::LD_INSTR && second_instr->GetType() == IrInstrType::LD_INSTR)) {
-    return;
-  }
+  if (IsLdOrMvOrder(first_instr, second_instr)) {
+    IrInstrPtr mv_instr;
+    IrInstrPtr ld_instr;
 
-  IrInstrPtr mv_instr;
-  IrInstrPtr ld_instr;
+    if (first_instr->GetType() == IrInstrType::MV_INSTR) {
+      mv_instr = first_instr;
+      ld_instr = second_instr;
+    } else {
+      mv_instr = second_instr;
+      ld_instr = first_instr;
+    }
 
-  if (first_instr->GetType() == IrInstrType::MV_INSTR) {
-    mv_instr = first_instr;
-    ld_instr = second_instr;
-  } else {
-    mv_instr = second_instr;
-    ld_instr = first_instr;
-  }
-
-  if (mv_instr->GetArgs().first == "0") {
-    mv_instr->SetDest(mul_instr->GetDest());
-    ld_instr->SetRedundant(true);
-    mul_instr->SetRedundant(true);
+    if (mv_instr->GetArgs().first == "0") {
+      mv_instr->SetDest(mul_instr->GetDest());
+      ld_instr->SetRedundant(true);
+      mul_instr->SetRedundant(true);
+    }
   }
 }
 
 void LocalOptimizer::OptDivByOne(const IrInstrPtr& first_instr,
 				 const IrInstrPtr& second_instr,
 				 const IrInstrPtr& div_instr) {
-  // a / 1 = a
-  if ((first_instr->GetType() == IrInstrType::LD_INSTR &&
-       second_instr->GetType() == IrInstrType::MV_INSTR) &&
-      (second_instr->GetArgs().first == "1")) {
+  if (IsLdThenMvOrder(first_instr, second_instr) && second_instr->GetArgs().first == "1") {
     std::pair<std::string, std::string> args(first_instr->GetArgs().first, div_instr->GetDest());
     first_instr->SetArgs(args);
     first_instr->SetDest(div_instr->GetDest());
     second_instr->SetRedundant(true);
     div_instr->SetRedundant(true);
   }
+}
+
+bool LocalOptimizer::IsLdOrMvOrder(const IrInstrPtr& first_instr,
+				   const IrInstrPtr& second_instr) {
+  auto first_type = first_instr->GetType();
+  auto second_type = second_instr->GetType();
+
+  bool mv_first = (first_type == IrInstrType::MV_INSTR && second_type == IrInstrType::LD_INSTR);
+  bool ld_first = (first_type == IrInstrType::LD_INSTR && second_type == IrInstrType::MV_INSTR);
+
+  return (mv_first || ld_first);
+}
+
+bool LocalOptimizer::IsLdThenMvOrder(const IrInstrPtr& first_instr,
+				     const IrInstrPtr& second_instr) {
+  auto first_type = first_instr->GetType();
+  auto second_type = second_instr->GetType();
+
+  return (first_type == IrInstrType::LD_INSTR && second_type == IrInstrType::MV_INSTR);
+}
+
+bool LocalOptimizer::IsLdThenLdOrder(const IrInstrPtr& first_instr,
+				     const IrInstrPtr& second_instr) {
+  auto first_type = first_instr->GetType();
+  auto second_type = second_instr->GetType();
+
+  return (first_type == IrInstrType::LD_INSTR && second_type == IrInstrType::LD_INSTR);
 }

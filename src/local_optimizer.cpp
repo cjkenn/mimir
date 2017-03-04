@@ -226,29 +226,20 @@ void LocalOptimizer::CheckAndMarkAddIdentity(const std::vector<IrInstrPtr>& inst
   if (i < 2) {
     return;
   }
-  const auto instr1 = instrs[i-2];
-  const auto instr2 = instrs[i-1];
-  IrInstrPtr mv_instr;
-  IrInstrPtr ld_instr;
 
-  // When performing an ADD, we can only have MVs or LDs before.
-  // If both instructions are MVs or LDs, we dont optimize. We want one MV and one LD.
-  if (IsLdOrMvOrder(instr1, instr2)) {
-    if (instr1->GetType() == IrInstrType::MV_INSTR) {
-      mv_instr = instr1;
-      ld_instr = instr2;
-    } else {
-      mv_instr = instr2;
-      ld_instr = instr1;
-    }
+  const auto first_instr = instrs[i-2];
+  const auto second_instr = instrs[i-1];
 
-    if (mv_instr->GetArgs().first == "0") {
-      // TODO: Possible to remove a following SV instruction too?
-      std::string new_dest = instrs[i]->GetDest();
-      ld_instr->SetDest(new_dest);
-      mv_instr->SetRedundant(true);
-      instrs[i]->SetRedundant(true);
-    }
+  auto instr_ord = OrderInstrsByMvThenLd(first_instr, second_instr);
+  IrInstrPtr mv_instr = instr_ord.first;
+  IrInstrPtr ld_instr = instr_ord.second;
+
+  if (mv_instr->GetArgs().first == "0") {
+    // TODO: Possible to remove a following SV instruction too?
+    std::string new_dest = instrs[i]->GetDest();
+    ld_instr->SetDest(new_dest);
+    mv_instr->SetRedundant(true);
+    instrs[i]->SetRedundant(true);
   }
 }
 
@@ -342,16 +333,9 @@ void LocalOptimizer::OptMulByTwo(const IrInstrPtr& first_instr,
 				 const IrInstrPtr& second_instr,
 				 const IrInstrPtr& mul_instr) {
   if (IsLdOrMvOrder(first_instr, second_instr)) {
-    IrInstrPtr mv_instr;
-    IrInstrPtr ld_instr;
-
-    if (first_instr->GetType() == IrInstrType::MV_INSTR) {
-      mv_instr = first_instr;
-      ld_instr = second_instr;
-    } else {
-      mv_instr = second_instr;
-      ld_instr = first_instr;
-    }
+    auto instr_ord = OrderInstrsByMvThenLd(first_instr, second_instr);
+    IrInstrPtr mv_instr = instr_ord.first;
+    IrInstrPtr ld_instr = instr_ord.second;
 
     if (mv_instr->GetArgs().first == "2") {
       // Convert the mv to a ld, of the same value as the other ld instr
@@ -369,16 +353,9 @@ void LocalOptimizer::OptMulByOne(const IrInstrPtr& first_instr,
 				 const IrInstrPtr& second_instr,
 				 const IrInstrPtr& mul_instr) {
   if (IsLdOrMvOrder(first_instr, second_instr)) {
-    IrInstrPtr mv_instr;
-    IrInstrPtr ld_instr;
-
-    if (first_instr->GetType() == IrInstrType::MV_INSTR) {
-      mv_instr = first_instr;
-      ld_instr = second_instr;
-    } else {
-      mv_instr = second_instr;
-      ld_instr = first_instr;
-    }
+    auto instr_ord = OrderInstrsByMvThenLd(first_instr, second_instr);
+    IrInstrPtr mv_instr = instr_ord.first;
+    IrInstrPtr ld_instr = instr_ord.second;
 
     if (mv_instr->GetArgs().first == "1") {
       std::pair<std::string, std::string> args(ld_instr->GetArgs().first, mul_instr->GetDest());
@@ -395,16 +372,9 @@ void LocalOptimizer::OptMulByZero(const IrInstrPtr& first_instr,
 				  const IrInstrPtr& second_instr,
 				  const IrInstrPtr& mul_instr) {
   if (IsLdOrMvOrder(first_instr, second_instr)) {
-    IrInstrPtr mv_instr;
-    IrInstrPtr ld_instr;
-
-    if (first_instr->GetType() == IrInstrType::MV_INSTR) {
-      mv_instr = first_instr;
-      ld_instr = second_instr;
-    } else {
-      mv_instr = second_instr;
-      ld_instr = first_instr;
-    }
+    auto instr_ord = OrderInstrsByMvThenLd(first_instr, second_instr);
+    IrInstrPtr mv_instr = instr_ord.first;
+    IrInstrPtr ld_instr = instr_ord.second;
 
     if (mv_instr->GetArgs().first == "0") {
       mv_instr->SetDest(mul_instr->GetDest());
@@ -451,4 +421,19 @@ bool LocalOptimizer::IsLdThenLdOrder(const IrInstrPtr& first_instr,
   auto second_type = second_instr->GetType();
 
   return (first_type == IrInstrType::LD_INSTR && second_type == IrInstrType::LD_INSTR);
+}
+
+std::pair<IrInstrPtr, IrInstrPtr> LocalOptimizer::OrderInstrsByMvThenLd(const IrInstrPtr& first_instr,
+									const IrInstrPtr& second_instr) {
+  std::pair<IrInstrPtr, IrInstrPtr> instr_pair;
+
+  if (first_instr->GetType() == IrInstrType::MV_INSTR) {
+    instr_pair.first = first_instr;
+    instr_pair.second = second_instr;
+  } else {
+    instr_pair.first = second_instr;
+    instr_pair.second = first_instr;
+  }
+
+  return instr_pair;
 }

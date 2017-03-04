@@ -114,6 +114,13 @@ class LocalOptimizer {
   bool IsLdThenLdOrder(const IrInstrPtr& first_instr,
 		       const IrInstrPtr& second_instr);
 
+  // Returns a pair of instrs, with a mv instruction in the first slot and
+  // a ld instruction in the second. This is used so we can determine which
+  // instructions to change when optimizing (without having to constantly
+  // check which type they are).
+  std::pair<IrInstrPtr, IrInstrPtr> OrderInstrsByMvThenLd(const IrInstrPtr& first_instr,
+							  const IrInstrPtr& second_instr);
+
   int val_count_;
   std::unordered_map<std::string, int> val_map_;
   std::unordered_map<std::string, std::string> op_map_;

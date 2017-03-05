@@ -6,15 +6,15 @@
 #include "x86_instr.h"
 
 void X86InstrSel::ConvertIrInstrs(const CfgNodePtr& block) {
-  std::vector<X86InstrPtr> instrs;
+  std::vector<X86InstrPtr> x86;
   auto ir = block->GetInstrs();
 
   for (int i = 0; i < ir.size(); i++) {
     auto curr = ir[i];
-    instrs.push_back(MapIrToX86(ir, i));
+    MapIrToX86(x86, ir, i);
   }
 
-  block->SetX86Instrs(instrs);
+  block->SetX86Instrs(x86);
 }
 
 void X86InstrSel::ConvertIrInstrsForEntireBranch(const CfgNodePtr& block) {
@@ -35,15 +35,21 @@ void X86InstrSel::ConvertIrInstrsForEntireBranch(const CfgNodePtr& block) {
   }
 }
 
-X86InstrPtr X86InstrSel::MapIrToX86(const std::vector<IrInstrPtr>& ir, const int i) {
+void X86InstrSel::MapIrToX86(std::vector<X86InstrPtr>& x86,
+			     const std::vector<IrInstrPtr>& ir,
+			     const int i) {
   auto const curr = ir[i];
 
   switch(curr->GetType()) {
   case IrInstrType::MV_INSTR:
-    return ConvertMvInstr(curr);
+    x86.push_back(ConvertMvInstr(curr));
   case IrInstrType::ADD_INSTR:
   case IrInstrType::SUB_INSTR:
-    return ConvertAddSubInstr(curr);
+    x86.push_back(ConvertAddSubInstr(curr));
+  case IrInstrType::MUL_INSTR:
+    x86.push_back(ConvertMulInstr(ir, i));
+  case IrInstrType::DIV_INSTR:
+    ConvertDivInstr(x86, ir, i);
   }
 }
 
@@ -66,8 +72,42 @@ X86InstrPtr X86InstrSel::ConvertAddSubInstr(const IrInstrPtr& instr) {
   i->SetSecondArg(instr->GetArgs().second);
 
   if (instr->GetType() == IrInstrType::SUB_INSTR) {
-    i->SetType(SUB_X86);
+    i->SetType(X86InstrType::SUB_X86);
   }
 
   return i;
+}
+
+X86InstrPtr X86InstrSel::ConvertMulInstr(const std::vector<IrInstrPtr>& ir, const int i) {
+  auto const curr = ir[i];
+  assert(curr->GetType() == IrInstrType::MUL_INSTR);
+  assert(i > 1);
+
+  // MUL instructions in x86 should have the first operand in rax. Then the result
+  // will be returned there, with one argument provided to the instruction
+  // TODO: This should be built into the register allocator. ** I think **
+  X86InstrPtr instr = std::make_shared<X86Instr>(X86InstrType::MUL_X86);
+  instr->SetFirstArg(ir[i-1]->GetArgs().second);
+
+  return instr;
+}
+
+void X86InstrSel::ConvertDivInstr(std::vector<X86InstrPtr>& x86,
+				  const std::vector<IrInstrPtr>& ir,
+				  const int i) {
+  auto const curr = ir[i];
+  assert(curr->GetType() == IrInstrType::DIV_INSTR);
+  assert(i > 1);
+
+  // DIV instructions will have the dividend in rax and the divisor in any other reg.
+  // We must clear rdx first to store the remainder there.
+  // TODO: Again handled by the register allocator?? Might need to do some work here
+  X86InstrPtr clr = std::make_shared<X86Instr>(X86InstrType::MOV_X86);
+  clr->SetFirstArg("rdx");
+  clr->SetSecondArg("0");
+  x86.push_back(clr);
+
+  X86InstrPtr instr = std::make_shared<X86Instr>(X86InstrType::DIV_X86);
+  instr->SetFirstArg(ir[i-1]->GetArgs().second);
+  x86.push_back(instr);
 }

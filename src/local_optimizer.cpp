@@ -3,6 +3,7 @@
 #include <iostream>
 #include <assert.h>
 #include <algorithm>
+#include <queue>
 #include "local_optimizer.h"
 
 LocalOptimizer::LocalOptimizer() {
@@ -84,6 +85,25 @@ void LocalOptimizer::OptimizeBlock(CfgNodePtr& block) {
   }
 
   block->SetInstrs(new_instrs);
+}
+
+void LocalOptimizer::OptimizeEntireBranch(CfgNodePtr& root) {
+  std::queue<CfgNodePtr> q;
+  q.push(root);
+
+  while (!q.empty()) {
+    auto block = q.front();
+    q.pop();
+
+    block->SetVisited(true);
+    OptimizeBlock(block);
+
+    for (auto adj_block : block->GetAdj()) {
+      if (!adj_block->GetVisited()) {
+	q.push(adj_block);
+      }
+    }
+  }
 }
 
 bool LocalOptimizer::IsInstrLvnValid(const IrInstrPtr& instr) {

@@ -4,6 +4,7 @@
 #include <vector>
 #include <memory>
 #include "ir_instr.h"
+#include "x86_instr.h"
 
 class CfgNode;
 
@@ -22,12 +23,14 @@ class CfgNode {
   std::vector<CfgNodePtr> GetAdj() const { return adj_; }
   std::vector<CfgNodePtr> GetParents() const { return parents_; }
   std::vector<IrInstrPtr> GetInstrs() const { return instrs_; }
+  std::vector<X86InstrPtr> GetX86Instrs() const { return x86instrs_; }
 
   void SetVisited(bool visited) { visited_ = visited; }
   void SetDom(std::vector<CfgNodePtr> dom) { dom_ = dom; }
   void SetAdj(std::vector<CfgNodePtr> adj) { adj_ = adj; }
   void SetParents(std::vector<CfgNodePtr> parents) { parents_ = parents; }
   void SetInstrs(std::vector<IrInstrPtr> instrs) { instrs_ = instrs; }
+  void SetX86Instrs(std::vector<X86InstrPtr> x86instrs) { x86instrs_ = x86instrs; }
 
   void AddAdjChild(CfgNodePtr node);
   void AddParent(CfgNodePtr node);
@@ -50,6 +53,9 @@ class CfgNode {
   // Immediate predecessors set.
   std::vector<CfgNodePtr> parents_;
 
-  // Contains each ast node in the basic block.
+  // Contains each ir instruction in this block.
   std::vector<IrInstrPtr> instrs_;
+
+  // Contains each x86 instruction in this block.
+  std::vector<X86InstrPtr> x86instrs_;
 };

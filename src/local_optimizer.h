@@ -19,6 +19,13 @@ class LocalOptimizer {
   // the block itself is affected).
   void OptimizeBlock(CfgNodePtr& block);
 
+  // Perform local optimizations on the given block, plus any
+  // other blocks in this branch of the cfg. If the block given
+  // if the root of the cfg, then the entire graph will be optimized.
+  // This is done through a BFS, but the order doesn't matter here,
+  // since each optimization is local to the block.
+  void OptimizeEntireBranch(CfgNodePtr& root);
+
  private:
   // We only care about certain instructions for local optimizations. There
   // is no reason to analyze compares or jumps or nops, so we filter them out
@@ -105,12 +112,18 @@ class LocalOptimizer {
 		   const IrInstrPtr& second_instr,
 		   const IrInstrPtr& div_instr);
 
+  // Return true if the instructions provided follow the sequence
+  // LD, MV or MV, LD
   bool IsLdOrMvOrder(const IrInstrPtr& first_instr,
-		      const IrInstrPtr& second_instr);
+		     const IrInstrPtr& second_instr);
 
+  // Return true if the instructions provided follow the sequence
+  // LD, MV
   bool IsLdThenMvOrder(const IrInstrPtr& first_instr,
 		       const IrInstrPtr& second_instr);
 
+  // Return true if the instructions provided follow the sequence
+  // LD, LD
   bool IsLdThenLdOrder(const IrInstrPtr& first_instr,
 		       const IrInstrPtr& second_instr);
 

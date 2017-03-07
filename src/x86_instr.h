@@ -23,7 +23,8 @@ enum X86InstrType {
   JGE_X86,
   PUSH_X86,
   POP_X86,
-  CALL_X86
+  CALL_X86,
+  NOP_X86
 };
 
 class X86Instr {

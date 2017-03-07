@@ -42,28 +42,42 @@ void X86InstrSel::MapIrToX86(std::vector<X86InstrPtr>& x86,
 
   switch(curr->GetType()) {
   case IrInstrType::MV_INSTR:
-    x86.push_back(ConvertMvInstr(curr));
+    ConvertMvInstr(x86, curr);
   case IrInstrType::ADD_INSTR:
   case IrInstrType::SUB_INSTR:
-    x86.push_back(ConvertAddSubInstr(curr));
+    ConvertAddSubInstr(x86, curr);
   case IrInstrType::MUL_INSTR:
-    x86.push_back(ConvertMulInstr(ir, i));
+    ConvertMulInstr(x86, ir, i);
   case IrInstrType::DIV_INSTR:
     ConvertDivInstr(x86, ir, i);
+  case IrInstrType::CMP_INSTR:
+    ConvertCmpInstr(x86, ir, i);
+  case IrInstrType::JMP_INSTR:
+  case IrInstrType::JMPLT_INSTR:
+  case IrInstrType::JMPLTE_INSTR:
+  case IrInstrType::JMPGT_INSTR:
+  case IrInstrType::JMPGTE_INSTR:
+  case IrInstrType::JMPEQ_INSTR:
+  case IrInstrType::JMPNEQ_INSTR:
+    ConvertBranchingInstr(x86, curr);
+  case IrInstrType::NOP_INSTR:
+    ConvertNopInstr(x86, curr);
   }
 }
 
-X86InstrPtr X86InstrSel::ConvertMvInstr(const IrInstrPtr& instr) {
+void X86InstrSel::ConvertMvInstr(std::vector<X86InstrPtr>& x86,
+				 const IrInstrPtr& instr) {
   assert(instr->GetType() == IrInstrType::MV_INSTR);
 
   X86InstrPtr i = std::make_shared<X86Instr>(X86InstrType::MOV_X86);
   i->SetFirstArg(instr->GetArgs().first);
   i->SetSecondArg(instr->GetArgs().second);
 
-  return i;
+  x86.push_back(i);
 }
 
-X86InstrPtr X86InstrSel::ConvertAddSubInstr(const IrInstrPtr& instr) {
+void X86InstrSel::ConvertAddSubInstr(std::vector<X86InstrPtr>& x86,
+				     const IrInstrPtr& instr) {
   assert(instr->GetType() == IrInstrType::ADD_INSTR ||
 	 instr->GetType() == IrInstrType::SUB_INSTR);
 
@@ -75,10 +89,12 @@ X86InstrPtr X86InstrSel::ConvertAddSubInstr(const IrInstrPtr& instr) {
     i->SetType(X86InstrType::SUB_X86);
   }
 
-  return i;
+  x86.push_back(i);
 }
 
-X86InstrPtr X86InstrSel::ConvertMulInstr(const std::vector<IrInstrPtr>& ir, const int i) {
+void X86InstrSel::ConvertMulInstr(std::vector<X86InstrPtr>& x86,
+				  const std::vector<IrInstrPtr>& ir,
+				  const int i) {
   auto const curr = ir[i];
   assert(curr->GetType() == IrInstrType::MUL_INSTR);
   assert(i > 1);
@@ -89,7 +105,7 @@ X86InstrPtr X86InstrSel::ConvertMulInstr(const std::vector<IrInstrPtr>& ir, cons
   X86InstrPtr instr = std::make_shared<X86Instr>(X86InstrType::MUL_X86);
   instr->SetFirstArg(ir[i-1]->GetArgs().second);
 
-  return instr;
+  x86.push_back(instr);
 }
 
 void X86InstrSel::ConvertDivInstr(std::vector<X86InstrPtr>& x86,
@@ -110,4 +126,56 @@ void X86InstrSel::ConvertDivInstr(std::vector<X86InstrPtr>& x86,
   X86InstrPtr instr = std::make_shared<X86Instr>(X86InstrType::DIV_X86);
   instr->SetFirstArg(ir[i-1]->GetArgs().second);
   x86.push_back(instr);
+}
+
+void X86InstrSel::ConvertCmpInstr(std::vector<X86InstrPtr>& x86,
+				  const std::vector<IrInstrPtr>& ir,
+				  const int i) {
+  auto const curr = ir[i];
+  assert(curr->GetType() == IrInstrType::CMP_INSTR);
+
+  X86InstrPtr instr = std::make_shared<X86Instr>(X86InstrType::CMP_X86);
+  instr->SetFirstArg(curr->GetArgs().first);
+  instr->SetSecondArg(curr->GetArgs().second);
+  x86.push_back(instr);
+}
+
+void X86InstrSel::ConvertBranchingInstr(std::vector<X86InstrPtr>& x86,
+					const IrInstrPtr& instr) {
+  X86InstrType j_type = GetX86BranchType(instr);
+
+  X86InstrPtr i = std::make_shared<X86Instr>(j_type);
+  i->SetFirstArg(instr->GetDest());
+  x86.push_back(i);
+}
+
+void X86InstrSel::ConvertNopInstr(std::vector<X86InstrPtr>& x86,
+				  const IrInstrPtr& instr) {
+  assert(instr->GetType() == IrInstrType::NOP_INSTR);
+
+  X86InstrPtr i = std::make_shared<X86Instr>(X86InstrType::NOP_X86);
+  x86.push_back(i);
+}
+
+X86InstrType X86InstrSel::GetX86BranchType(IrInstrPtr instr) {
+  assert(instr->IsJmp());
+
+  switch(instr->GetType()) {
+  case IrInstrType::JMP_INSTR:
+    return X86InstrType::JMP_X86;
+  case IrInstrType::JMPEQ_INSTR:
+    return X86InstrType::JE_X86;
+  case IrInstrType::JMPNEQ_INSTR:
+    return X86InstrType::JNE_X86;
+  case IrInstrType::JMPGT_INSTR:
+    return X86InstrType::JG_X86;
+  case IrInstrType::JMPGTE_INSTR:
+    return X86InstrType::JGE_X86;
+  case IrInstrType::JMPLT_INSTR:
+    return X86InstrType::JL_X86;
+  case IrInstrType::JMPLTE_INSTR:
+    return X86InstrType::JLE_X86;
+  default:
+    return X86InstrType::JMP_X86;
+  }
 }

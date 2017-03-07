@@ -16,16 +16,29 @@ class X86InstrSel {
 		  const std::vector<IrInstrPtr>& ir,
 		  const int i);
 
-  // We can basically convert these operations in a one-to-one fashion.
-  X86InstrPtr ConvertMvInstr(const IrInstrPtr& instr);
-  X86InstrPtr ConvertAddSubInstr(const IrInstrPtr& instr);
-  X86InstrPtr ConvertMulInstr(const std::vector<IrInstrPtr>& ir, const int i);
+  void ConvertMvInstr(std::vector<X86InstrPtr>& x86,
+		      const IrInstrPtr& instr);
 
-  // Converting DIV instructions is a bit different since we need to insert
-  // another MOV instruction to clear out rdx to store the remainder. To accomodate
-  // for this we pass in a reference of the current x86 instruction vector and
-  // insert into it.
+  void ConvertAddSubInstr(std::vector<X86InstrPtr>& x86,
+			  const IrInstrPtr& instr);
+
+  void ConvertMulInstr(std::vector<X86InstrPtr>& x86,
+		       const std::vector<IrInstrPtr>& ir,
+		       const int i);
+
   void ConvertDivInstr(std::vector<X86InstrPtr>& x86,
 		       const std::vector<IrInstrPtr>& ir,
 		       const int i);
+
+  void ConvertCmpInstr(std::vector<X86InstrPtr>& x86,
+		       const std::vector<IrInstrPtr>& ir,
+		       const int i);
+
+  void ConvertBranchingInstr(std::vector<X86InstrPtr>& x86,
+			     const IrInstrPtr& instr);
+
+  void ConvertNopInstr(std::vector<X86InstrPtr>& x86,
+		       const IrInstrPtr& instr);
+
+  X86InstrType GetX86BranchType(IrInstrPtr instr);
 };

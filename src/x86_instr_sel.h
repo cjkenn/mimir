@@ -30,6 +30,10 @@ class X86InstrSel {
 		       const std::vector<IrInstrPtr>& ir,
 		       const int i);
 
+  void ConvertModInstr(std::vector<X86InstrPtr>& x86,
+		       const std::vector<IrInstrPtr>& ir,
+		       const int i);
+
   void ConvertCmpInstr(std::vector<X86InstrPtr>& x86,
 		       const std::vector<IrInstrPtr>& ir,
 		       const int i);

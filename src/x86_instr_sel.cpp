@@ -50,6 +50,8 @@ void X86InstrSel::MapIrToX86(std::vector<X86InstrPtr>& x86,
     ConvertMulInstr(x86, ir, i);
   case IrInstrType::DIV_INSTR:
     ConvertDivInstr(x86, ir, i);
+  case IrInstrType::MOD_INSTR:
+    ConvertModInstr(x86, ir, i);
   case IrInstrType::CMP_INSTR:
     ConvertCmpInstr(x86, ir, i);
   case IrInstrType::JMP_INSTR:
@@ -127,6 +129,25 @@ void X86InstrSel::ConvertDivInstr(std::vector<X86InstrPtr>& x86,
   instr->SetFirstArg(ir[i-1]->GetArgs().second);
   x86.push_back(instr);
 }
+
+void X86InstrSel::ConvertModInstr(std::vector<X86InstrPtr>& x86,
+				  const std::vector<IrInstrPtr>& ir,
+				  const int i) {
+  X86InstrPtr clr = std::make_shared<X86Instr>(X86InstrType::MOV_X86);
+  clr->SetFirstArg("rdx");
+  clr->SetSecondArg("0");
+  x86.push_back(clr);
+
+  X86InstrPtr instr = std::make_shared<X86Instr>(X86InstrType::DIV_X86);
+  instr->SetFirstArg(ir[i-1]->GetArgs().second);
+  x86.push_back(instr);
+
+  X86InstrPtr get_remainder = std::make_shared<X86Instr>(X86InstrType::MOV_X86);
+  instr->SetFirstArg("rdx");
+  instr->SetSecondArg("rax");
+  x86.push_back(get_remainder);
+}
+
 
 void X86InstrSel::ConvertCmpInstr(std::vector<X86InstrPtr>& x86,
 				  const std::vector<IrInstrPtr>& ir,

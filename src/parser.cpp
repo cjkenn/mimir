@@ -156,7 +156,6 @@ AstNodePtr Parser::BinOp() {
   return sum_ast;
 }
 
-// Expect curr_tkn_ to be ident or number
 AstNodePtr Parser::Term() {
   auto term_ast = std::make_shared<AstNode>(AstType::EMPTY_AST);
   TokenType curr_type = curr_tkn_.GetType();
@@ -180,6 +179,21 @@ AstNodePtr Parser::Term() {
       err.SetMessageForUnknownToken(curr_tkn_.GetText());
       result_.AddError(err);
       GetNextTkn();
+      break;
+    }
+  case TokenType::EXCL_TKN:
+    {
+      term_ast->SetType(AstType::NEG_AST);
+      GetNextTkn();
+      if (curr_tkn_.GetType() != ID_TKN) {
+	// TODO: This error message wont work, need a better one.
+	Error err(curr_tkn_.GetLinePos(),
+		  curr_tkn_.GetCharPos(),
+		  lexer_->GetFileName());
+	err.SetMessageForExpect(TokenType::ID_TKN, curr_tkn_.GetType());
+	result_.AddError(err);
+      }
+      term_ast->AddChild(Term());
       break;
     }
   default:

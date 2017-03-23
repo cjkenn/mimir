@@ -520,6 +520,45 @@ void test_parse_two_statements() {
   assert(second_num_ast->GetVal() == 2);
 }
 
+// Expected format:
+//
+//    Program
+//      |
+//     Expr
+//      |
+//     Set
+//   _/  \_
+//  Var  Neg
+//        |
+//       Var
+void test_parse_negation_op() {
+  auto parser = get_parser_for_file("negation");
+  auto ast = parser.Parse().GetAst();
+
+  assert(ast->GetType() == AstType::PROG_AST);
+  assert(ast->GetChildren().size() == 1);
+
+  auto expr_ast = ast->GetChildren()[0];
+  assert(expr_ast->GetType() == AstType::EXPR_AST);
+  assert(expr_ast->GetChildren().size() == 1);
+
+  auto set_ast = expr_ast->GetChildren()[0];
+  assert(set_ast->GetType() == AstType::SET_AST);
+  assert(set_ast->GetChildren().size() == 2);
+
+  auto first_var_ast = set_ast->GetChildren()[0];
+  assert(first_var_ast->GetType() == AstType::VAR_AST);
+  assert(first_var_ast->GetText() == "x");
+
+  auto neg_ast = set_ast->GetChildren()[1];
+  assert(neg_ast->GetType() == AstType::NEG_AST);
+  assert(neg_ast->GetChildren().size() == 1);
+
+  auto second_var_ast = neg_ast->GetChildren()[0];
+  assert(second_var_ast->GetType() == AstType::VAR_AST);
+  assert(second_var_ast->GetText() == "y");
+}
+
 int main(int argc, char** argv) {
   test_parse_assign();
   test_parse_assign_expression();
@@ -532,6 +571,7 @@ int main(int argc, char** argv) {
   test_parse_if_else();
   test_parse_while();
   test_parse_two_statements();
+  test_parse_negation_op();
 
   std::cout << "Parser Tests passed!" << std::endl;
   return 0;

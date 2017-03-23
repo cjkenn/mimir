@@ -28,6 +28,7 @@ enum AstType {
   WHILE_AST,
   SEQ_AST,
   EXPR_AST,
+  NEG_AST,
   PROG_AST,
   EMPTY_AST,
   EOF_AST

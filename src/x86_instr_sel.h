@@ -3,10 +3,11 @@
 #include <vector>
 #include "ir_instr.h"
 #include "cfg_node.h"
+#include "symbol_table.h"
 
 class X86InstrSel {
  public:
-  X86InstrSel() {};
+  X86InstrSel(std::shared_ptr<SymbolTable> sym_tab);
   ~X86InstrSel() {};
 
   void ConvertIrInstrs(const CfgNodePtr& block);
@@ -17,6 +18,12 @@ class X86InstrSel {
 		  const int i);
 
   void ConvertMvInstr(std::vector<X86InstrPtr>& x86,
+		      const IrInstrPtr& instr);
+
+  void ConvertLdInstr(std::vector<X86InstrPtr>& x86,
+		      const IrInstrPtr& instr);
+
+  void ConvertSvInstr(std::vector<X86InstrPtr>& x86,
 		      const IrInstrPtr& instr);
 
   void ConvertAddSubInstr(std::vector<X86InstrPtr>& x86,
@@ -45,4 +52,8 @@ class X86InstrSel {
 		       const IrInstrPtr& instr);
 
   X86InstrType GetX86BranchType(IrInstrPtr instr);
+
+ private:
+  std::string BuildLdAddressArg(const int offset);
+  std::shared_ptr<SymbolTable> sym_tab_;
 };

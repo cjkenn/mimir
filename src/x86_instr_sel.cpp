@@ -4,6 +4,12 @@
 #include "x86_instr_sel.h"
 #include "cfg_node.h"
 #include "x86_instr.h"
+#include "symbol_table.h"
+#include "symbol.h"
+
+X86InstrSel::X86InstrSel(std::shared_ptr<SymbolTable> sym_tab) {
+  sym_tab_ = sym_tab;
+}
 
 void X86InstrSel::ConvertIrInstrs(const CfgNodePtr& block) {
   std::vector<X86InstrPtr> x86;
@@ -43,6 +49,10 @@ void X86InstrSel::MapIrToX86(std::vector<X86InstrPtr>& x86,
   switch(curr->GetType()) {
   case IrInstrType::MV_INSTR:
     ConvertMvInstr(x86, curr);
+  case IrInstrType::LD_INSTR:
+    ConvertLdInstr(x86, curr);
+  case IrInstrType::SV_INSTR:
+    ConvertSvInstr(x86, curr);
   case IrInstrType::ADD_INSTR:
   case IrInstrType::SUB_INSTR:
     ConvertAddSubInstr(x86, curr);
@@ -72,9 +82,42 @@ void X86InstrSel::ConvertMvInstr(std::vector<X86InstrPtr>& x86,
   assert(instr->GetType() == IrInstrType::MV_INSTR);
 
   X86InstrPtr i = std::make_shared<X86Instr>(X86InstrType::MOV_X86);
-  i->SetFirstArg(instr->GetArgs().first);
-  i->SetSecondArg(instr->GetArgs().second);
+  // The order of args is swapped around in x86, compared to the ir
+  i->SetFirstArg(instr->GetArgs().second);
+  i->SetSecondArg(instr->GetArgs().first);
 
+  x86.push_back(i);
+}
+
+void X86InstrSel::ConvertLdInstr(std::vector<X86InstrPtr>& x86,
+				 const IrInstrPtr& instr) {
+  assert(instr->GetType() == IrInstrType::LD_INSTR);
+
+  X86InstrPtr i = std::make_shared<X86Instr>(X86InstrType::MOV_X86);
+  i->SetFirstArg(instr->GetDest());
+  const std::string name = instr->GetArgs().first;
+
+  const SymbolPtr sym = sym_tab_->Find(name);
+  assert(sym != nullptr);
+
+  const int offset = sym->GetStackOffset();
+  i->SetSecondArg(BuildLdAddressArg(offset));
+  x86.push_back(i);
+}
+
+void X86InstrSel::ConvertSvInstr(std::vector<X86InstrPtr>& x86,
+				 const IrInstrPtr& instr) {
+  assert(instr->GetType() == IrInstrType::SV_INSTR);
+
+  X86InstrPtr i = std::make_shared<X86Instr>(X86InstrType::MOV_X86);
+  const std::string name = instr->GetArgs().first;
+
+  const SymbolPtr sym = sym_tab_->Find(name);
+  assert(sym != nullptr);
+
+  const int offset = sym->GetStackOffset();
+  i->SetFirstArg(BuildLdAddressArg(offset));
+  i->SetSecondArg(instr->GetArgs().first);
   x86.push_back(i);
 }
 
@@ -199,4 +242,8 @@ X86InstrType X86InstrSel::GetX86BranchType(IrInstrPtr instr) {
   default:
     return X86InstrType::JMP_X86;
   }
+}
+
+std::string X86InstrSel::BuildLdAddressArg(const int offset) {
+  return "[ebp-" + std::to_string(offset) + "]";
 }

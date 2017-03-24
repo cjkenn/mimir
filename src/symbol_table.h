@@ -16,6 +16,8 @@ class SymbolTable {
   SymbolTable();
   ~SymbolTable() {};
 
+  int GetSymCount() const { return sym_count_; }
+
   // Insert a value into the current scope level table.
   void Insert(AstNodePtr var_ast);
 
@@ -36,5 +38,6 @@ class SymbolTable {
 
  private:
   int curr_level_;
+  int sym_count_;
   std::vector<std::unordered_map<std::string, SymbolPtr>> sym_tab_;
 };

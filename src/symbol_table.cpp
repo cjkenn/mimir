@@ -8,6 +8,7 @@
 
 SymbolTable::SymbolTable() {
   curr_level_ = -1;
+  sym_count_ = 0;
 }
 
 void SymbolTable::Insert(AstNodePtr var_ast) {
@@ -18,6 +19,8 @@ void SymbolTable::Insert(AstNodePtr var_ast) {
 
   std::string key = var_ast->GetText();
   SymbolPtr s = std::make_shared<Symbol>(key);
+  sym_count_++;
+  s->SetStackOffset(sym_count_ * 4);
 
   std::pair<std::string, SymbolPtr> entry(key, s);
 

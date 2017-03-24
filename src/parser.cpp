@@ -186,7 +186,6 @@ AstNodePtr Parser::Term() {
       term_ast->SetType(AstType::NEG_AST);
       GetNextTkn();
       if (curr_tkn_.GetType() != ID_TKN) {
-	// TODO: This error message wont work, need a better one.
 	Error err(curr_tkn_.GetLinePos(),
 		  curr_tkn_.GetCharPos(),
 		  lexer_->GetFileName());

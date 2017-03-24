@@ -6,6 +6,7 @@
 #include "ast.h"
 #include "parser_result.h"
 #include "error.h"
+#include "symbol.h"
 
 Parser::Parser(std::shared_ptr<Lexer> lexer,
 	       std::shared_ptr<SymbolTable> sym_tab) {
@@ -109,9 +110,6 @@ AstNodePtr Parser::Expr() {
     AstNodePtr assign_ast = expr_ast;
     expr_ast = std::make_shared<AstNode>(AstType::SET_AST);
 
-    // Check symbol table for this variable. If duplicate, we error.
-    // If not found, then we insert it into the current scope's symbol table.
-    // TODO: Determine if this is a duplicate variable declaration, or just an assignment
     sym_tab_->Insert(assign_ast);
 
     GetNextTkn();
@@ -141,7 +139,23 @@ AstNodePtr Parser::Test() {
 }
 
 AstNodePtr Parser::BinOp() {
+  const int saved_line_pos = curr_tkn_.GetLinePos();
+  const int saved_char_pos = curr_tkn_.GetCharPos();
   AstNodePtr sum_ast = Term();
+
+  // Check here for undefined symbols
+  if (sum_ast->GetType() == AstType::VAR_AST && curr_tkn_.GetType() != TokenType::EQ_TKN) {
+    const std::string key = sum_ast->GetText();
+    const SymbolPtr sym = sym_tab_->Find(key);
+
+    if (sym == nullptr) {
+      Error err(saved_line_pos,
+	        saved_char_pos,
+		lexer_->GetFileName());
+      err.SetMessageForUnknownId(key);
+      result_.AddError(err);
+    }
+  }
 
   while (CurrTknIsBinOpTkn()) {
     AstNodePtr op_ast = sum_ast;

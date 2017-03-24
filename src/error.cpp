@@ -27,6 +27,13 @@ void Error::SetMessageForUnknownToken(std::string tkn_val) {
   message_ = output;
 }
 
+void Error::SetMessageForUnknownId(std::string id) {
+  std::string output = BuildLocErrorPrefix();
+  output += "Identifier " + id + " found but not declared.";
+
+  message_ = output;
+}
+
 void Error::Report() {
   std::cout << message_ << std::endl;
 }

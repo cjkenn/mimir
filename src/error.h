@@ -12,6 +12,7 @@ class Error {
   void Report();
   void SetMessageForExpect(TokenType expected, TokenType found);
   void SetMessageForUnknownToken(std::string tkn_val);
+  void SetMessageForUnknownId(std::string id);
 
  private:
   std::string BuildLocErrorPrefix();

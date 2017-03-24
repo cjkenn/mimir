@@ -1,6 +1,6 @@
 ## mimir
 
-Small language with c-language syntax. 
+Small language with c-style syntax.
 
 #### Building
 Building is done using make. The directory structure is a WIP right now, so the builds are far from perfect. To compile a file with mimir, run:

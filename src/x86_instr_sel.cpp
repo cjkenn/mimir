@@ -1,6 +1,7 @@
 #include <vector>
 #include <queue>
 #include <assert.h>
+#include <iostream>
 #include "x86_instr_sel.h"
 #include "cfg_node.h"
 #include "x86_instr.h"
@@ -49,21 +50,29 @@ void X86InstrSel::MapIrToX86(std::vector<X86InstrPtr>& x86,
   switch(curr->GetType()) {
   case IrInstrType::MV_INSTR:
     ConvertMvInstr(x86, curr);
+    break;
   case IrInstrType::LD_INSTR:
     ConvertLdInstr(x86, curr);
+    break;
   case IrInstrType::SV_INSTR:
     ConvertSvInstr(x86, curr);
+    break;
   case IrInstrType::ADD_INSTR:
   case IrInstrType::SUB_INSTR:
     ConvertAddSubInstr(x86, curr);
+    break;
   case IrInstrType::MUL_INSTR:
     ConvertMulInstr(x86, ir, i);
+    break;
   case IrInstrType::DIV_INSTR:
     ConvertDivInstr(x86, ir, i);
+    break;
   case IrInstrType::MOD_INSTR:
     ConvertModInstr(x86, ir, i);
+    break;
   case IrInstrType::CMP_INSTR:
     ConvertCmpInstr(x86, ir, i);
+    break;
   case IrInstrType::JMP_INSTR:
   case IrInstrType::JMPLT_INSTR:
   case IrInstrType::JMPLTE_INSTR:
@@ -72,8 +81,10 @@ void X86InstrSel::MapIrToX86(std::vector<X86InstrPtr>& x86,
   case IrInstrType::JMPEQ_INSTR:
   case IrInstrType::JMPNEQ_INSTR:
     ConvertBranchingInstr(x86, curr);
+    break;
   case IrInstrType::NOP_INSTR:
     ConvertNopInstr(x86, curr);
+    break;
   }
 }
 
@@ -110,7 +121,7 @@ void X86InstrSel::ConvertSvInstr(std::vector<X86InstrPtr>& x86,
   assert(instr->GetType() == IrInstrType::SV_INSTR);
 
   X86InstrPtr i = std::make_shared<X86Instr>(X86InstrType::MOV_X86);
-  const std::string name = instr->GetArgs().first;
+  const std::string name = instr->GetArgs().second;
 
   const SymbolPtr sym = sym_tab_->Find(name);
   assert(sym != nullptr);

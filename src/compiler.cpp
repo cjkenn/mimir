@@ -11,6 +11,7 @@
 #include "cfg_gen.h"
 #include "cfg.h"
 #include "local_optimizer.h"
+#include "x86_instr_sel.h"
 
 int main(int argc, char *argv[]) {
   if (argc < 2) {
@@ -47,13 +48,15 @@ int main(int argc, char *argv[]) {
   CfgGen cfg_gen;
   Cfg cfg = cfg_gen.Gen(ir);
 
+  // TODO: Add command line flag for turning on/off optimizations
   LocalOptimizer lo;
   auto root = cfg.GetRoot();
   lo.OptimizeBlock(root);
 
   // TODO: Convert the ir to valid x86 and write to a file using
   // code_gen
-
+  X86InstrSel x86_sel(sym_tab);
+  x86_sel.ConvertIrInstrsForEntireBranch(cfg.GetRoot());
 
   return 0;
 }

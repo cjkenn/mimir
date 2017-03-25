@@ -9,8 +9,11 @@
 // recognized lexical scope. It is up to the user to initialize and exit these
 // scopes, by calling InitScope() and ExitScope() where appropriate.
 //
-// It is assumed during parsing that the scope level will end up at 0 again
-// when the entire input file has been parsed.
+// It is necessary to call InitScope() when this symbol table is created, in order
+// to initialize the top level program scope. This step is done in the constructor,
+// so make sure not to perform any extra calls to InitScope(), unless you really intend
+// to make a new scope! Technically, ExitScope() could be called in the desctructor,
+// but of course there's really no point in doing that.
 class SymbolTable {
  public:
   SymbolTable();

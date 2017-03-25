@@ -9,11 +9,13 @@
 SymbolTable::SymbolTable() {
   curr_level_ = -1;
   sym_count_ = 0;
+  // Create a top level scope for the entire program (we need at least one scope).
+  InitScope();
 }
 
 void SymbolTable::Insert(AstNodePtr var_ast) {
   if (curr_level_ < 0) {
-    std::cout << "No scope initialized!" << std::endl;
+    std::cout << "Insert: No scope initialized!" << std::endl;
     return;
   }
 
@@ -29,7 +31,7 @@ void SymbolTable::Insert(AstNodePtr var_ast) {
 
 SymbolPtr SymbolTable::Find(std::string key) {
   if (curr_level_ < 0) {
-    std::cout << "No scope initialized!" << std::endl;
+    std::cout << "Find: No scope initialized!" << std::endl;
     return nullptr;
   }
 
@@ -51,7 +53,7 @@ SymbolPtr SymbolTable::Find(std::string key) {
 
 bool SymbolTable::ExistsAtCurrentScope(std::string key) {
   if (curr_level_ < 0) {
-    std::cout << "No scope initialized!" << std::endl;
+    std::cout << "Exists: No scope initialized!" << std::endl;
     return false;
   }
 

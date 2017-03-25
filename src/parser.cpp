@@ -23,17 +23,11 @@ ParserResult Parser::Parse() {
 AstNodePtr Parser::Program() {
   auto head = std::make_shared<AstNode>(AstType::PROG_AST);
 
-  // Create top level program scope
-  sym_tab_->InitScope();
-
   GetNextTkn();
 
   while (curr_tkn_.GetType() != TokenType::EOF_TKN) {
     head->AddChild(Statement());
   }
-
-  // Close top level program scope
-  sym_tab_->ExitScope();
 
   return head;
 }

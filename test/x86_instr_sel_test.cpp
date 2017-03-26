@@ -330,6 +330,60 @@ void test_select_instrs_mod_instr(std::shared_ptr<SymbolTable> sym_tab) {
   assert(fourth_x86->GetSecondArg() == "rdx");
 }
 
+// Input:
+//
+// cmp x, 10
+//
+// Expected Output:
+//
+// cmp x, 10
+void test_select_instrs_cmp(std::shared_ptr<SymbolTable> sym_tab) {
+  std::vector<IrInstrPtr> instrs;
+  IrInstrPtr cmp = std::make_shared<IrInstr>(IrInstrType::CMP_INSTR,
+					    "x",
+					    "10",
+					    "x");
+  instrs.push_back(cmp);
+
+  CfgNodePtr cfg_node = std::make_shared<CfgNode>("b0");
+  cfg_node->SetInstrs(instrs);
+
+  X86InstrSel x86is(sym_tab);
+  x86is.SelectInstrs(cfg_node);
+
+  assert(cfg_node->GetX86Instrs().size() == 1);
+
+  auto first_x86 = cfg_node->GetX86Instrs()[0];
+  assert(first_x86->GetType() == X86InstrType::CMP_X86);
+  assert(first_x86->GetFirstArg() == "x");
+  assert(first_x86->GetSecondArg() == "10");
+}
+
+// Input:
+//
+// jmp lbl0
+//
+// Expected Output:
+//
+// jmp lbl0
+void test_select_instrs_simple_branch(std::shared_ptr<SymbolTable> sym_tab) {
+  std::vector<IrInstrPtr> instrs;
+  IrInstrPtr jmp = std::make_shared<IrInstr>(IrInstrType::JMP_INSTR, "lbl0");
+  instrs.push_back(jmp);
+
+  CfgNodePtr cfg_node = std::make_shared<CfgNode>("b0");
+  cfg_node->SetInstrs(instrs);
+
+  X86InstrSel x86is(sym_tab);
+  x86is.SelectInstrs(cfg_node);
+
+  assert(cfg_node->GetX86Instrs().size() == 1);
+
+  auto first_x86 = cfg_node->GetX86Instrs()[0];
+  assert(first_x86->GetType() == X86InstrType::JMP_X86);
+  assert(first_x86->GetFirstArg() == "lbl0");
+}
+
 
 int main(int argc, char **argv) {
   auto sym_tab = std::make_shared<SymbolTable>();
@@ -350,6 +404,8 @@ int main(int argc, char **argv) {
   test_select_instrs_mul_instr(sym_tab);
   test_select_instrs_div_instr(sym_tab);
   test_select_instrs_mod_instr(sym_tab);
+  test_select_instrs_cmp(sym_tab);
+  test_select_instrs_simple_branch(sym_tab);
 
   std::cout << "X86 Instruction Selection tests passed!" << std::endl;
 

@@ -181,6 +181,155 @@ void test_select_instrs_mv_instr(std::shared_ptr<SymbolTable> sym_tab) {
   assert(first_x86->GetSecondArg() == "10");
 }
 
+// Input:
+//
+// add r0, r1 ->expected dest is r1
+//
+// Expected Output:
+//
+// add r1, r0 ->have to swap arguments for destination
+void test_select_instrs_add_instr(std::shared_ptr<SymbolTable> sym_tab) {
+  std::vector<IrInstrPtr> instrs;
+  IrInstrPtr add = std::make_shared<IrInstr>(IrInstrType::ADD_INSTR,
+					    "r0",
+					    "r1",
+					    "r1");
+  instrs.push_back(add);
+
+  CfgNodePtr cfg_node = std::make_shared<CfgNode>("b0");
+  cfg_node->SetInstrs(instrs);
+
+  X86InstrSel x86is(sym_tab);
+  x86is.SelectInstrs(cfg_node);
+
+  assert(cfg_node->GetX86Instrs().size() == 1);
+
+  auto first_x86 = cfg_node->GetX86Instrs()[0];
+  assert(first_x86->GetType() == X86InstrType::ADD_X86);
+  assert(first_x86->GetFirstArg() == "r1");
+  assert(first_x86->GetSecondArg() == "r0");
+}
+
+// Input:
+//
+// mul r0, r1
+//
+// Expected Output:
+//
+// mov rax, r0
+// mul r1
+void test_select_instrs_mul_instr(std::shared_ptr<SymbolTable> sym_tab) {
+  std::vector<IrInstrPtr> instrs;
+  IrInstrPtr mul = std::make_shared<IrInstr>(IrInstrType::MUL_INSTR,
+					     "r0",
+					     "r1",
+					     "r1");
+  instrs.push_back(mul);
+
+  CfgNodePtr cfg_node = std::make_shared<CfgNode>("b0");
+  cfg_node->SetInstrs(instrs);
+
+  X86InstrSel x86is(sym_tab);
+  x86is.SelectInstrs(cfg_node);
+
+  assert(cfg_node->GetX86Instrs().size() == 2);
+
+  auto first_x86 = cfg_node->GetX86Instrs()[0];
+  assert(first_x86->GetType() == X86InstrType::MOV_X86);
+  assert(first_x86->GetFirstArg() == "rax");
+  assert(first_x86->GetSecondArg() == "r0");
+
+  auto second_x86 = cfg_node->GetX86Instrs()[1];
+  assert(second_x86->GetType() == X86InstrType::MUL_X86);
+  assert(second_x86->GetFirstArg() == "r1");
+}
+
+// Input:
+//
+// div r0, r1
+//
+// Expected Output:
+//
+// mov rdx, 0
+// mov rax, r0
+// div r1
+void test_select_instrs_div_instr(std::shared_ptr<SymbolTable> sym_tab) {
+  std::vector<IrInstrPtr> instrs;
+  IrInstrPtr div = std::make_shared<IrInstr>(IrInstrType::DIV_INSTR,
+					     "r0",
+					     "r1",
+					     "r1");
+  instrs.push_back(div);
+
+  CfgNodePtr cfg_node = std::make_shared<CfgNode>("b0");
+  cfg_node->SetInstrs(instrs);
+
+  X86InstrSel x86is(sym_tab);
+  x86is.SelectInstrs(cfg_node);
+
+  assert(cfg_node->GetX86Instrs().size() == 3);
+
+  auto first_x86 = cfg_node->GetX86Instrs()[0];
+  assert(first_x86->GetType() == X86InstrType::MOV_X86);
+  assert(first_x86->GetFirstArg() == "rdx");
+  assert(first_x86->GetSecondArg() == "0");
+
+  auto second_x86 = cfg_node->GetX86Instrs()[1];
+  assert(second_x86->GetType() == X86InstrType::MOV_X86);
+  assert(second_x86->GetFirstArg() == "rax");
+  assert(second_x86->GetSecondArg() == "r0");
+
+  auto third_x86 = cfg_node->GetX86Instrs()[2];
+  assert(third_x86->GetType() == X86InstrType::DIV_X86);
+  assert(third_x86->GetFirstArg() == "r1");
+}
+
+// Input:
+//
+// mod r0, r1
+//
+// Expected Output:
+//
+// mov rdx, 0
+// mov rax, r0
+// div r1
+// mov rax, rdx
+void test_select_instrs_mod_instr(std::shared_ptr<SymbolTable> sym_tab) {
+  std::vector<IrInstrPtr> instrs;
+  IrInstrPtr mod = std::make_shared<IrInstr>(IrInstrType::MOD_INSTR,
+					     "r0",
+					     "r1",
+					     "r1");
+  instrs.push_back(mod);
+
+  CfgNodePtr cfg_node = std::make_shared<CfgNode>("b0");
+  cfg_node->SetInstrs(instrs);
+
+  X86InstrSel x86is(sym_tab);
+  x86is.SelectInstrs(cfg_node);
+
+  assert(cfg_node->GetX86Instrs().size() == 4);
+
+  auto first_x86 = cfg_node->GetX86Instrs()[0];
+  assert(first_x86->GetType() == X86InstrType::MOV_X86);
+  assert(first_x86->GetFirstArg() == "rdx");
+  assert(first_x86->GetSecondArg() == "0");
+
+  auto second_x86 = cfg_node->GetX86Instrs()[1];
+  assert(second_x86->GetType() == X86InstrType::MOV_X86);
+  assert(second_x86->GetFirstArg() == "rax");
+  assert(second_x86->GetSecondArg() == "r0");
+
+  auto third_x86 = cfg_node->GetX86Instrs()[2];
+  assert(third_x86->GetType() == X86InstrType::DIV_X86);
+  assert(third_x86->GetFirstArg() == "r1");
+
+  auto fourth_x86 = cfg_node->GetX86Instrs()[3];
+  assert(fourth_x86->GetType() == X86InstrType::MOV_X86);
+  assert(fourth_x86->GetFirstArg() == "rax");
+  assert(fourth_x86->GetSecondArg() == "rdx");
+}
+
 
 int main(int argc, char **argv) {
   auto sym_tab = std::make_shared<SymbolTable>();
@@ -197,6 +346,10 @@ int main(int argc, char **argv) {
   test_select_instrs_simple_access(sym_tab);
   test_select_instrs_multiple_access(sym_tab);
   test_select_instrs_mv_instr(sym_tab);
+  test_select_instrs_add_instr(sym_tab);
+  test_select_instrs_mul_instr(sym_tab);
+  test_select_instrs_div_instr(sym_tab);
+  test_select_instrs_mod_instr(sym_tab);
 
   std::cout << "X86 Instruction Selection tests passed!" << std::endl;
 

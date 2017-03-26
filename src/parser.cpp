@@ -103,8 +103,6 @@ AstNodePtr Parser::Expr() {
   if (expr_ast->GetType() == AstType::VAR_AST && curr_tkn_.GetType() == TokenType::EQ_TKN) {
     AstNodePtr assign_ast = expr_ast;
     expr_ast = std::make_shared<AstNode>(AstType::SET_AST);
-
-    // TODO: Set the assigned value of this symbol somewhere
     sym_tab_->Insert(assign_ast);
 
     GetNextTkn();

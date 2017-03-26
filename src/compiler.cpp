@@ -56,7 +56,7 @@ int main(int argc, char *argv[]) {
   // TODO: Convert the ir to valid x86 and write to a file using
   // code_gen
   X86InstrSel x86_sel(sym_tab);
-  x86_sel.ConvertIrInstrsForEntireBranch(cfg.GetRoot());
+  x86_sel.SelectInstrsForEntireBranch(cfg.GetRoot());
 
   return 0;
 }

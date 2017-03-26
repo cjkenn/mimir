@@ -21,6 +21,7 @@ void SymbolTable::Insert(AstNodePtr var_ast) {
 
   std::string key = var_ast->GetText();
   SymbolPtr s = std::make_shared<Symbol>(key);
+  // TODO: Set the value of the symbol here too
   sym_count_++;
   s->SetStackOffset(sym_count_ * 4);
 

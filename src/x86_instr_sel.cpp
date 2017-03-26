@@ -12,7 +12,7 @@ X86InstrSel::X86InstrSel(std::shared_ptr<SymbolTable> sym_tab) {
   sym_tab_ = sym_tab;
 }
 
-void X86InstrSel::ConvertIrInstrs(const CfgNodePtr& block) {
+void X86InstrSel::SelectInstrs(const CfgNodePtr& block) {
   std::vector<X86InstrPtr> x86;
   auto ir = block->GetInstrs();
 
@@ -24,7 +24,7 @@ void X86InstrSel::ConvertIrInstrs(const CfgNodePtr& block) {
   block->SetX86Instrs(x86);
 }
 
-void X86InstrSel::ConvertIrInstrsForEntireBranch(const CfgNodePtr& block) {
+void X86InstrSel::SelectInstrsForEntireBranch(const CfgNodePtr& block) {
   std::queue<CfgNodePtr> q;
   q.push(block);
 
@@ -32,7 +32,7 @@ void X86InstrSel::ConvertIrInstrsForEntireBranch(const CfgNodePtr& block) {
     auto block = q.front();
     q.pop();
     block->SetVisited(true);
-    ConvertIrInstrs(block);
+    SelectInstrs(block);
 
     for (auto b : block->GetAdj()) {
       if (!b->GetVisited()) {

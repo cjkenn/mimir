@@ -10,8 +10,8 @@ class X86InstrSel {
   X86InstrSel(std::shared_ptr<SymbolTable> sym_tab);
   ~X86InstrSel() {};
 
-  void ConvertIrInstrs(const CfgNodePtr& block);
-  void ConvertIrInstrsForEntireBranch(const CfgNodePtr& block);
+  void SelectInstrs(const CfgNodePtr& block);
+  void SelectInstrsForEntireBranch(const CfgNodePtr& block);
  private:
   void MapIrToX86(std::vector<X86InstrPtr>& x86,
 		  const std::vector<IrInstrPtr>& ir,

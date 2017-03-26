@@ -7,3 +7,4 @@ make all
 ./irgen.test
 ./cfggen.test
 ./localopt.test
+./x86instrsel.test

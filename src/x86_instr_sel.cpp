@@ -92,7 +92,7 @@ void X86InstrSel::ConvertMvInstr(std::vector<X86InstrPtr>& x86,
 				 const IrInstrPtr& instr) {
   assert(instr->GetType() == IrInstrType::MV_INSTR);
 
-  X86InstrPtr i = std::make_shared<X86Instr>(X86InstrType::MOV_X86);
+  X86InstrPtr i = std::make_shared<X86Instr>(X86InstrType::MOV_X86, instr->GetLabel());
   // The order of args is swapped around in x86, compared to the ir
   i->SetFirstArg(instr->GetArgs().second);
   i->SetSecondArg(instr->GetArgs().first);
@@ -104,7 +104,7 @@ void X86InstrSel::ConvertLdInstr(std::vector<X86InstrPtr>& x86,
 				 const IrInstrPtr& instr) {
   assert(instr->GetType() == IrInstrType::LD_INSTR);
 
-  X86InstrPtr i = std::make_shared<X86Instr>(X86InstrType::MOV_X86);
+  X86InstrPtr i = std::make_shared<X86Instr>(X86InstrType::MOV_X86, instr->GetLabel());
   i->SetFirstArg(instr->GetDest());
   const std::string name = instr->GetArgs().first;
 
@@ -120,7 +120,7 @@ void X86InstrSel::ConvertSvInstr(std::vector<X86InstrPtr>& x86,
 				 const IrInstrPtr& instr) {
   assert(instr->GetType() == IrInstrType::SV_INSTR);
 
-  X86InstrPtr i = std::make_shared<X86Instr>(X86InstrType::MOV_X86);
+  X86InstrPtr i = std::make_shared<X86Instr>(X86InstrType::MOV_X86, instr->GetLabel());
   const std::string name = instr->GetArgs().second;
 
   const SymbolPtr sym = sym_tab_->Find(name);
@@ -137,7 +137,7 @@ void X86InstrSel::ConvertAddSubInstr(std::vector<X86InstrPtr>& x86,
   assert(instr->GetType() == IrInstrType::ADD_INSTR ||
 	 instr->GetType() == IrInstrType::SUB_INSTR);
 
-  X86InstrPtr i = std::make_shared<X86Instr>(X86InstrType::ADD_X86);
+  X86InstrPtr i = std::make_shared<X86Instr>(X86InstrType::ADD_X86, instr->GetLabel());
   i->SetFirstArg(instr->GetArgs().second);
   i->SetSecondArg(instr->GetArgs().first);
 
@@ -157,12 +157,12 @@ void X86InstrSel::ConvertMulInstr(std::vector<X86InstrPtr>& x86,
   // MUL instructions in x86 should have the first operand in rax. Then the result
   // will be returned there, with one argument provided to the instruction
   // TODO: This should be built into the register allocator eventually too
-  X86InstrPtr mul_reg = std::make_shared<X86Instr>(X86InstrType::MOV_X86);
+  X86InstrPtr mul_reg = std::make_shared<X86Instr>(X86InstrType::MOV_X86, curr->GetLabel());
   mul_reg->SetFirstArg("rax");
   mul_reg->SetSecondArg(curr->GetArgs().first);
   x86.push_back(mul_reg);
 
-  X86InstrPtr instr = std::make_shared<X86Instr>(X86InstrType::MUL_X86);
+  X86InstrPtr instr = std::make_shared<X86Instr>(X86InstrType::MUL_X86, curr->GetLabel());
   instr->SetFirstArg(curr->GetArgs().second);
 
   x86.push_back(instr);
@@ -177,17 +177,17 @@ void X86InstrSel::ConvertDivInstr(std::vector<X86InstrPtr>& x86,
   // DIV instructions will have the dividend in rax and the divisor in any other reg.
   // We must clear rdx first to store the remainder there.
   // TODO: Again handled by the register allocator?? Might need to do some work here
-  X86InstrPtr clr = std::make_shared<X86Instr>(X86InstrType::MOV_X86);
+  X86InstrPtr clr = std::make_shared<X86Instr>(X86InstrType::MOV_X86, curr->GetLabel());
   clr->SetFirstArg("rdx");
   clr->SetSecondArg("0");
   x86.push_back(clr);
 
-  X86InstrPtr div_reg = std::make_shared<X86Instr>(X86InstrType::MOV_X86);
+  X86InstrPtr div_reg = std::make_shared<X86Instr>(X86InstrType::MOV_X86, curr->GetLabel());
   div_reg->SetFirstArg("rax");
   div_reg->SetSecondArg(curr->GetArgs().first);
   x86.push_back(div_reg);
 
-  X86InstrPtr instr = std::make_shared<X86Instr>(X86InstrType::DIV_X86);
+  X86InstrPtr instr = std::make_shared<X86Instr>(X86InstrType::DIV_X86, curr->GetLabel());
   instr->SetFirstArg(curr->GetArgs().second);
   x86.push_back(instr);
 }
@@ -198,21 +198,21 @@ void X86InstrSel::ConvertModInstr(std::vector<X86InstrPtr>& x86,
   auto const curr = ir[i];
   assert(curr->GetType() == IrInstrType::MOD_INSTR);
 
-  X86InstrPtr clr = std::make_shared<X86Instr>(X86InstrType::MOV_X86);
+  X86InstrPtr clr = std::make_shared<X86Instr>(X86InstrType::MOV_X86, curr->GetLabel());
   clr->SetFirstArg("rdx");
   clr->SetSecondArg("0");
   x86.push_back(clr);
 
-  X86InstrPtr div_reg = std::make_shared<X86Instr>(X86InstrType::MOV_X86);
+  X86InstrPtr div_reg = std::make_shared<X86Instr>(X86InstrType::MOV_X86, curr->GetLabel());
   div_reg->SetFirstArg("rax");
   div_reg->SetSecondArg(curr->GetArgs().first);
   x86.push_back(div_reg);
 
-  X86InstrPtr instr = std::make_shared<X86Instr>(X86InstrType::DIV_X86);
+  X86InstrPtr instr = std::make_shared<X86Instr>(X86InstrType::DIV_X86, curr->GetLabel());
   instr->SetFirstArg(curr->GetArgs().second);
   x86.push_back(instr);
 
-  X86InstrPtr get_remainder = std::make_shared<X86Instr>(X86InstrType::MOV_X86);
+  X86InstrPtr get_remainder = std::make_shared<X86Instr>(X86InstrType::MOV_X86, curr->GetLabel());
   get_remainder->SetFirstArg("rax");
   get_remainder->SetSecondArg("rdx");
   x86.push_back(get_remainder);
@@ -225,7 +225,7 @@ void X86InstrSel::ConvertCmpInstr(std::vector<X86InstrPtr>& x86,
   auto const curr = ir[i];
   assert(curr->GetType() == IrInstrType::CMP_INSTR);
 
-  X86InstrPtr instr = std::make_shared<X86Instr>(X86InstrType::CMP_X86);
+  X86InstrPtr instr = std::make_shared<X86Instr>(X86InstrType::CMP_X86, curr->GetLabel());
   instr->SetFirstArg(curr->GetArgs().first);
   instr->SetSecondArg(curr->GetArgs().second);
   x86.push_back(instr);
@@ -235,7 +235,7 @@ void X86InstrSel::ConvertBranchingInstr(std::vector<X86InstrPtr>& x86,
 					const IrInstrPtr& instr) {
   X86InstrType j_type = GetX86BranchType(instr);
 
-  X86InstrPtr i = std::make_shared<X86Instr>(j_type);
+  X86InstrPtr i = std::make_shared<X86Instr>(j_type, instr->GetLabel());
   i->SetFirstArg(instr->GetDest());
   x86.push_back(i);
 }
@@ -244,7 +244,7 @@ void X86InstrSel::ConvertNopInstr(std::vector<X86InstrPtr>& x86,
 				  const IrInstrPtr& instr) {
   assert(instr->GetType() == IrInstrType::NOP_INSTR);
 
-  X86InstrPtr i = std::make_shared<X86Instr>(X86InstrType::NOP_X86);
+  X86InstrPtr i = std::make_shared<X86Instr>(X86InstrType::NOP_X86, instr->GetLabel());
   x86.push_back(i);
 }
 
@@ -272,5 +272,5 @@ X86InstrType X86InstrSel::GetX86BranchType(IrInstrPtr instr) {
 }
 
 std::string X86InstrSel::BuildLdAddressArg(const int offset) {
-  return "[ebp-" + std::to_string(offset) + "]";
+  return "[rbp-" + std::to_string(offset) + "]";
 }

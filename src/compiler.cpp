@@ -12,6 +12,7 @@
 #include "cfg.h"
 #include "local_optimizer.h"
 #include "x86_instr_sel.h"
+#include "x86_writer.h"
 
 int main(int argc, char *argv[]) {
   if (argc < 2) {
@@ -55,8 +56,14 @@ int main(int argc, char *argv[]) {
 
   // TODO: Convert the ir to valid x86 and write to a file using
   // code_gen
+  // TODO: Put instruction selection anmd scheduling into the writer,
+  // and have the writer call those before writing.
   X86InstrSel x86_sel(sym_tab);
   x86_sel.SelectInstrsForEntireBranch(cfg.GetRoot());
+
+  X86Writer x86_writer;
+  // TODO: Allow filename to be passed in
+  x86_writer.Write(cfg.GetRoot());
 
   return 0;
 }

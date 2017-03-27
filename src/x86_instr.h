@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <utility>
+#include <string>
 
 class X86Instr;
 
@@ -30,6 +31,7 @@ enum X86InstrType {
 class X86Instr {
  public:
   X86Instr(X86InstrType type);
+  X86Instr(X86InstrType type, std::string label);
   ~X86Instr() {};
 
   void SetType(X86InstrType type) { type_ = type; }
@@ -41,8 +43,10 @@ class X86Instr {
   std::string GetFirstArg() const { return args_.first; }
   std::string GetSecondArg() const { return args_.second; }
   X86InstrType GetType() const { return type_; }
+  std::string GetLabel() const { return label_; }
 
  private:
   X86InstrType type_;
   std::pair<std::string, std::string> args_;
+  std::string label_;
 };

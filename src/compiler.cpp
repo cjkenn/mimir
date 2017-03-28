@@ -62,7 +62,6 @@ int main(int argc, char *argv[]) {
   x86_sel.SelectInstrsForEntireBranch(cfg.GetRoot());
 
   X86Writer x86_writer;
-  // TODO: Allow filename to be passed in
   x86_writer.Write(cfg.GetRoot());
 
   return 0;

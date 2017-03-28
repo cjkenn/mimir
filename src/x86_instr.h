@@ -45,7 +45,14 @@ class X86Instr {
   X86InstrType GetType() const { return type_; }
   std::string GetLabel() const { return label_; }
 
+  // Convert an instruction object into a string that can be written
+  // to an assembly file. Serializing converts the instr type to a string,
+  // then appends the first arg and the second arg
+  std::string Serialize();
+
  private:
+  std::string MapTypeToStr();
+
   X86InstrType type_;
   std::pair<std::string, std::string> args_;
   std::string label_;

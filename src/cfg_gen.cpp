@@ -11,7 +11,7 @@ CfgGen::CfgGen() {
   block_count_ = -1;
 }
 
-Cfg CfgGen::Gen(std::vector<IrInstrPtr> ir) {
+Cfg CfgGen::Gen(const std::vector<IrInstrPtr>& ir) {
   CfgNodePtr root = std::make_shared<CfgNode>(GetNextName());
   std::vector<CfgNodePtr> leader;
 
@@ -59,12 +59,12 @@ Cfg CfgGen::Gen(std::vector<IrInstrPtr> ir) {
   }
 
   // Add dummy entry and exit nodes to the cfg, with special names.
-  CfgNodePtr entry = std::make_shared<CfgNode>("entry");
-  CfgNodePtr exit = std::make_shared<CfgNode>("exit");
-  entry->AddAdjChild(root);
-  leader.back()->AddAdjChild(exit);
+  //CfgNodePtr entry = std::make_shared<CfgNode>("entry");
+  //CfgNodePtr exit = std::make_shared<CfgNode>("exit");
+  //entry->AddAdjChild(root);
+  //leader.back()->AddAdjChild(exit);
 
-  Cfg cfg(entry);
+  Cfg cfg(root);
 
   return cfg;
 }

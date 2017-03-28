@@ -9,7 +9,7 @@ class CfgGen {
   ~CfgGen() {};
 
   // Create a cfg from an ir.
-  Cfg Gen(std::vector<IrInstrPtr> ir);
+  Cfg Gen(const std::vector<IrInstrPtr>& ir);
 
  private:
   std::string GetNextName();

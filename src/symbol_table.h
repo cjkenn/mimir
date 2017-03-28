@@ -19,8 +19,6 @@ class SymbolTable {
   SymbolTable();
   ~SymbolTable() {};
 
-  int GetSymCount() const { return sym_count_; }
-
   // Insert a value into the current scope level table.
   void Insert(AstNodePtr var_ast);
 
@@ -39,8 +37,11 @@ class SymbolTable {
   // Decrement the scope level as we exit the scope.
   void ExitScope();
 
+  // Returns the "size" of the current scope. Size should be determined
+  // by the number of unique vars in this scope, multipled by their type size.
+  int GetSizeOfCurrentScope();
+
  private:
   int curr_level_;
-  int sym_count_;
   std::vector<std::unordered_map<std::string, SymbolPtr>> sym_tab_;
 };

@@ -8,7 +8,6 @@
 
 SymbolTable::SymbolTable() {
   curr_level_ = -1;
-  sym_count_ = 0;
   // Create a top level scope for the entire program (we need at least one scope).
   InitScope();
 }
@@ -21,13 +20,11 @@ void SymbolTable::Insert(AstNodePtr var_ast) {
 
   std::string key = var_ast->GetText();
   SymbolPtr s = std::make_shared<Symbol>(key);
-  sym_count_++;
-  // TODO: This will eventually need to be level_map.size() * 4
-  s->SetStackOffset(sym_count_ * 4);
-
   std::pair<std::string, SymbolPtr> entry(key, s);
 
   sym_tab_[curr_level_].insert(entry);
+  // TODO: This will eventually need to be getSize based on type of symbol instead of only 8
+  s->SetStackOffset(sym_tab_[curr_level_].size() * 8);
 }
 
 SymbolPtr SymbolTable::Find(std::string key) {
@@ -72,4 +69,9 @@ void SymbolTable::InitScope() {
 
 void SymbolTable::ExitScope() {
   curr_level_--;
+}
+
+int SymbolTable::GetSizeOfCurrentScope() {
+  // TODO: Eventually this will need to be a loop over each var, to check types and sizes.
+  return sym_tab_[curr_level_].size() * 8;
 }

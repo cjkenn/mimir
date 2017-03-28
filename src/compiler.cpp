@@ -61,7 +61,7 @@ int main(int argc, char *argv[]) {
   X86InstrSel x86_sel(sym_tab);
   x86_sel.SelectInstrsForEntireBranch(cfg.GetRoot());
 
-  X86Writer x86_writer;
+  X86Writer x86_writer(sym_tab);
   x86_writer.Write(cfg.GetRoot());
 
   return 0;

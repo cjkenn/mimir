@@ -1,14 +1,28 @@
 #include <stdlib.h>
 #include <queue>
 #include "x86_section.h"
+#include "symbol_table.h"
 #include "x86_writer.h"
 
-X86Writer::X86Writer() {
+const std::string BSS = "bss";
+const std::string DATA = "data";
+const std::string TEXT = "text";
+const std::string BITS_64 = "bits 64";
+const std::string BSS_SECTION = "section .bss";
+const std::string DATA_SECTION = "section .data";
+const std::string TEXT_SECTION = "section .text";
+const std::string SYS_INTERRUPT = "int 0x80";
+
+X86Writer::X86Writer(std::shared_ptr<SymbolTable> sym_tab) {
+  InitSections();
+  sym_tab_ = sym_tab;
   filename_ = "mimir.asm";
   ofs_.open(filename_.c_str(), std::ofstream::out | std::ofstream::trunc);
 }
 
-X86Writer::X86Writer(std::string filename) {
+X86Writer::X86Writer(std::shared_ptr<SymbolTable> sym_tab, std::string filename) {
+  InitSections();
+  sym_tab_ = sym_tab;
   filename_ = filename;
   ofs_.open(filename_.c_str(), std::ofstream::out | std::ofstream::trunc);
 }
@@ -18,17 +32,13 @@ X86Writer::~X86Writer() {
 }
 
 void X86Writer::Write(const CfgNodePtr& block) {
-  // 1. Create sections
-  X86SectionPtr bss = std::make_shared<X86Section>("bss");
-  X86SectionPtr data = std::make_shared<X86Section>("data");
-  X86SectionPtr text = std::make_shared<X86Section>("text");
+  // Set 64 bits mode. Insert proper instr into start of text section
+  // (_start label, as well as stack creation)
+  Init64Bits();
+  InitTextSection();
 
-  // 2. Insert proper instr into start of text section (_start label,
-  //    as well as stack creation)
-  InitTextSection(text);
-
-  // 3. Traverse block and all connected blocks, adding strings
-  //    to the proper vectors located in each section
+  // Traverse block and all connected blocks, adding strings
+  // to the proper vectors located in each section
   // TODO: This block traversal is getting tedious... A nice way to do it would
   // be to provide a traverse function in cfg that takes in a function that is called
   // every time we visit a node. Then we could just call it like Traverse(ConvertX86InstrToStr())
@@ -42,7 +52,7 @@ void X86Writer::Write(const CfgNodePtr& block) {
     auto block = q.front();
     q.pop();
     block->SetVisited(true);
-    AddInstrsToSections(bss, data, text, block);
+    AddInstrsToSections(block);
 
     for (auto b : block->GetAdj()) {
       if (!b->GetVisited()) {
@@ -51,56 +61,62 @@ void X86Writer::Write(const CfgNodePtr& block) {
     }
   }
 
-  // 4. Add the exit interrupt instructions to the end of the text section
-  CloseTextSection(text);
+  // Add the exit interrupt instructions to the end of the text section
+  CloseTextSection();
 
-  // 5. Write the bss, then data, then text section by iterating their
-  //    instruction vectors and calling << ... << std::endl
-  ofs_ << "section.bss" << std::endl;
-  for (auto instr : bss->GetInstrs()) {
-    ofs_ << instr << std::endl;
-  }
-
-  ofs_ << "section.data" << std::endl;
-  for (auto instr : data->GetInstrs()) {
-    ofs_ << instr << std::endl;
-  }
-
-  ofs_ << "section.text" << std::endl;
-  for (auto instr : text->GetInstrs()) {
-    ofs_ << instr << std::endl;
-  }
+  // Write the bss, then data, then text section by iterating their
+  // instruction vectors and calling << ... << std::endl
+  WriteSection(BSS_SECTION, bss_);
+  WriteSection(DATA_SECTION, data_);
+  WriteSection(TEXT_SECTION, text_);
 
   ofs_.close();
-
 }
 
-void X86Writer::InitTextSection(const X86SectionPtr& text) {
-  text->InsertInstr("global _start");
-  text->InsertInstr("_start:");
-  text->InsertInstr("push rbp");
-  text->InsertInstr("move rbp, rsp");
-  // TODO: Sub from esp the amount of space needed (probably need to get that from sym table)
+void X86Writer::Init64Bits() {
+  ofs_ << BITS_64 << std::endl;
 }
 
-void X86Writer::CloseTextSection(const X86SectionPtr& text) {
-  text->InsertInstr("mov rsp, rbp");
-  text->InsertInstr("pop rbp");
-  text->InsertInstr("mov rax, 1");
-  text->InsertInstr("int 0x80");
+void X86Writer::InitTextSection() {
+  text_->InsertInstr("global _start");
+  text_->InsertInstr("_start:");
+  text_->InsertInstr("push rbp");
+  text_->InsertInstr("mov rbp, rsp");
+  const int stack_space = sym_tab_->GetSizeOfCurrentScope();
+  const std::string st = "sub rsp, " + std::to_string(stack_space);
+  text_->InsertInstr(st);
 }
 
-void X86Writer::AddInstrsToSections(const X86SectionPtr& bss,
-				    const X86SectionPtr& data,
-				    X86SectionPtr& text,
-				    const CfgNodePtr& block) {
+void X86Writer::CloseTextSection() {
+  text_->InsertInstr("mov rsp, rbp");
+  text_->InsertInstr("pop rbp");
+  text_->InsertInstr("mov rax, 1");
+  text_->InsertInstr(SYS_INTERRUPT);
+}
+
+void X86Writer::AddInstrsToSections(const CfgNodePtr& block) {
   // TODO: At this point, we're only writing to text section. In the future,
   // we can probably add helper methods to x86instr to determine which section they should
   // go into.
   for (auto instr : block->GetX86Instrs()) {
     std::string instr_str = instr->Serialize();
-    text->InsertInstr(instr_str);
+    text_->InsertInstr(instr_str);
   }
+}
+
+void X86Writer::WriteSection(const std::string section_name, const X86SectionPtr& section) {
+  if (!section->GetInstrs().empty()) {
+    ofs_ << section_name << std::endl;
+    for (auto instr : section->GetInstrs()) {
+      ofs_ << instr << std::endl;
+    }
+  }
+}
+
+void X86Writer::InitSections() {
+  bss_ = std::make_shared<X86Section>(BSS);
+  data_ = std::make_shared<X86Section>(DATA);
+  text_ = std::make_shared<X86Section>(TEXT);
 }
 
 void X86Writer::ResetCfg(const CfgNodePtr& block) {

@@ -35,7 +35,7 @@ void test_select_instrs_simple_assign(std::shared_ptr<SymbolTable> sym_tab) {
 
   auto first_x86 = cfg_node->GetX86Instrs()[0];
   assert(first_x86->GetType() == X86InstrType::MOV_X86);
-  assert(first_x86->GetFirstArg() == "[rbp-4]");
+  assert(first_x86->GetFirstArg() == "[rbp-8]");
   assert(first_x86->GetSecondArg() == "10");
 }
 
@@ -72,12 +72,12 @@ void test_select_instrs_two_assigns(std::shared_ptr<SymbolTable> sym_tab) {
 
   auto first_x86 = cfg_node->GetX86Instrs()[0];
   assert(first_x86->GetType() == X86InstrType::MOV_X86);
-  assert(first_x86->GetFirstArg() == "[rbp-4]");
+  assert(first_x86->GetFirstArg() == "[rbp-8]");
   assert(first_x86->GetSecondArg() == "10");
 
   auto second_x86 = cfg_node->GetX86Instrs()[1];
   assert(second_x86->GetType() == X86InstrType::MOV_X86);
-  assert(second_x86->GetFirstArg() == "[rbp-8]");
+  assert(second_x86->GetFirstArg() == "[rbp-16]");
   assert(second_x86->GetSecondArg() == "9");
 }
 
@@ -107,7 +107,7 @@ void test_select_instrs_simple_access(std::shared_ptr<SymbolTable> sym_tab) {
   auto first_x86 = cfg_node->GetX86Instrs()[0];
   assert(first_x86->GetType() == X86InstrType::MOV_X86);
   assert(first_x86->GetFirstArg() == "r0");
-  assert(first_x86->GetSecondArg() == "[rbp-4]");
+  assert(first_x86->GetSecondArg() == "[rbp-8]");
 }
 
 // Input:
@@ -144,12 +144,12 @@ void test_select_instrs_multiple_access(std::shared_ptr<SymbolTable> sym_tab) {
   auto first_x86 = cfg_node->GetX86Instrs()[0];
   assert(first_x86->GetType() == X86InstrType::MOV_X86);
   assert(first_x86->GetFirstArg() == "r0");
-  assert(first_x86->GetSecondArg() == "[rbp-4]");
+  assert(first_x86->GetSecondArg() == "[rbp-8]");
 
   auto second_x86 = cfg_node->GetX86Instrs()[1];
   assert(second_x86->GetType() == X86InstrType::MOV_X86);
   assert(second_x86->GetFirstArg() == "r1");
-  assert(second_x86->GetSecondArg() == "[rbp-8]");
+  assert(second_x86->GetSecondArg() == "[rbp-16]");
 }
 
 // Input:

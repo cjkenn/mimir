@@ -16,17 +16,16 @@ IrGen::IrGen() {
 
 std::vector<IrInstrPtr> IrGen::Gen(AstNodePtr ast) {
   std::vector<IrInstrPtr> ir;
-  AstNodePtr start_ast = ast->GetChildAtIndex(0);
 
   // Ensure that no ast nodes have been marked as visited.
-  ResetAst(start_ast);
+  ResetAst(ast);
 
   // BFS the ast. The ConvertAstToInstr call may also visit
   // subsequent nodes, so we must make sure to visit those
   // nodes within that call, so we don't visit them again
   // during this BFS.
   std::queue<AstNodePtr> q;
-  q.push(start_ast);
+  q.push(ast);
 
   while(!q.empty()) {
     auto node = q.front();

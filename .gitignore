@@ -6,4 +6,4 @@
 *.org
 mimir
 analysis
-.asm
+*.asm

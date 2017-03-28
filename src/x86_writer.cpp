@@ -98,9 +98,14 @@ void X86Writer::AddInstrsToSections(const CfgNodePtr& block) {
   // TODO: At this point, we're only writing to text section. In the future,
   // we can probably add helper methods to x86instr to determine which section they should
   // go into.
-  for (auto instr : block->GetX86Instrs()) {
-    std::string instr_str = instr->Serialize();
+  const auto instrs = block->GetX86Instrs();
+  for (int i = 0; i < instrs.size(); i++) {
+    std::string instr_str = instrs[i]->Serialize();
     text_->InsertInstr(instr_str);
+
+    if ((i != instrs.size() - 1) && instrs[i]->GetLabel() != instrs[i+1]->GetLabel()) {
+      text_->InsertInstr(instrs[i+1]->GetLabel());
+    }
   }
 }
 

@@ -59,10 +59,10 @@ Cfg CfgGen::Gen(const std::vector<IrInstrPtr>& ir) {
   }
 
   // Add dummy entry and exit nodes to the cfg, with special names.
-  //CfgNodePtr entry = std::make_shared<CfgNode>("entry");
-  //CfgNodePtr exit = std::make_shared<CfgNode>("exit");
-  //entry->AddAdjChild(root);
-  //leader.back()->AddAdjChild(exit);
+  CfgNodePtr entry = std::make_shared<CfgNode>("entry");
+  CfgNodePtr exit = std::make_shared<CfgNode>("exit");
+  entry->AddAdjChild(root);
+  leader.back()->AddAdjChild(exit);
 
   Cfg cfg(root);
 

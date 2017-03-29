@@ -17,6 +17,7 @@ class X86Section {
   std::vector<std::string> GetInstrs() const { return instrs_; }
 
   void InsertInstr(const std::string instr);
+  void InsertLabel(const std::string label_name);
  private:
   std::string name_;
   std::vector<std::string> instrs_;

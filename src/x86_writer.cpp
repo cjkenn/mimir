@@ -99,13 +99,17 @@ void X86Writer::AddInstrsToSections(const CfgNodePtr& block) {
   // we can probably add helper methods to x86instr to determine which section they should
   // go into.
   const auto instrs = block->GetX86Instrs();
+  if (!instrs.empty()) {
+    text_->InsertLabel(instrs[0]->GetLabel());
+  }
+
   for (int i = 0; i < instrs.size(); i++) {
+    if ((i != 0) && instrs[i]->GetLabel() != instrs[i-1]->GetLabel()) {
+      text_->InsertLabel(instrs[i]->GetLabel());
+    }
+
     std::string instr_str = instrs[i]->Serialize();
     text_->InsertInstr(instr_str);
-
-    if ((i != instrs.size() - 1) && instrs[i]->GetLabel() != instrs[i+1]->GetLabel()) {
-      text_->InsertInstr(instrs[i+1]->GetLabel());
-    }
   }
 }
 

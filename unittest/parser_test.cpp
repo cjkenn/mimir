@@ -1,12 +1,12 @@
 #include <assert.h>
 #include <iostream>
 #include <memory>
-#include "../src/parser.h"
-#include "../src/lexer.h"
-#include "../src/ast.h"
-#include "../src/token.h"
-#include "../src/symbol_table.h"
-#include "../src/error.h"
+#include "parser.h"
+#include "lexer.h"
+#include "ast.h"
+#include "token.h"
+#include "symbol_table.h"
+#include "error.h"
 
 Parser get_parser_for_file(std::string filename) {
   std::string test_file = "parser_input/" + filename;

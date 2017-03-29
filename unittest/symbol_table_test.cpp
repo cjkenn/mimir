@@ -1,9 +1,9 @@
 #include <assert.h>
 #include <memory>
 #include <iostream>
-#include "../src/ast.h"
-#include "../src/symbol.h"
-#include "../src/symbol_table.h"
+#include "ast.h"
+#include "symbol.h"
+#include "symbol_table.h"
 
 void test_insert_find_single_scope() {
   SymbolTable st;

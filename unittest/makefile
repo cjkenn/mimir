@@ -1,5 +1,5 @@
 CC = clang++
-CFLAGS = -g -Wall -std=c++11 -o
+CFLAGS = -g -Wall -std=c++11 -I../include -o
 LEXERFILES = lexer_test.cpp \
 	../src/lexer.cpp \
 	../src/token.cpp \

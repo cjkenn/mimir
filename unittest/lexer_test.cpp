@@ -1,8 +1,8 @@
 #include <assert.h>
 #include <iostream>
 #include <memory>
-#include "../src/token.h"
-#include "../src/lexer.h"
+#include "token.h"
+#include "lexer.h"
 
 // Test the Lex function on some single char symbols.
 // The order of the assert statements matters here,

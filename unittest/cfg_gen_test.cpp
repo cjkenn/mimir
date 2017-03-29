@@ -2,10 +2,10 @@
 #include <vector>
 #include <memory>
 #include <iostream>
-#include "../src/ir_instr.h"
-#include "../src/cfg_gen.h"
-#include "../src/cfg.h"
-#include "../src/cfg_node.h"
+#include "ir_instr.h"
+#include "cfg_gen.h"
+#include "cfg.h"
+#include "cfg_node.h"
 
 // TODO: Maybe should go into a test_helper file
 std::vector<IrInstrPtr> build_if_ir() {

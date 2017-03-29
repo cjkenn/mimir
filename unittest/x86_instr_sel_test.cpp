@@ -2,13 +2,13 @@
 #include <iostream>
 #include <memory>
 #include <vector>
-#include "../src/x86_instr_sel.h"
-#include "../src/symbol_table.h"
-#include "../src/symbol.h"
-#include "../src/ir_instr.h"
-#include "../src/x86_instr.h"
-#include "../src/cfg_node.h"
-#include "../src/ast.h"
+#include "x86_instr_sel.h"
+#include "symbol_table.h"
+#include "symbol.h"
+#include "ir_instr.h"
+#include "x86_instr.h"
+#include "cfg_node.h"
+#include "ast.h"
 
 // Input:
 //

@@ -2,9 +2,9 @@
 #include <iostream>
 #include <memory>
 #include <vector>
-#include "../src/local_optimizer.h"
-#include "../src/cfg_node.h"
-#include "../src/ir_instr.h"
+#include "local_optimizer.h"
+#include "cfg_node.h"
+#include "ir_instr.h"
 #include "helper/local_optimizer.h"
 
 // Expected input instructions:

@@ -1,13 +1,13 @@
 #include <assert.h>
 #include <iostream>
 #include <memory>
-#include "../src/ir_gen.h"
-#include "../src/ir_instr.h"
-#include "../src/ast.h"
-#include "../src/lexer.h"
-#include "../src/parser.h"
-#include "../src/token.h"
-#include "../src/symbol_table.h"
+#include "ir_gen.h"
+#include "ir_instr.h"
+#include "ast.h"
+#include "lexer.h"
+#include "parser.h"
+#include "token.h"
+#include "symbol_table.h"
 
 // Input:
 //

@@ -1,5 +1,5 @@
 CC = clang++
-CFLAGS = -g -Wall -std=c++11 -o
+CFLAGS = -g -Wall -std=c++11 -I../include -o
 SRCS = compiler.cpp \
 	lexer.cpp \
 	parser.cpp \

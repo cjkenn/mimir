@@ -1,22 +1,32 @@
 ## mimir
 
-Small language with c-style syntax.
+Small language with c-style syntax. Currently, the language generates NASM valid x86_64 assembly, on linux platforms. Local optimizations are also performed (by default, this will be a compiler flag once I get around to it).
 
 #### Building
 Building is done using make. The directory structure is a WIP right now, so the builds are far from perfect. To compile a file with mimir, run:
 
 ```
 mkdir build # until I get around to changing the makefile
-make
 cd src
+make
+cd ../build
 ./mimir {filename}
 ```
 
 #### Tests
-To run tests, execute the following commands:
+mimir has unit tests and integration tests. 
+To run unit tests:
+
 ```
-cd tests
-./runAllTests.sh
+cd unittest
+./runUnitTests.sh
+```
+
+To run integration tests:
+
+```
+cd test
+./runIntegrationTests.sh
 ```
 
 #### mimIR

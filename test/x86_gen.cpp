@@ -65,14 +65,23 @@ void test_x86_gen(const std::string filename) {
 }
 
 int main(int argc, char **argv) {
-  // test_x86_gen("single_assign");
-  // print_success("single assign");
+  test_x86_gen("single_assign");
+  print_success("single assignment");
 
-  // test_x86_gen("multiple_assign");
-  // print_success("multiple assign");
+  test_x86_gen("multiple_assign");
+  print_success("multiple assignments");
 
   test_x86_gen("while_loop");
   print_success("while loop");
+
+  test_x86_gen("if_statement");
+  print_success("if statement");
+
+  test_x86_gen("if_else_statement");
+  print_success("if else statement");
+
+  test_x86_gen("expr_assign");
+  print_success("expression assignment");
 
   return 0;
 }

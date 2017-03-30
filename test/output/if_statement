@@ -1,0 +1,24 @@
+bits 64
+section .text
+global _start
+_start:
+push rbp
+mov rbp, rsp
+sub rsp, 16
+lbl0:
+mov r0, 10
+mov [rbp-8], r0
+mov r1, 11
+mov [rbp-16], r1
+mov r2, [rbp-8]
+mov r3, 10
+cmp r2, r3
+jne lbl1
+mov r4, 12
+mov [rbp-16], r4
+lbl1:
+nop
+mov rsp, rbp
+pop rbp
+mov rax, 1
+int 0x80

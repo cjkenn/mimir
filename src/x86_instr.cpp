@@ -10,10 +10,10 @@ X86Instr::X86Instr(X86InstrType type, std::string label) {
 }
 
 std::string X86Instr::Serialize() {
-  std::string op = MapTypeToStr() + " ";
+  std::string op = MapTypeToStr();
 
   if (!args_.first.empty()) {
-    op += (args_.first);
+    op += (" " + args_.first);
   }
 
   if (!args_.second.empty()) {

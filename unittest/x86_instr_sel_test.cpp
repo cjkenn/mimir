@@ -368,7 +368,8 @@ void test_select_instrs_cmp(std::shared_ptr<SymbolTable> sym_tab) {
 // jmp lbl0
 void test_select_instrs_simple_branch(std::shared_ptr<SymbolTable> sym_tab) {
   std::vector<IrInstrPtr> instrs;
-  IrInstrPtr jmp = std::make_shared<IrInstr>(IrInstrType::JMP_INSTR, "lbl0");
+  IrInstrPtr jmp = std::make_shared<IrInstr>(IrInstrType::JMP_INSTR);
+  jmp->SetDest("lbl0");
   instrs.push_back(jmp);
 
   CfgNodePtr cfg_node = std::make_shared<CfgNode>("b0");

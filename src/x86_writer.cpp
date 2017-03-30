@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <queue>
+#include <iostream>
 #include "x86_section.h"
 #include "symbol_table.h"
 #include "x86_writer.h"

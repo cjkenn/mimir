@@ -15,44 +15,32 @@
 #include "x86_instr_sel.h"
 #include "x86_writer.h"
 
-void verify_single_assign() {
-  std::ifstream ifs("output/single_assign");
-  std::string line;
+const std::string OUTPUT_DIR = "output/";
+const std::string INPUT_DIR = "input/";
+const std::string EXPECTED_DIR = "expected/";
 
-  std::vector<std::string> expected_instrs;
-  expected_instrs.push_back("bits 64");
-  expected_instrs.push_back("section .text");
-  expected_instrs.push_back("global _start");
-  expected_instrs.push_back("_start:");
-  expected_instrs.push_back("push rbp");
-  expected_instrs.push_back("mov rbp, rsp");
-  expected_instrs.push_back("sub rsp, 8");
-  expected_instrs.push_back("lbl0:");
-  expected_instrs.push_back("mov r0, 11");
-  expected_instrs.push_back("mov [rbp-8], r0");
-  expected_instrs.push_back("nop ");
-  expected_instrs.push_back("mov rsp, rbp");
-  expected_instrs.push_back("pop rbp");
-  expected_instrs.push_back("mov rax, 1");
-  expected_instrs.push_back("int 0x80");
-  int counter = 0;
-
-  while (std::getline(ifs, line)) {
-    assert(expected_instrs[counter] == line);
-    counter++;
-  }
-
+void print_success(const std::string message) {
+  std::cout << "x86 gen " << message << " test passed!" << std::endl;
 }
 
 void verify(const std::string name) {
-  if (name == "single_assign") {
-    verify_single_assign();
+  std::ifstream output(OUTPUT_DIR + name);
+  std::ifstream expected(EXPECTED_DIR + name);
+  std::string output_line;
+  std::string expected_line;
+
+  while (std::getline(output, output_line) && std::getline(expected, expected_line)) {
+    if (output_line != expected_line) {
+      std::cout << "Expected: '" << expected_line <<
+	"' but found: '" << output_line << "'" <<
+	std::endl;
+      assert(false);
+    }
   }
 }
 
 void test_x86_gen(const std::string filename) {
-  // Make lexer and parser, parse input file
-  auto lexer = std::make_shared<Lexer>("input/" + filename);
+  auto lexer = std::make_shared<Lexer>(INPUT_DIR + filename);
   auto sym_tab = std::make_shared<SymbolTable>();
   Parser parser(lexer, sym_tab);
   const ParserResult parser_result = parser.Parse();
@@ -68,7 +56,7 @@ void test_x86_gen(const std::string filename) {
   X86InstrSel x86_sel(sym_tab);
   x86_sel.SelectInstrsForEntireBranch(cfg.GetRoot());
 
-  const std::string output_file = "output/" + filename;
+  const std::string output_file = OUTPUT_DIR + filename;
   X86Writer x86_writer(sym_tab, output_file);
   x86_writer.Write(cfg.GetRoot());
 
@@ -77,8 +65,14 @@ void test_x86_gen(const std::string filename) {
 }
 
 int main(int argc, char **argv) {
-  test_x86_gen("single_assign");
-  std::cout << "x86 gen single assign test passed!" << std::endl;
+  // test_x86_gen("single_assign");
+  // print_success("single assign");
+
+  // test_x86_gen("multiple_assign");
+  // print_success("multiple assign");
+
+  test_x86_gen("while_loop");
+  print_success("while loop");
 
   return 0;
 }

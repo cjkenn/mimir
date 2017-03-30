@@ -204,8 +204,9 @@ std::vector<IrInstrPtr> IrGen::WhileAstToInstr(AstNodePtr ast) {
 
   auto while_true_ast = ast->GetChildAtIndex(1);
   auto while_true_instrs = ConvertAstToInstr(while_true_ast);
-  IrInstrPtr always_jmp = std::make_shared<IrInstr>(IrInstrType::JMP_INSTR,
-						    curr_lbl_);
+  IrInstrPtr always_jmp = std::make_shared<IrInstr>(IrInstrType::JMP_INSTR);
+  always_jmp->SetLabel(curr_lbl_);
+  always_jmp->SetDest(curr_lbl_);
 
   // Order should be maintained here. The unconditional jump instruction
   // should be added last.

@@ -9,15 +9,6 @@ IrInstr::IrInstr(IrInstrType type) {
   constant_val_ = 0;
 }
 
-IrInstr::IrInstr(IrInstrType type, std::string dest) {
-  type_ = type;
-  dest_ = dest;
-  is_leader_ = false;
-  redundant_ = false;
-  constant_op_ = false;
-  constant_val_ = 0;
-}
-
 IrInstr::IrInstr(IrInstrType type,
 		 std::pair<std::string, std::string> args,
 		 std::string dest) {

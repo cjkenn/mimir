@@ -234,6 +234,7 @@ void X86InstrSel::ConvertCmpInstr(std::vector<X86InstrPtr>& x86,
 void X86InstrSel::ConvertBranchingInstr(std::vector<X86InstrPtr>& x86,
 					const IrInstrPtr& instr) {
   X86InstrType j_type = GetX86BranchType(instr);
+  // std::cout << instr->GetLabel().empty() << std::endl;
 
   X86InstrPtr i = std::make_shared<X86Instr>(j_type, instr->GetLabel());
   i->SetFirstArg(instr->GetDest());

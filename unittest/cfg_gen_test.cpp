@@ -23,7 +23,8 @@ std::vector<IrInstrPtr> build_if_ir() {
   ir3->SetLabel("lbl0");
   ir.push_back(ir3);
 
-  auto ir4 = std::make_shared<IrInstr>(IrInstrType::JMPGT_INSTR, "lbl1");
+  auto ir4 = std::make_shared<IrInstr>(IrInstrType::JMPGT_INSTR);
+  ir4->SetDest("lbl1");
   ir4->SetLabel("lbl0");
   ir.push_back(ir4);
 
@@ -31,11 +32,13 @@ std::vector<IrInstrPtr> build_if_ir() {
   ir5->SetLabel("lbl0");
   ir.push_back(ir5);
 
-  auto ir6 = std::make_shared<IrInstr>(IrInstrType::SV_INSTR, "r2");
+  auto ir6 = std::make_shared<IrInstr>(IrInstrType::SV_INSTR);
+  ir6->SetDest("r2");
   ir6->SetLabel("lbl0");
   ir.push_back(ir6);
 
-  auto ir7 = std::make_shared<IrInstr>(IrInstrType::NOP_INSTR, "xx");
+  auto ir7 = std::make_shared<IrInstr>(IrInstrType::NOP_INSTR);
+  ir7->SetDest("xx");
   ir7->SetLabel("lbl1");
   ir.push_back(ir7);
 
@@ -57,7 +60,8 @@ std::vector<IrInstrPtr> build_while_ir() {
   ir3->SetLabel("lbl0");
   ir.push_back(ir3);
 
-  auto ir4 = std::make_shared<IrInstr>(IrInstrType::JMPGT_INSTR, "lbl1");
+  auto ir4 = std::make_shared<IrInstr>(IrInstrType::JMPGT_INSTR);
+  ir4->SetDest("lbl1");
   ir4->SetLabel("lbl0");
   ir.push_back(ir4);
 
@@ -73,15 +77,18 @@ std::vector<IrInstrPtr> build_while_ir() {
   ir7->SetLabel("lbl0");
   ir.push_back(ir7);
 
-  auto ir8 = std::make_shared<IrInstr>(IrInstrType::SV_INSTR, "r3");
+  auto ir8 = std::make_shared<IrInstr>(IrInstrType::SV_INSTR);
+  ir8->SetDest("r3");
   ir8->SetLabel("lbl0");
   ir.push_back(ir8);
 
-  auto ir9 = std::make_shared<IrInstr>(IrInstrType::JMP_INSTR, "lbl0");
+  auto ir9 = std::make_shared<IrInstr>(IrInstrType::JMP_INSTR);
+  ir9->SetDest("lbl0");
   ir9->SetLabel("lbl0");
   ir.push_back(ir9);
 
-  auto ir10 = std::make_shared<IrInstr>(IrInstrType::NOP_INSTR, "xx");
+  auto ir10 = std::make_shared<IrInstr>(IrInstrType::NOP_INSTR);
+  ir10->SetDest("xx");
   ir10->SetLabel("lbl1");
   ir.push_back(ir10);
 

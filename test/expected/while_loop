@@ -6,8 +6,18 @@ push rbp
 mov rbp, rsp
 sub rsp, 8
 lbl0:
-mov r0, 11
+mov r0, 10
 mov [rbp-8], r0
+mov r1, [rbp-8]
+mov r2, 12
+cmp r1, r2
+jg lbl1
+mov r3, [rbp-8]
+mov r4, 1
+add r4, r3
+mov [rbp-8], r4
+jmp lbl0
+lbl1:
 nop
 mov rsp, rbp
 pop rbp

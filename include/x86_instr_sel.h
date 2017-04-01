@@ -54,6 +54,7 @@ class X86InstrSel {
   X86InstrType GetX86BranchType(IrInstrPtr instr);
 
  private:
+  std::string BuildDataAddressArg(const std::string name);
   std::string BuildLdAddressArg(const int offset);
   std::shared_ptr<SymbolTable> sym_tab_;
 };

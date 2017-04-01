@@ -20,11 +20,12 @@ void SymbolTable::Insert(AstNodePtr var_ast) {
 
   std::string key = var_ast->GetText();
   SymbolPtr s = std::make_shared<Symbol>(key);
-  std::pair<std::string, SymbolPtr> entry(key, s);
-
-  sym_tab_[curr_level_].insert(entry);
   // TODO: This will eventually need to be getSize based on type of symbol instead of only 8
-  s->SetStackOffset(sym_tab_[curr_level_].size() * 8);
+  s->SetStackOffset((sym_tab_[curr_level_].size() + 1) * 8);
+  s->SetScopeLevel(curr_level_);
+
+  std::pair<std::string, SymbolPtr> entry(key, s);
+  sym_tab_[curr_level_].insert(entry);
 }
 
 SymbolPtr SymbolTable::Find(std::string key) {
@@ -74,4 +75,14 @@ void SymbolTable::ExitScope() {
 int SymbolTable::GetSizeOfCurrentScope() {
   // TODO: Eventually this will need to be a loop over each var, to check types and sizes.
   return sym_tab_[curr_level_].size() * 8;
+}
+
+std::vector<SymbolPtr> SymbolTable::GetGlobals() {
+  std::vector<SymbolPtr> result;
+  auto globals = sym_tab_[0];
+  for (auto entry : globals) {
+    result.push_back(entry.second);
+  }
+
+  return result;
 }

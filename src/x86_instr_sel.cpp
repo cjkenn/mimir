@@ -111,8 +111,13 @@ void X86InstrSel::ConvertLdInstr(std::vector<X86InstrPtr>& x86,
   const SymbolPtr sym = sym_tab_->Find(name);
   assert(sym != nullptr);
 
-  const int offset = sym->GetStackOffset();
-  i->SetSecondArg(BuildLdAddressArg(offset));
+  if (sym->IsGlobalScope()) {
+    i->SetSecondArg(name);
+  } else {
+    const int offset = sym->GetStackOffset();
+    i->SetSecondArg(BuildLdAddressArg(offset));
+  }
+
   x86.push_back(i);
 }
 
@@ -126,9 +131,17 @@ void X86InstrSel::ConvertSvInstr(std::vector<X86InstrPtr>& x86,
   const SymbolPtr sym = sym_tab_->Find(name);
   assert(sym != nullptr);
 
-  const int offset = sym->GetStackOffset();
-  i->SetFirstArg(BuildLdAddressArg(offset));
+  if (sym->IsGlobalScope()) {
+    i->SetFirstArg(BuildDataAddressArg(name));
+    sym->Initialize();
+    sym->SetStrVal(instr->GetArgs().first);
+  } else {
+    const int offset = sym->GetStackOffset();
+    i->SetFirstArg(BuildLdAddressArg(offset));
+  }
+
   i->SetSecondArg(instr->GetArgs().first);
+
   x86.push_back(i);
 }
 
@@ -234,8 +247,6 @@ void X86InstrSel::ConvertCmpInstr(std::vector<X86InstrPtr>& x86,
 void X86InstrSel::ConvertBranchingInstr(std::vector<X86InstrPtr>& x86,
 					const IrInstrPtr& instr) {
   X86InstrType j_type = GetX86BranchType(instr);
-  // std::cout << instr->GetLabel().empty() << std::endl;
-
   X86InstrPtr i = std::make_shared<X86Instr>(j_type, instr->GetLabel());
   i->SetFirstArg(instr->GetDest());
   x86.push_back(i);
@@ -270,6 +281,10 @@ X86InstrType X86InstrSel::GetX86BranchType(IrInstrPtr instr) {
   default:
     return X86InstrType::JMP_X86;
   }
+}
+
+std::string X86InstrSel::BuildDataAddressArg(const std::string name) {
+  return "[" + name + "]";
 }
 
 std::string X86InstrSel::BuildLdAddressArg(const int offset) {

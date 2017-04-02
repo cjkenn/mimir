@@ -8,7 +8,7 @@
 #include "lexer.h"
 #include "error.h"
 
-Lexer::Lexer(std::string filename) {
+Lexer::Lexer(const std::string filename) {
   filename_ = filename;
   curr_line_pos_ = 1;
   curr_char_pos_ = 1;
@@ -84,8 +84,8 @@ Token Lexer::Lex() {
     return tkn;
   case '<':
     {
-      char next = Peek();
-      int start_pos = curr_char_pos_;
+      const char next = Peek();
+      const int start_pos = curr_char_pos_;
       if (next == '=') {
 	tkn = Token(TokenType::LTE_TKN);
 	Advance();
@@ -100,8 +100,8 @@ Token Lexer::Lex() {
     }
   case '>':
     {
-      char next = Peek();
-      int start_pos = curr_char_pos_;
+      const char next = Peek();
+      const int start_pos = curr_char_pos_;
       if (next == '=') {
 	tkn = Token(TokenType::GTE_TKN);
 	Advance();
@@ -116,8 +116,8 @@ Token Lexer::Lex() {
     }
   case '=':
     {
-      char next = Peek();
-      int start_pos = curr_char_pos_;
+      const char next = Peek();
+      const int start_pos = curr_char_pos_;
       if (next == '=') {
 	tkn = Token(TokenType::EQEQ_TKN);
 	Advance();
@@ -132,8 +132,8 @@ Token Lexer::Lex() {
     }
   case '!':
     {
-      char next = Peek();
-      int start_pos = curr_char_pos_;
+      const char next = Peek();
+      const int start_pos = curr_char_pos_;
       if (next == '=') {
 	tkn = Token(TokenType::NEQ_TKN);
 	Advance();
@@ -161,7 +161,7 @@ Token Lexer::Lex() {
   return tkn;
 }
 
-Token Lexer::BuildTokenAndAdvance(TokenType curr_type) {
+Token Lexer::BuildTokenAndAdvance(const TokenType curr_type) {
   Token tkn(curr_type);
   tkn.SetLinePos(curr_line_pos_);
   tkn.SetCharPos(curr_char_pos_);
@@ -172,7 +172,7 @@ Token Lexer::BuildTokenAndAdvance(TokenType curr_type) {
   return tkn;
 }
 
-Token Lexer::BuildToken(TokenType curr_type) {
+Token Lexer::BuildToken(const TokenType curr_type) {
   Token tkn(curr_type);
   tkn.SetLinePos(curr_line_pos_);
   tkn.SetCharPos(curr_char_pos_);
@@ -182,8 +182,8 @@ Token Lexer::BuildToken(TokenType curr_type) {
 }
 
 Token Lexer::GetNumTkn() {
-  std::string num_str = "";
-  int start_char_pos = curr_char_pos_;
+  std::string num_str;
+  const int start_char_pos = curr_char_pos_;
   num_str += lastchar_;
 
   Advance();
@@ -192,7 +192,7 @@ Token Lexer::GetNumTkn() {
     num_str += lastchar_;
     Advance();
   }
-  int val = strtod(num_str.c_str(), 0);
+  const int val = strtod(num_str.c_str(), 0);
 
   Token tkn = Token(TokenType::NUM_TKN, val);
   tkn.SetLinePos(curr_line_pos_);
@@ -202,8 +202,8 @@ Token Lexer::GetNumTkn() {
 }
 
 Token Lexer::GetStrTkn() {
-  std::string ident = "";
-  int start_char_pos = curr_char_pos_;
+  std::string ident;
+  const int start_char_pos = curr_char_pos_;
   ident += lastchar_;
 
   Advance();
@@ -216,15 +216,15 @@ Token Lexer::GetStrTkn() {
   Token tkn = Token(TokenType::ID_TKN, ident);
 
   if (ident == "while") {
-    tkn = Token(TokenType::WHILE_TKN, ident);
+    tkn.SetType(TokenType::WHILE_TKN);
   }
 
   if (ident == "if") {
-    tkn = Token(TokenType::IF_TKN, ident);
+    tkn.SetType(TokenType::IF_TKN);
   }
 
   if (ident == "else") {
-    tkn = Token(TokenType::ELSE_TKN, ident);
+    tkn.SetType(TokenType::ELSE_TKN);
   }
 
   tkn.SetLinePos(curr_line_pos_);

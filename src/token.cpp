@@ -1,39 +1,20 @@
-#include <iostream>
-#include <sstream>
 #include "token.h"
 
-Token::Token(TokenType type) {
+Token::Token(const TokenType type) {
   type_ = type;
-  SetDebug();
 }
 
-Token::Token(TokenType type, int val) {
+Token::Token(const TokenType type, const int val) {
   type_ = type;
   val_ = val;
-  SetDebug();
 }
 
-Token::Token(TokenType type, std::string text) {
+Token::Token(const TokenType type, const std::string text) {
   type_ = type;
   text_ = text;
-  SetDebug();
 }
 
-void Token::SetDebug() {
-  std::stringstream debug_stream;
-  debug_stream << "{\n TokenType: " << GetPrettyType() <<
-    "\n Value: " << val_ <<
-    "\n Text: " << text_ <<
-    "\n}";
-
-  debug_ = debug_stream.str();
-}
-
-void Token::Debug() {
-  std::cout << debug_ << std::endl;
-}
-
-std::string Token::GetPrettyType() {
+const std::string Token::GetPrettyType() {
   switch (type_) {
   case TokenType::ID_TKN:
     return "Identifier";

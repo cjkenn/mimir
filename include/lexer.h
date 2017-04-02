@@ -7,7 +7,7 @@
 
 class Lexer {
  public:
-  Lexer(std::string filename);
+  Lexer(const std::string filename);
   ~Lexer();
 
   // Read the file stream and return the next Token from the file.
@@ -19,8 +19,8 @@ class Lexer {
   // Create a new token and advance characters, primarly
   // used when lexing single characters. Also moves the
   // char count.
-  Token BuildTokenAndAdvance(TokenType curr_type);
-  Token BuildToken(TokenType curr_type);
+  Token BuildTokenAndAdvance(const TokenType curr_type);
+  Token BuildToken(const TokenType curr_type);
 
   Token GetNumTkn();
   Token GetStrTkn();

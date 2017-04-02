@@ -37,8 +37,6 @@ void X86Writer::Write(const CfgNodePtr& block) {
   // Set 64 bits mode. Insert proper instr into start of text section
   // (_start label, as well as stack creation)
   Init64Bits();
-  InitGlobalData();
-
   InitTextSection();
 
   // Traverse block and all connected blocks, adding strings
@@ -79,16 +77,6 @@ void X86Writer::Write(const CfgNodePtr& block) {
 
 void X86Writer::Init64Bits() {
   ofs_ << BITS_64 << std::endl;
-}
-
-void X86Writer::InitGlobalData() {
-  std::vector<SymbolPtr> globals = sym_tab_->GetGlobals();
-  for (auto sym : globals) {
-    if (sym->IsInitialized()) {
-      assert(!sym->GetStrVal().empty());
-      data_->InsertInstr(sym->GetName() + ": dq " + sym->GetStrVal());
-    }
-  }
 }
 
 void X86Writer::InitTextSection() {

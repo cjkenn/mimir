@@ -111,12 +111,8 @@ void X86InstrSel::ConvertLdInstr(std::vector<X86InstrPtr>& x86,
   const SymbolPtr sym = sym_tab_->Find(name);
   assert(sym != nullptr);
 
-  if (sym->IsGlobalScope()) {
-    i->SetSecondArg(name);
-  } else {
-    const int offset = sym->GetStackOffset();
-    i->SetSecondArg(BuildLdAddressArg(offset));
-  }
+  const int offset = sym->GetStackOffset();
+  i->SetSecondArg(BuildLdAddressArg(offset));
 
   x86.push_back(i);
 }
@@ -131,15 +127,8 @@ void X86InstrSel::ConvertSvInstr(std::vector<X86InstrPtr>& x86,
   const SymbolPtr sym = sym_tab_->Find(name);
   assert(sym != nullptr);
 
-  if (sym->IsGlobalScope()) {
-    i->SetFirstArg(BuildDataAddressArg(name));
-    sym->Initialize();
-    sym->SetStrVal(instr->GetArgs().first);
-  } else {
-    const int offset = sym->GetStackOffset();
-    i->SetFirstArg(BuildLdAddressArg(offset));
-  }
-
+  const int offset = sym->GetStackOffset();
+  i->SetFirstArg(BuildLdAddressArg(offset));
   i->SetSecondArg(instr->GetArgs().first);
 
   x86.push_back(i);

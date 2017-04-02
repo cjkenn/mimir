@@ -17,19 +17,16 @@ class Symbol {
   int GetStackOffset() const { return stack_offset_; }
   int GetScopeLevel() const { return scope_level_; }
   bool IsInitialized() const { return initialized_; }
-  std::string GetStrVal() const  { return val_; }
 
   void SetName(std::string name) { name_ = name; }
   void SetStackOffset(int so) { stack_offset_ = so; }
   void SetScopeLevel(int level) { scope_level_ = level; }
   bool IsGlobalScope() const { return scope_level_ == 0; }
   void Initialize() { initialized_ = true; }
-  void SetStrVal(std::string val) { val_ = val; }
 
  private:
   std::string name_;
   std::string type_;
-  std::string val_;
   bool initialized_;
 
   // TODO: Should eventually be replaced by type stuff. For now,

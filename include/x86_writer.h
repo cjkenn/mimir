@@ -16,7 +16,6 @@ class X86Writer {
   void Write(const CfgNodePtr& block);
  private:
   void Init64Bits();
-  void InitGlobalData();
   void InitTextSection();
   void CloseTextSection();
   void AddInstrsToSections(const CfgNodePtr& block);

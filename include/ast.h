@@ -39,26 +39,36 @@ class AstNode {
   AstNode(AstType type);
   AstNode(AstType type, int val);
   ~AstNode() {};
-  void AddChild(AstNodePtr child);
-  AstNodePtr GetChildAtIndex(int index);
 
   AstType GetType() const {return type_;}
-  void SetType(AstType type) {type_ = type;}
-
-  std::string GetText() const {return text_;}
-  void SetText(std::string text) {text_ = text;}
-
   int GetVal() const {return val_;}
-  void SetVal(int val) {val_ = val;}
-
+  std::string GetText() const {return text_;}
   std::vector<AstNodePtr> GetChildren() const {return children_;}
-  void SetChildren(std::vector<AstNodePtr> children) {children_ = children;}
-
-  void Visit() { visited_ = true; }
   bool IsVisited() const { return visited_; }
+
+  void SetType(AstType type) {type_ = type;}
+  void SetVal(int val) {val_ = val;}
+  void SetText(std::string text) {text_ = text;}
+  void SetChildren(std::vector<AstNodePtr> children) {children_ = children;}
   void SetVisited(bool v) { visited_ = v; }
+
+  // Append an ast node to the children vector.
+  void AddChild(AstNodePtr child);
+
+  // Returns the child at a specific index. Will error if the index
+  // passed in is greater than the size of the children vector.
+  AstNodePtr GetChildAtIndex(const int index);
+
+  // Set the visited flag to true on this node, as well as visit all children
+  // and set their visited flags to true as well. This can be used to
+  // traverse a branch of the ast and ensure that no other methods will
+  // visit the nodes in that branch.
   void VisitNodeAndChildren();
+
+  // True is the ast node is a binary operator.
   bool IsBinOp();
+
+  // True if the ast node is a comparison operator.
   bool IsCmp();
 
  private:
@@ -70,8 +80,11 @@ class AstNode {
   // Text represents the name of the variable an ast can encode.
   std::string text_;
 
-  std::string debug_;
+  // Contains pointers to each ast node that is a child of this node.
   std::vector<AstNodePtr> children_;
+
+  // Flag indicating whether or not this node has been visited during a search
+  // or traversal. If running multiple searches on an ast, this flag should
+  // be reset in between.
   bool visited_;
-  bool needs_ir_label_;
 };

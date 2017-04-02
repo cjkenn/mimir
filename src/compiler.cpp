@@ -54,8 +54,6 @@ int main(int argc, char *argv[]) {
   auto root = cfg.GetRoot();
   lo.OptimizeBlock(root);
 
-  // TODO: Convert the ir to valid x86 and write to a file using
-  // code_gen
   // TODO: Put instruction selection anmd scheduling into the writer,
   // and have the writer call those before writing.
   X86InstrSel x86_sel(sym_tab);

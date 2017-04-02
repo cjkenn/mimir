@@ -34,7 +34,7 @@ std::vector<IrInstrPtr> IrGen::Gen(AstNodePtr ast) {
     std::vector<IrInstrPtr> instrs = ConvertAstToInstr(node);
     MergeInstrVecs(ir, instrs);
 
-    node->Visit();
+    node->SetVisited(true);
     for (auto r : node->GetChildren()) {
       if (!r->IsVisited()) {
 	q.push(r);
@@ -126,7 +126,7 @@ std::vector<IrInstrPtr> IrGen::ConvertAstToInstr(AstNodePtr ast) {
 
 IrInstrPtr IrGen::VarAstToInstr(AstNodePtr ast) {
   assert(ast->GetType() == AstType::VAR_AST);
-  std::pair<std::string, std::string> args(ast->GetText(), curr_reg_);
+  const std::pair<std::string, std::string> args(ast->GetText(), curr_reg_);
   IrInstrPtr ins = std::make_shared<IrInstr>(IrInstrType::LD_INSTR,
 					     args,
 					     curr_reg_);
@@ -138,7 +138,7 @@ IrInstrPtr IrGen::VarAstToInstr(AstNodePtr ast) {
 
 IrInstrPtr IrGen::CstAstToInstr(AstNodePtr ast) {
   assert(ast->GetType() == AstType::CST_AST);
-  std::pair<std::string, std::string> args(std::to_string(ast->GetVal()), curr_reg_);
+  const std::pair<std::string, std::string> args(std::to_string(ast->GetVal()), curr_reg_);
   IrInstrPtr ins = std::make_shared<IrInstr>(IrInstrType::MV_INSTR,
 					     args,
 					     curr_reg_);
@@ -256,7 +256,7 @@ std::vector<IrInstrPtr> IrGen::SetAstToInstr(AstNodePtr ast) {
   // We don't use the typical var instruction here since this a set, so we build
   // our own sv instruction here.
   auto right_side = ConvertAstToInstr(ast->GetChildAtIndex(1));
-  std::string name = ast->GetChildAtIndex(0)->GetText();
+  const std::string name = ast->GetChildAtIndex(0)->GetText();
   IrInstrPtr save = std::make_shared<IrInstr>(IrInstrType::SV_INSTR,
 					      PrevRegister(),
 					      name,
@@ -276,15 +276,14 @@ std::vector<IrInstrPtr> IrGen::SetAstToInstr(AstNodePtr ast) {
 std::vector<IrInstrPtr> IrGen::BinOpAstToInstr(AstNodePtr ast) {
   std::vector<IrInstrPtr> v;
   auto op_instr_type = GetBinOpInstrTypeFromAst(ast);
-
   auto left_side = ConvertAstToInstr(ast->GetChildAtIndex(0));
+
   // Save the register this is in, so we can use it later when we
   // add the actual ADD instruction.
-  std::string first_add_arg = PrevRegister();
-
+  const std::string first_add_arg = PrevRegister();
   auto right_side = ConvertAstToInstr(ast->GetChildAtIndex(1));
 
-  std::pair<std::string, std::string> args(first_add_arg, PrevRegister());
+  const std::pair<std::string, std::string> args(first_add_arg, PrevRegister());
   IrInstrPtr add = std::make_shared<IrInstr>(op_instr_type,
 					     args,
 					     PrevRegister());
@@ -363,8 +362,8 @@ void IrGen::MergeInstrVecs(std::vector<IrInstrPtr>& v1, std::vector<IrInstrPtr>&
   v1.insert(v1.end(), v2.begin(), v2.end());
 }
 
-std::string IrGen::PrevRegister() {
-  std::string reg = "r" + std::to_string(register_count_ - 1);
+const std::string IrGen::PrevRegister() {
+  const std::string reg = "r" + std::to_string(register_count_ - 1);
   return reg;
 }
 
@@ -373,8 +372,8 @@ void IrGen::AdvanceRegister() {
   curr_reg_ = "r" + std::to_string(register_count_);
 }
 
-std::string IrGen::PeekLabel() {
-  std::string lbl = "lbl" + std::to_string(lbl_count_+1);
+const std::string IrGen::PeekLabel() {
+  const std::string lbl = "lbl" + std::to_string(lbl_count_+1);
   return lbl;
 }
 

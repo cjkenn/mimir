@@ -25,7 +25,7 @@ void LocalOptimizer::OptimizeBlock(CfgNodePtr& block) {
 
     // Check if an operation has a constant value. If it does, we can
     // mark the previous MV instructions as redundant, and flag the current op
-    // as constant. later, when we alter the instrs vector, we can change
+    // as constant. Later, when we alter the instrs vector, we can change
     // constant operations to MVs.
     CheckAndMarkConstantOp(instrs, i);
     CheckAndMarkIdentities(instrs, i);

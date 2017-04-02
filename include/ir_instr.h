@@ -60,10 +60,23 @@ class IrInstr {
   void SetConstantOp(bool constant_op) { constant_op_ = constant_op; }
   void SetConstantVal(int constant_val) { constant_val_ = constant_val; }
 
+  // True if the instruction is a jump.
   bool IsJmp();
+
+  // True if the instruction is a binary operator.
   bool IsBinOp();
-  std::string GetTypeAsStr();
+
+  // Returns the instruction type as a string.
+  const std::string GetTypeAsStr();
+
+  // True if the instruction is a commutative binary operator.
   bool IsCommutative();
+
+  // Helper function that is called during constant folding optimization.
+  // This will convert the instruction from an expression to a mov of
+  // a constant value, which should be the result of evaluating the original
+  // expression (this only occurs if the expression contains only constant
+  // values, ie. 5 + 2).
   void ConvertConstant();
 
  private:

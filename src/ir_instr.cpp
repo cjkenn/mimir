@@ -55,7 +55,7 @@ bool IrInstr::IsBinOp() {
 	  type_ == IrInstrType::MOD_INSTR);
 }
 
-std::string IrInstr::GetTypeAsStr() {
+const std::string IrInstr::GetTypeAsStr() {
   switch(type_) {
   case IrInstrType::MV_INSTR:
     return "MV";

@@ -5,13 +5,16 @@
 #include "ast.h"
 #include "ir_instr.h"
 
+// IrGen is used to create a vector of IR instructions that can be used in control flow analysis
+// and make it a bit easier to generate assembly code, when compared to generating
+// right from an ast. For more details on what the ir contains, see ir_instr.h
 class IrGen {
  public:
   IrGen();
   ~IrGen() {};
 
   // Generates a vector of Instruction references by walking the ast.
-  // The ast is traversed in a BFS manner, but each since each control
+  // The ast is traversed in a BFS manner, but since each control
   // structure corresponds to a series of instructions and ast nodes,
   // a dfs-esque search may be performed if several nodes need to be visited
   // to generate instructions.
@@ -61,14 +64,14 @@ class IrGen {
   // Get the last register used. Useful for statements that want to
   // check the immediately last used, but still allowing other
   // instructions to advance the register.
-  std::string PrevRegister();
+  const std::string PrevRegister();
 
   // Increment the current register count and set the curr_reg_ field
   // accordingly.
   void AdvanceRegister();
 
   // Get the value of the next label, but keep the current label the same.
-  std::string PeekLabel();
+  const std::string PeekLabel();
 
   // Increment the current label count and set the curr_lbl_ field
   // accordingly.

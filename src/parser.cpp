@@ -136,7 +136,9 @@ AstNodePtr Parser::BinOp() {
   const int saved_char_pos = curr_tkn_.GetCharPos();
   AstNodePtr sum_ast = Term();
 
-  // Check here for undefined symbols
+  // Check here for undefined symbols. For example, if one argument to this binary operation
+  // is a var symbol but hasn't been added to the symbol table, we create an error
+  // for the unknown id.
   if (sum_ast->GetType() == AstType::VAR_AST && curr_tkn_.GetType() != TokenType::EQ_TKN) {
     const std::string key = sum_ast->GetText();
     const SymbolPtr sym = sym_tab_->Find(key);
@@ -165,7 +167,7 @@ AstNodePtr Parser::BinOp() {
 
 AstNodePtr Parser::Term() {
   auto term_ast = std::make_shared<AstNode>(AstType::EMPTY_AST);
-  TokenType curr_type = curr_tkn_.GetType();
+  const TokenType curr_type = curr_tkn_.GetType();
 
   switch(curr_type) {
   case TokenType::ID_TKN:
@@ -209,7 +211,7 @@ AstNodePtr Parser::Term() {
   return term_ast;
 }
 
-void Parser::Expect(TokenType expected_type) {
+void Parser::Expect(const TokenType expected_type) {
   if (curr_tkn_.GetType() == expected_type) {
     GetNextTkn();
   } else {
@@ -227,7 +229,7 @@ void Parser::GetNextTkn() {
 }
 
 bool Parser::CurrTknIsBinOpTkn() {
-  TokenType curr_type = curr_tkn_.GetType();
+  const TokenType curr_type = curr_tkn_.GetType();
   return (curr_type == TokenType::PLUS_TKN ||
 	  curr_type == TokenType::MINUS_TKN ||
 	  curr_type == TokenType::STAR_TKN ||
@@ -236,7 +238,7 @@ bool Parser::CurrTknIsBinOpTkn() {
 }
 
 AstType Parser::GetBinOpAstFromTkn() {
-  TokenType curr_type = curr_tkn_.GetType();
+  const TokenType curr_type = curr_tkn_.GetType();
 
   switch (curr_type) {
   case TokenType::PLUS_TKN:
@@ -255,7 +257,7 @@ AstType Parser::GetBinOpAstFromTkn() {
 }
 
 bool Parser::CurrTknIsTestTkn() {
-  TokenType curr_type = curr_tkn_.GetType();
+  const TokenType curr_type = curr_tkn_.GetType();
   return (curr_type == TokenType::GT_TKN ||
 	  curr_type == TokenType::LT_TKN ||
 	  curr_type == TokenType::LTE_TKN ||
@@ -265,7 +267,7 @@ bool Parser::CurrTknIsTestTkn() {
 }
 
 AstType Parser::GetTestAstFromTkn() {
-  TokenType curr_type = curr_tkn_.GetType();
+  const TokenType curr_type = curr_tkn_.GetType();
 
   switch (curr_type) {
   case TokenType::LT_TKN:

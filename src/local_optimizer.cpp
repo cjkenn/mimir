@@ -175,8 +175,8 @@ void LocalOptimizer::CheckAndMarkIdentities(const std::vector<IrInstrPtr>& instr
 
 int LocalOptimizer::GetLvnForFirstArg(const IrInstrPtr& instr) {
   int first_val;
-  std::string first_arg = instr->GetArgs().first;
-  auto val_map_result = val_map_.find(first_arg);
+  const std::string first_arg = instr->GetArgs().first;
+  const auto val_map_result = val_map_.find(first_arg);
 
   if (val_map_result == val_map_.end()) {
     first_val = val_count_;
@@ -191,8 +191,8 @@ int LocalOptimizer::GetLvnForFirstArg(const IrInstrPtr& instr) {
 
 int LocalOptimizer::GetLvnForSecondArg(const IrInstrPtr& instr, int val1) {
   int second_val;
-  std::string second_arg = instr->GetArgs().second;
-  auto val_map_result = val_map_.find(second_arg);
+  const std::string second_arg = instr->GetArgs().second;
+  const auto val_map_result = val_map_.find(second_arg);
 
   if (val_map_result == val_map_.end()) {
     // On a load instruction, we set the local value to be

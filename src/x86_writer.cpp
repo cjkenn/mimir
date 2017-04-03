@@ -5,6 +5,7 @@
 #include "x86_section.h"
 #include "symbol_table.h"
 #include "x86_writer.h"
+#include "x86_instr_sel.h"
 
 const std::string BSS = "bss";
 const std::string DATA = "data";
@@ -34,6 +35,10 @@ X86Writer::~X86Writer() {
 }
 
 void X86Writer::Write(const CfgNodePtr& block) {
+  // Select all x86 instructions, starting from the cfg root.
+  X86InstrSel x86_sel(sym_tab_);
+  x86_sel.SelectInstrsForEntireBranch(block);
+
   // Set 64 bits mode. Insert proper instr into start of text section
   // (_start label, as well as stack creation)
   Init64Bits();

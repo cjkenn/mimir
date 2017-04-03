@@ -14,7 +14,11 @@
 #include "x86_instr_sel.h"
 #include "x86_writer.h"
 
-int main(int argc, char *argv[]) {
+int main(int argc, char **argv) {
+  for (int i = 0; i < argc; i++) {
+    std::cout << argv[i] << std::endl;
+  }
+
   if (argc < 2) {
     std::cout << "Please provide a filename!" << std::endl;
     std::cout << "Usage: mimir {filename}" << std::endl;
@@ -53,11 +57,6 @@ int main(int argc, char *argv[]) {
   LocalOptimizer lo;
   auto root = cfg.GetRoot();
   lo.OptimizeBlock(root);
-
-  // TODO: Put instruction selection anmd scheduling into the writer,
-  // and have the writer call those before writing.
-  X86InstrSel x86_sel(sym_tab);
-  x86_sel.SelectInstrsForEntireBranch(cfg.GetRoot());
 
   X86Writer x86_writer(sym_tab);
   x86_writer.Write(cfg.GetRoot());

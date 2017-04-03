@@ -18,7 +18,8 @@ SRCS = compiler.cpp \
 	local_optimizer.cpp \
 	x86_instr_sel.cpp \
 	x86_writer.cpp \
-	x86_section.cpp
+	x86_section.cpp \
+	command_line_parser.cpp
 OUT = ../build/mimir
 
 mimir: $(SRCS)

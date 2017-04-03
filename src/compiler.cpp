@@ -2,6 +2,7 @@
 #include <fstream>
 #include <iostream>
 #include <memory>
+#include <unordered_map>
 #include "ast.h"
 #include "symbol_table.h"
 #include "lexer.h"
@@ -11,22 +12,22 @@
 #include "cfg_gen.h"
 #include "cfg.h"
 #include "local_optimizer.h"
-#include "x86_instr_sel.h"
 #include "x86_writer.h"
+#include "command_line_parser.h"
 
 int main(int argc, char **argv) {
-  for (int i = 0; i < argc; i++) {
-    std::cout << argv[i] << std::endl;
+  CommandLineParser clp;
+  ParserResult cl_result = clp.Parse(argc, argv);
+
+  if (cl_result.HasError()) {
+    cl_result.ReportErrors();
+    return -1;
   }
 
-  if (argc < 2) {
-    std::cout << "Please provide a filename!" << std::endl;
-    std::cout << "Usage: mimir {filename}" << std::endl;
-    exit(1);
-  }
+  std::unordered_map<std::string, std::string> options = cl_result.GetOptions();
 
   // Parse command line options.
-  std::string filename = argv[1];
+  const std::string filename = options["filename"];
 
   // Lex and parse the input file, storing variables
   // in our symbol table.
@@ -54,9 +55,11 @@ int main(int argc, char **argv) {
   Cfg cfg = cfg_gen.Gen(ir);
 
   // TODO: Add command line flag for turning on/off optimizations
-  LocalOptimizer lo;
-  auto root = cfg.GetRoot();
-  lo.OptimizeBlock(root);
+  if (options.find("optimize") != options.end()) {
+    LocalOptimizer lo;
+    auto root = cfg.GetRoot();
+    lo.OptimizeBlock(root);
+  }
 
   X86Writer x86_writer(sym_tab);
   x86_writer.Write(cfg.GetRoot());

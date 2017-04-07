@@ -13,21 +13,18 @@
 #include "cfg.h"
 #include "local_optimizer.h"
 #include "x86_writer.h"
-#include "command_line_parser.h"
+#include "compiler_opts.h"
 
 int main(int argc, char **argv) {
-  CommandLineParser clp;
-  ParserResult cl_result = clp.Parse(argc, argv);
+  CompilerOptions opts;
+  opts.ParseCommandLine(argc, argv);
 
-  if (cl_result.HasError()) {
-    cl_result.ReportErrors();
+  if (opts.HasCommandLineErrors()) {
+    opts.ReportCommandLineErrors();
     return -1;
   }
 
-  std::unordered_map<std::string, std::string> options = cl_result.GetOptions();
-
-  // Parse command line options.
-  const std::string filename = options["filename"];
+  const std::string filename = opts.GetInputFilename();
 
   // Lex and parse the input file, storing variables
   // in our symbol table.
@@ -54,8 +51,7 @@ int main(int argc, char **argv) {
   CfgGen cfg_gen;
   Cfg cfg = cfg_gen.Gen(ir);
 
-  // TODO: Add command line flag for turning on/off optimizations
-  if (options.find("optimize") != options.end()) {
+  if (opts.ShouldPerformLocalOptimization()) {
     LocalOptimizer lo;
     auto root = cfg.GetRoot();
     lo.OptimizeBlock(root);

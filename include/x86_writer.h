@@ -6,6 +6,7 @@
 #include "cfg_node.h"
 #include "symbol_table.h"
 #include "x86_section.h"
+#include "x86_reg_alloc.h"
 
 class X86Writer {
  public:
@@ -23,10 +24,17 @@ class X86Writer {
   void ResetCfg(const CfgNodePtr& block);
   void InitSections();
 
+  std::string PushRbpInstr();
+  std::string MovRbpRspInstr();
+  std::string MovRspRbpInstr();
+  std::string PopRbpInstr();
+  std::string MovExitInstr();
+
   std::string filename_;
   std::ofstream ofs_;
   X86SectionPtr bss_;
   X86SectionPtr data_;
   X86SectionPtr text_;
   std::shared_ptr<SymbolTable> sym_tab_;
+  X86RegAlloc allocator_;
 };

@@ -7,6 +7,7 @@
 #include "x86_writer.h"
 #include "x86_instr_sel.h"
 
+const std::string DEFAULT_FILENAME = "mimir.asm";
 const std::string BSS = "bss";
 const std::string DATA = "data";
 const std::string TEXT = "text";
@@ -19,7 +20,7 @@ const std::string SYS_INTERRUPT = "int 0x80";
 X86Writer::X86Writer(std::shared_ptr<SymbolTable> sym_tab) {
   InitSections();
   sym_tab_ = sym_tab;
-  filename_ = "mimir.asm";
+  filename_ = DEFAULT_FILENAME;
   ofs_.open(filename_.c_str(), std::ofstream::out | std::ofstream::trunc);
 }
 
@@ -87,17 +88,17 @@ void X86Writer::Init64Bits() {
 void X86Writer::InitTextSection() {
   text_->InsertInstr("global _start");
   text_->InsertInstr("_start:");
-  text_->InsertInstr("push rbp");
-  text_->InsertInstr("mov rbp, rsp");
+  text_->InsertInstr(PushRbpInstr());
+  text_->InsertInstr(MovRbpRspInstr());
   const int stack_space = sym_tab_->GetSizeOfCurrentScope();
   const std::string st = "sub rsp, " + std::to_string(stack_space);
   text_->InsertInstr(st);
 }
 
 void X86Writer::CloseTextSection() {
-  text_->InsertInstr("mov rsp, rbp");
-  text_->InsertInstr("pop rbp");
-  text_->InsertInstr("mov rax, 1");
+  text_->InsertInstr(MovRspRbpInstr());
+  text_->InsertInstr(PopRbpInstr());
+  text_->InsertInstr(MovExitInstr());
   text_->InsertInstr(SYS_INTERRUPT);
 }
 
@@ -133,6 +134,31 @@ void X86Writer::InitSections() {
   bss_ = std::make_shared<X86Section>(X86SectionType::BSS_SEC);
   data_ = std::make_shared<X86Section>(X86SectionType::DATA_SEC);
   text_ = std::make_shared<X86Section>(X86SectionType::TEXT_SEC);
+}
+
+std::string X86Writer::PushRbpInstr() {
+  return "push " + allocator_.GetRbp()->NameToStr();
+}
+
+std::string X86Writer::MovRbpRspInstr() {
+  std::string rbp = allocator_.GetRbp()->NameToStr();
+  std::string rsp = allocator_.GetRsp()->NameToStr();
+  return "mov " + rbp + ", " + rsp;
+}
+
+std::string X86Writer::MovRspRbpInstr() {
+  std::string rbp = allocator_.GetRbp()->NameToStr();
+  std::string rsp = allocator_.GetRsp()->NameToStr();
+  return "mov " + rsp + ", " + rbp;
+}
+
+std::string X86Writer::PopRbpInstr() {
+  return "pop " + allocator_.GetRbp()->NameToStr();
+}
+
+std::string X86Writer::MovExitInstr() {
+  std::string rax = allocator_.GetRax()->NameToStr();
+  return "mov " + rax + ", 1";
 }
 
 void X86Writer::ResetCfg(const CfgNodePtr& block) {

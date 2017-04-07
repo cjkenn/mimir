@@ -18,7 +18,9 @@ X86GENFILES = x86_gen.cpp \
 	../src/x86_instr.cpp \
 	../src/x86_section.cpp \
 	../src/x86_instr_sel.cpp \
-	../src/x86_writer.cpp
+	../src/x86_writer.cpp \
+	../src/x86_reg.cpp \
+	../src/x86_reg_alloc.cpp
 
 all: x86_gen
 

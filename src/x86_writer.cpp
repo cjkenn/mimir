@@ -17,17 +17,21 @@ const std::string DATA_SECTION = "section .data";
 const std::string TEXT_SECTION = "section .text";
 const std::string SYS_INTERRUPT = "int 0x80";
 
-X86Writer::X86Writer(std::shared_ptr<SymbolTable> sym_tab) {
+X86Writer::X86Writer(std::shared_ptr<SymbolTable> sym_tab, const int virtual_reg_count) {
   InitSections();
   sym_tab_ = sym_tab;
   filename_ = DEFAULT_FILENAME;
+  allocator_.SetVirtualRegCount(virtual_reg_count);
   ofs_.open(filename_.c_str(), std::ofstream::out | std::ofstream::trunc);
 }
 
-X86Writer::X86Writer(std::shared_ptr<SymbolTable> sym_tab, std::string filename) {
+X86Writer::X86Writer(std::shared_ptr<SymbolTable> sym_tab,
+		     std::string filename,
+		     const int virtual_reg_count) {
   InitSections();
   sym_tab_ = sym_tab;
   filename_ = filename;
+  allocator_.SetVirtualRegCount(virtual_reg_count);
   ofs_.open(filename_.c_str(), std::ofstream::out | std::ofstream::trunc);
 }
 
@@ -52,6 +56,12 @@ void X86Writer::Write(const CfgNodePtr& block) {
   // every time we visit a node. Then we could just call it like Traverse(ConvertX86InstrToStr())
   // or something
   ResetCfg(block);
+
+  // If the number of registers needed is less than the total number of registers,
+  // the register allocator can define a 1-1 mapping between virtual registers and available
+  // registers. Then, any calls to NextRegister() will complete in O(1) time, after we spend
+  // O(n) time here to create that mapping.
+  allocator_.CheckAndDefineVirtualRegMapping();
 
   std::queue<CfgNodePtr> q;
   q.push(block);

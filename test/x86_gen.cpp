@@ -14,6 +14,7 @@
 #include "cfg.h"
 #include "x86_instr_sel.h"
 #include "x86_writer.h"
+#include "x86_reg_alloc.h"
 
 const std::string OUTPUT_DIR = "output/";
 const std::string INPUT_DIR = "input/";
@@ -53,11 +54,8 @@ void test_x86_gen(const std::string filename) {
   CfgGen cfg_gen;
   Cfg cfg = cfg_gen.Gen(ir);
 
-  X86InstrSel x86_sel(sym_tab);
-  x86_sel.SelectInstrsForEntireBranch(cfg.GetRoot());
-
   const std::string output_file = OUTPUT_DIR + filename;
-  X86Writer x86_writer(sym_tab, output_file);
+  X86Writer x86_writer(sym_tab, output_file, ir_gen.GetRegCount());
   x86_writer.Write(cfg.GetRoot());
 
   // Verify output file

@@ -46,6 +46,7 @@ int main(int argc, char **argv) {
   // Convert the ast to ir for analysis and x86 generation.
   IrGen ir_gen;
   std::vector<IrInstrPtr> ir = ir_gen.Gen(ast);
+  const int virtual_reg_count = ir_gen.GetRegCount();
 
   // Cfg construction and analysis
   CfgGen cfg_gen;
@@ -57,7 +58,7 @@ int main(int argc, char **argv) {
     lo.OptimizeBlock(root);
   }
 
-  X86Writer x86_writer(sym_tab);
+  X86Writer x86_writer(sym_tab, virtual_reg_count);
   x86_writer.Write(cfg.GetRoot());
 
   return 0;

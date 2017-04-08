@@ -1,8 +1,29 @@
+#include <assert.h>
 #include "x86_reg.h"
 #include "x86_reg_alloc.h"
 
+// Constant containing the number of general purpose registers in x86 assembly. We
+// define this as any register except rsp, rbp, rsi, or rdi. That is, rax - rdx,
+// as well as r8 - r15.
+const int NUM_GP_REG = 12;
+
 X86RegAlloc::X86RegAlloc() {
   InitRegisters();
+}
+
+void X86RegAlloc::CheckAndDefineVirtualRegMapping() {
+  if (virtual_reg_count_ > NUM_GP_REG) {
+    return;
+  }
+
+  for (int i = 0; i < virtual_reg_count_; i++) {
+    std::string name = MapNumOrderToRegName(i);
+    reg_list_.push_back(registers_[name]);
+  }
+}
+
+X86RegPtr X86RegAlloc::NextRegister() {
+
 }
 
 X86RegPtr X86RegAlloc::GetRax() {
@@ -15,6 +36,30 @@ X86RegPtr X86RegAlloc::GetRbp() {
 
 X86RegPtr X86RegAlloc::GetRsp() {
   return registers_["rsp"];
+}
+
+std::string X86RegAlloc::MapNumOrderToRegName(const int i) {
+  switch(i) {
+  case 0:
+    return "rax";
+  case 1:
+    return "rbx";
+  case 2:
+    return "rcx";
+  case 3:
+    return "rdx";
+  case 4:
+  case 5:
+  case 6:
+  case 7:
+  case 8:
+  case 9:
+  case 10:
+  case 11:
+    return "r" + std::to_string(i+4);
+  default:
+    assert(false);
+  }
 }
 
 void X86RegAlloc::InitRegisters() {

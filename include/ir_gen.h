@@ -19,6 +19,7 @@ class IrGen {
   // a dfs-esque search may be performed if several nodes need to be visited
   // to generate instructions.
   std::vector<IrInstrPtr> Gen(AstNodePtr ast);
+  int GetRegCount() const { return register_count_; }
 
  private:
   // Converts an ast branch to a series of instructions. Some ast's

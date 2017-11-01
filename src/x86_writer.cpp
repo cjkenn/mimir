@@ -21,7 +21,7 @@ X86Writer::X86Writer(std::shared_ptr<SymbolTable> sym_tab, const int virtual_reg
   InitSections();
   sym_tab_ = sym_tab;
   filename_ = DEFAULT_FILENAME;
-  allocator_.SetVirtualRegCount(virtual_reg_count);
+  allocator_->SetVirtualRegCount(virtual_reg_count);
   ofs_.open(filename_.c_str(), std::ofstream::out | std::ofstream::trunc);
 }
 
@@ -31,7 +31,7 @@ X86Writer::X86Writer(std::shared_ptr<SymbolTable> sym_tab,
   InitSections();
   sym_tab_ = sym_tab;
   filename_ = filename;
-  allocator_.SetVirtualRegCount(virtual_reg_count);
+  allocator_->SetVirtualRegCount(virtual_reg_count);
   ofs_.open(filename_.c_str(), std::ofstream::out | std::ofstream::trunc);
 }
 
@@ -41,7 +41,7 @@ X86Writer::~X86Writer() {
 
 void X86Writer::Write(const CfgNodePtr& block) {
   // Select all x86 instructions, starting from the cfg root.
-  X86InstrSel x86_sel(sym_tab_);
+  X86InstrSel x86_sel(sym_tab_, allocator_);
   x86_sel.SelectInstrsForEntireBranch(block);
 
   // Set 64 bits mode. Insert proper instr into start of text section
@@ -61,7 +61,7 @@ void X86Writer::Write(const CfgNodePtr& block) {
   // the register allocator can define a 1-1 mapping between virtual registers and available
   // registers. Then, any calls to NextRegister() will complete in O(1) time, after we spend
   // O(n) time here to create that mapping.
-  allocator_.CheckAndDefineVirtualRegMapping();
+  allocator_->CheckAndDefineVirtualRegMapping();
 
   std::queue<CfgNodePtr> q;
   q.push(block);
@@ -147,27 +147,27 @@ void X86Writer::InitSections() {
 }
 
 std::string X86Writer::PushRbpInstr() {
-  return "push " + allocator_.GetRbp()->NameToStr();
+  return "push " + allocator_->GetRbp()->NameToStr();
 }
 
 std::string X86Writer::MovRbpRspInstr() {
-  std::string rbp = allocator_.GetRbp()->NameToStr();
-  std::string rsp = allocator_.GetRsp()->NameToStr();
+  std::string rbp = allocator_->GetRbp()->NameToStr();
+  std::string rsp = allocator_->GetRsp()->NameToStr();
   return "mov " + rbp + ", " + rsp;
 }
 
 std::string X86Writer::MovRspRbpInstr() {
-  std::string rbp = allocator_.GetRbp()->NameToStr();
-  std::string rsp = allocator_.GetRsp()->NameToStr();
+  std::string rbp = allocator_->GetRbp()->NameToStr();
+  std::string rsp = allocator_->GetRsp()->NameToStr();
   return "mov " + rsp + ", " + rbp;
 }
 
 std::string X86Writer::PopRbpInstr() {
-  return "pop " + allocator_.GetRbp()->NameToStr();
+  return "pop " + allocator_->GetRbp()->NameToStr();
 }
 
 std::string X86Writer::MovExitInstr() {
-  std::string rax = allocator_.GetRax()->NameToStr();
+  std::string rax = allocator_->GetRax()->NameToStr();
   return "mov " + rax + ", 1";
 }
 

@@ -4,10 +4,12 @@
 #include "ir_instr.h"
 #include "cfg_node.h"
 #include "symbol_table.h"
+#include "x86_reg_alloc.h"
 
 class X86InstrSel {
  public:
-  X86InstrSel(std::shared_ptr<SymbolTable> sym_tab);
+  X86InstrSel(std::shared_ptr<SymbolTable> sym_tab,
+	      std::shared_ptr<X86RegAlloc> alloc);
   ~X86InstrSel() {};
 
   void SelectInstrs(const CfgNodePtr& block);
@@ -57,4 +59,5 @@ class X86InstrSel {
   std::string BuildDataAddressArg(const std::string name);
   std::string BuildLdAddressArg(const int offset);
   std::shared_ptr<SymbolTable> sym_tab_;
+  std::shared_ptr<X86RegAlloc> alloc_;
 };

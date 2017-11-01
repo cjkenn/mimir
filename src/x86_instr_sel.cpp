@@ -10,8 +10,10 @@
 #include "symbol_table.h"
 #include "symbol.h"
 
-X86InstrSel::X86InstrSel(std::shared_ptr<SymbolTable> sym_tab) {
+X86InstrSel::X86InstrSel(std::shared_ptr<SymbolTable> sym_tab,
+			 std::shared_ptr<X86RegAlloc> alloc) {
   sym_tab_ = sym_tab;
+  alloc_ = alloc;
 }
 
 void X86InstrSel::SelectInstrs(const CfgNodePtr& block) {

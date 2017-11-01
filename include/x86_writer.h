@@ -38,5 +38,5 @@ class X86Writer {
   X86SectionPtr data_;
   X86SectionPtr text_;
   std::shared_ptr<SymbolTable> sym_tab_;
-  X86RegAlloc allocator_;
+  std::shared_ptr<X86RegAlloc> allocator_;
 };

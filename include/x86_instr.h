@@ -3,10 +3,12 @@
 #include <memory>
 #include <utility>
 #include <string>
+#include "x86_instr_arg.h"
 
 class X86Instr;
 
 typedef std::shared_ptr<X86Instr> X86InstrPtr;
+typedef std::shared_ptr<X86InstrArg> X86InstrArgPtr;
 
 enum X86InstrType {
   MOV_X86,
@@ -35,13 +37,13 @@ class X86Instr {
   ~X86Instr() {};
 
   void SetType(X86InstrType type) { type_ = type; }
-  void SetArgs(std::pair<std::string, std::string> args) { args_ = args; }
-  void SetFirstArg(std::string a) { args_.first = a; }
-  void SetSecondArg(std::string a) { args_.second = a; }
+  void SetArgs(std::pair<X86InstrArgPtr, X86InstrArgPtr> args) { args_ = args; }
+  void SetFirstArg(X86InstrArgPtr a) { args_.first = a; }
+  void SetSecondArg(X86InstrArgPtr a) { args_.second = a; }
 
-  std::pair<std::string, std::string> GetArgs() const { return args_; }
-  std::string GetFirstArg() const { return args_.first; }
-  std::string GetSecondArg() const { return args_.second; }
+  std::pair<X86InstrArgPtr, X86InstrArgPtr> GetArgs() const { return args_; }
+  X86InstrArgPtr GetFirstArg() const { return args_.first; }
+  X86InstrArgPtr GetSecondArg() const { return args_.second; }
   X86InstrType GetType() const { return type_; }
   std::string GetLabel() const { return label_; }
 
@@ -54,6 +56,6 @@ class X86Instr {
   std::string MapTypeToStr();
 
   X86InstrType type_;
-  std::pair<std::string, std::string> args_;
+  std::pair<X86InstrArgPtr, X86InstrArgPtr> args_;
   std::string label_;
 };

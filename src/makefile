@@ -1,4 +1,4 @@
-CC = clang++
+CC = g++
 CFLAGS = -g -Wall -std=c++11 -I../include -o
 SRCS = compiler.cpp \
 	lexer.cpp \
@@ -21,7 +21,8 @@ SRCS = compiler.cpp \
 	x86_section.cpp \
 	compiler_opts.cpp \
 	x86_reg.cpp \
-	x86_reg_alloc.cpp
+	x86_reg_alloc.cpp \
+	x86_instr_arg.cpp
 OUT = ../build/mimir
 
 mimir: $(SRCS)

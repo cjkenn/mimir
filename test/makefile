@@ -1,4 +1,4 @@
-CC = clang++
+CC = g++
 CFLAGS = -g -Wall -std=c++11 -I../include -o
 
 X86GENFILES = x86_gen.cpp \
@@ -20,7 +20,8 @@ X86GENFILES = x86_gen.cpp \
 	../src/x86_instr_sel.cpp \
 	../src/x86_writer.cpp \
 	../src/x86_reg.cpp \
-	../src/x86_reg_alloc.cpp
+	../src/x86_reg_alloc.cpp \
+	../src/x86_instr_arg.cpp
 
 all: x86_gen
 

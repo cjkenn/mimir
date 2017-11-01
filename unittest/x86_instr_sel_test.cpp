@@ -35,8 +35,8 @@ void test_select_instrs_simple_assign(std::shared_ptr<SymbolTable> sym_tab) {
 
   auto first_x86 = cfg_node->GetX86Instrs()[0];
   assert(first_x86->GetType() == X86InstrType::MOV_X86);
-  assert(first_x86->GetFirstArg() == "[rbp-8]");
-  assert(first_x86->GetSecondArg() == "10");
+  assert(first_x86->GetFirstArg()->GetVal() == "[rbp-8]");
+  assert(first_x86->GetSecondArg()->GetVal() == "10");
 }
 
 // Input:
@@ -72,13 +72,13 @@ void test_select_instrs_two_assigns(std::shared_ptr<SymbolTable> sym_tab) {
 
   auto first_x86 = cfg_node->GetX86Instrs()[0];
   assert(first_x86->GetType() == X86InstrType::MOV_X86);
-  assert(first_x86->GetFirstArg() == "[rbp-8]");
-  assert(first_x86->GetSecondArg() == "10");
+  assert(first_x86->GetFirstArg()->GetVal() == "[rbp-8]");
+  assert(first_x86->GetSecondArg()->GetVal() == "10");
 
   auto second_x86 = cfg_node->GetX86Instrs()[1];
   assert(second_x86->GetType() == X86InstrType::MOV_X86);
-  assert(second_x86->GetFirstArg() == "[rbp-16]");
-  assert(second_x86->GetSecondArg() == "9");
+  assert(second_x86->GetFirstArg()->GetVal() == "[rbp-16]");
+  assert(second_x86->GetSecondArg()->GetVal() == "9");
 }
 
 // Input:
@@ -106,8 +106,8 @@ void test_select_instrs_simple_access(std::shared_ptr<SymbolTable> sym_tab) {
 
   auto first_x86 = cfg_node->GetX86Instrs()[0];
   assert(first_x86->GetType() == X86InstrType::MOV_X86);
-  assert(first_x86->GetFirstArg() == "r0");
-  assert(first_x86->GetSecondArg() == "[rbp-8]");
+  assert(first_x86->GetFirstArg()->GetVal() == "r0");
+  assert(first_x86->GetSecondArg()->GetVal() == "[rbp-8]");
 }
 
 // Input:
@@ -143,13 +143,13 @@ void test_select_instrs_multiple_access(std::shared_ptr<SymbolTable> sym_tab) {
 
   auto first_x86 = cfg_node->GetX86Instrs()[0];
   assert(first_x86->GetType() == X86InstrType::MOV_X86);
-  assert(first_x86->GetFirstArg() == "r0");
-  assert(first_x86->GetSecondArg() == "[rbp-8]");
+  assert(first_x86->GetFirstArg()->GetVal() == "r0");
+  assert(first_x86->GetSecondArg()->GetVal() == "[rbp-8]");
 
   auto second_x86 = cfg_node->GetX86Instrs()[1];
   assert(second_x86->GetType() == X86InstrType::MOV_X86);
-  assert(second_x86->GetFirstArg() == "r1");
-  assert(second_x86->GetSecondArg() == "[rbp-16]");
+  assert(second_x86->GetFirstArg()->GetVal() == "r1");
+  assert(second_x86->GetSecondArg()->GetVal() == "[rbp-16]");
 }
 
 // Input:
@@ -177,8 +177,8 @@ void test_select_instrs_mv_instr(std::shared_ptr<SymbolTable> sym_tab) {
 
   auto first_x86 = cfg_node->GetX86Instrs()[0];
   assert(first_x86->GetType() == X86InstrType::MOV_X86);
-  assert(first_x86->GetFirstArg() == "r0");
-  assert(first_x86->GetSecondArg() == "10");
+  assert(first_x86->GetFirstArg()->GetVal() == "r0");
+  assert(first_x86->GetSecondArg()->GetVal() == "10");
 }
 
 // Input:
@@ -206,8 +206,8 @@ void test_select_instrs_add_instr(std::shared_ptr<SymbolTable> sym_tab) {
 
   auto first_x86 = cfg_node->GetX86Instrs()[0];
   assert(first_x86->GetType() == X86InstrType::ADD_X86);
-  assert(first_x86->GetFirstArg() == "r1");
-  assert(first_x86->GetSecondArg() == "r0");
+  assert(first_x86->GetFirstArg()->GetVal() == "r1");
+  assert(first_x86->GetSecondArg()->GetVal() == "r0");
 }
 
 // Input:
@@ -236,12 +236,12 @@ void test_select_instrs_mul_instr(std::shared_ptr<SymbolTable> sym_tab) {
 
   auto first_x86 = cfg_node->GetX86Instrs()[0];
   assert(first_x86->GetType() == X86InstrType::MOV_X86);
-  assert(first_x86->GetFirstArg() == "rax");
-  assert(first_x86->GetSecondArg() == "r0");
+  assert(first_x86->GetFirstArg()->GetVal() == "rax");
+  assert(first_x86->GetSecondArg()->GetVal() == "r0");
 
   auto second_x86 = cfg_node->GetX86Instrs()[1];
   assert(second_x86->GetType() == X86InstrType::MUL_X86);
-  assert(second_x86->GetFirstArg() == "r1");
+  assert(second_x86->GetFirstArg()->GetVal() == "r1");
 }
 
 // Input:
@@ -271,17 +271,17 @@ void test_select_instrs_div_instr(std::shared_ptr<SymbolTable> sym_tab) {
 
   auto first_x86 = cfg_node->GetX86Instrs()[0];
   assert(first_x86->GetType() == X86InstrType::MOV_X86);
-  assert(first_x86->GetFirstArg() == "rdx");
-  assert(first_x86->GetSecondArg() == "0");
+  assert(first_x86->GetFirstArg()->GetVal() == "rdx");
+  assert(first_x86->GetSecondArg()->GetVal() == "0");
 
   auto second_x86 = cfg_node->GetX86Instrs()[1];
   assert(second_x86->GetType() == X86InstrType::MOV_X86);
-  assert(second_x86->GetFirstArg() == "rax");
-  assert(second_x86->GetSecondArg() == "r0");
+  assert(second_x86->GetFirstArg()->GetVal() == "rax");
+  assert(second_x86->GetSecondArg()->GetVal() == "r0");
 
   auto third_x86 = cfg_node->GetX86Instrs()[2];
   assert(third_x86->GetType() == X86InstrType::DIV_X86);
-  assert(third_x86->GetFirstArg() == "r1");
+  assert(third_x86->GetFirstArg()->GetVal() == "r1");
 }
 
 // Input:
@@ -312,22 +312,22 @@ void test_select_instrs_mod_instr(std::shared_ptr<SymbolTable> sym_tab) {
 
   auto first_x86 = cfg_node->GetX86Instrs()[0];
   assert(first_x86->GetType() == X86InstrType::MOV_X86);
-  assert(first_x86->GetFirstArg() == "rdx");
-  assert(first_x86->GetSecondArg() == "0");
+  assert(first_x86->GetFirstArg()->GetVal() == "rdx");
+  assert(first_x86->GetSecondArg()->GetVal() == "0");
 
   auto second_x86 = cfg_node->GetX86Instrs()[1];
   assert(second_x86->GetType() == X86InstrType::MOV_X86);
-  assert(second_x86->GetFirstArg() == "rax");
-  assert(second_x86->GetSecondArg() == "r0");
+  assert(second_x86->GetFirstArg()->GetVal() == "rax");
+  assert(second_x86->GetSecondArg()->GetVal() == "r0");
 
   auto third_x86 = cfg_node->GetX86Instrs()[2];
   assert(third_x86->GetType() == X86InstrType::DIV_X86);
-  assert(third_x86->GetFirstArg() == "r1");
+  assert(third_x86->GetFirstArg()->GetVal() == "r1");
 
   auto fourth_x86 = cfg_node->GetX86Instrs()[3];
   assert(fourth_x86->GetType() == X86InstrType::MOV_X86);
-  assert(fourth_x86->GetFirstArg() == "rax");
-  assert(fourth_x86->GetSecondArg() == "rdx");
+  assert(fourth_x86->GetFirstArg()->GetVal() == "rax");
+  assert(fourth_x86->GetSecondArg()->GetVal() == "rdx");
 }
 
 // Input:
@@ -355,8 +355,8 @@ void test_select_instrs_cmp(std::shared_ptr<SymbolTable> sym_tab) {
 
   auto first_x86 = cfg_node->GetX86Instrs()[0];
   assert(first_x86->GetType() == X86InstrType::CMP_X86);
-  assert(first_x86->GetFirstArg() == "x");
-  assert(first_x86->GetSecondArg() == "10");
+  assert(first_x86->GetFirstArg()->GetVal() == "x");
+  assert(first_x86->GetSecondArg()->GetVal() == "10");
 }
 
 // Input:
@@ -382,7 +382,7 @@ void test_select_instrs_simple_branch(std::shared_ptr<SymbolTable> sym_tab) {
 
   auto first_x86 = cfg_node->GetX86Instrs()[0];
   assert(first_x86->GetType() == X86InstrType::JMP_X86);
-  assert(first_x86->GetFirstArg() == "lbl0");
+  assert(first_x86->GetFirstArg()->GetVal() == "lbl0");
 }
 
 

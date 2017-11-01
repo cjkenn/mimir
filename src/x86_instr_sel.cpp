@@ -2,9 +2,11 @@
 #include <queue>
 #include <assert.h>
 #include <iostream>
+#include <memory>
 #include "x86_instr_sel.h"
 #include "cfg_node.h"
 #include "x86_instr.h"
+#include "x86_instr_arg.h"
 #include "symbol_table.h"
 #include "symbol.h"
 
@@ -93,9 +95,15 @@ void X86InstrSel::ConvertMvInstr(std::vector<X86InstrPtr>& x86,
   assert(instr->GetType() == IrInstrType::MV_INSTR);
 
   X86InstrPtr i = std::make_shared<X86Instr>(X86InstrType::MOV_X86, instr->GetLabel());
+
   // The order of args is swapped around in x86, compared to the ir
-  i->SetFirstArg(instr->GetArgs().second);
-  i->SetSecondArg(instr->GetArgs().first);
+  auto arg1 = std::make_shared<X86InstrArg>(X86InstrArgType::REG_X86,
+					    instr->GetArgs().second);
+  i->SetFirstArg(arg1);
+
+  auto arg2 = std::make_shared<X86InstrArg>(X86InstrArgType::NUM_X86,
+					    instr->GetArgs().first);
+  i->SetSecondArg(arg2);
 
   x86.push_back(i);
 }
@@ -105,14 +113,18 @@ void X86InstrSel::ConvertLdInstr(std::vector<X86InstrPtr>& x86,
   assert(instr->GetType() == IrInstrType::LD_INSTR);
 
   X86InstrPtr i = std::make_shared<X86Instr>(X86InstrType::MOV_X86, instr->GetLabel());
-  i->SetFirstArg(instr->GetDest());
-  const std::string name = instr->GetArgs().first;
 
+  auto arg1 = std::make_shared<X86InstrArg>(X86InstrArgType::REG_X86, instr->GetDest());
+  i->SetFirstArg(arg1);
+
+  const std::string name = instr->GetArgs().first;
   const SymbolPtr sym = sym_tab_->Find(name);
   assert(sym != nullptr);
 
   const int offset = sym->GetStackOffset();
-  i->SetSecondArg(BuildLdAddressArg(offset));
+  auto arg2 = std::make_shared<X86InstrArg>(X86InstrArgType::ADDR_X86,
+					    BuildLdAddressArg(offset));
+  i->SetSecondArg(arg2);
 
   x86.push_back(i);
 }
@@ -128,8 +140,12 @@ void X86InstrSel::ConvertSvInstr(std::vector<X86InstrPtr>& x86,
   assert(sym != nullptr);
 
   const int offset = sym->GetStackOffset();
-  i->SetFirstArg(BuildLdAddressArg(offset));
-  i->SetSecondArg(instr->GetArgs().first);
+  auto arg1 = std::make_shared<X86InstrArg>(X86InstrArgType::ADDR_X86,
+					    BuildLdAddressArg(offset));
+  i->SetFirstArg(arg1);
+
+  auto arg2 = std::make_shared<X86InstrArg>(X86InstrArgType::REG_X86, instr->GetArgs().first);
+  i->SetSecondArg(arg2);
 
   x86.push_back(i);
 }
@@ -140,8 +156,13 @@ void X86InstrSel::ConvertAddSubInstr(std::vector<X86InstrPtr>& x86,
 	 instr->GetType() == IrInstrType::SUB_INSTR);
 
   X86InstrPtr i = std::make_shared<X86Instr>(X86InstrType::ADD_X86, instr->GetLabel());
-  i->SetFirstArg(instr->GetArgs().second);
-  i->SetSecondArg(instr->GetArgs().first);
+  auto arg1 = std::make_shared<X86InstrArg>(X86InstrArgType::REG_X86,
+					    instr->GetArgs().second);
+  i->SetFirstArg(arg1);
+
+  auto arg2 = std::make_shared<X86InstrArg>(X86InstrArgType::REG_X86,
+					    instr->GetArgs().first);
+  i->SetSecondArg(arg2);
 
   if (instr->GetType() == IrInstrType::SUB_INSTR) {
     i->SetType(X86InstrType::SUB_X86);
@@ -160,12 +181,20 @@ void X86InstrSel::ConvertMulInstr(std::vector<X86InstrPtr>& x86,
   // will be returned there, with one argument provided to the instruction
   // TODO: This should be built into the register allocator eventually too
   X86InstrPtr mul_reg = std::make_shared<X86Instr>(X86InstrType::MOV_X86, curr->GetLabel());
-  mul_reg->SetFirstArg("rax");
-  mul_reg->SetSecondArg(curr->GetArgs().first);
+
+  auto mul_arg1 = std::make_shared<X86InstrArg>(X86InstrArgType::REG_X86, "rax");
+  mul_reg->SetFirstArg(mul_arg1);
+
+  auto mul_arg2 = std::make_shared<X86InstrArg>(X86InstrArgType::REG_X86,
+					    curr->GetArgs().first);
+  mul_reg->SetSecondArg(mul_arg2);
   x86.push_back(mul_reg);
 
   X86InstrPtr instr = std::make_shared<X86Instr>(X86InstrType::MUL_X86, curr->GetLabel());
-  instr->SetFirstArg(curr->GetArgs().second);
+
+  auto arg1 = std::make_shared<X86InstrArg>(X86InstrArgType::REG_X86,
+					    curr->GetArgs().second);
+  instr->SetFirstArg(arg1);
 
   x86.push_back(instr);
 }
@@ -180,17 +209,28 @@ void X86InstrSel::ConvertDivInstr(std::vector<X86InstrPtr>& x86,
   // We must clear rdx first to store the remainder there.
   // TODO: Again handled by the register allocator?? Might need to do some work here
   X86InstrPtr clr = std::make_shared<X86Instr>(X86InstrType::MOV_X86, curr->GetLabel());
-  clr->SetFirstArg("rdx");
-  clr->SetSecondArg("0");
+  auto clr_arg1 = std::make_shared<X86InstrArg>(X86InstrArgType::REG_X86, "rdx");
+  clr->SetFirstArg(clr_arg1);
+
+  auto clr_arg2 = std::make_shared<X86InstrArg>(X86InstrArgType::NUM_X86, "0");
+  clr->SetSecondArg(clr_arg2);
   x86.push_back(clr);
 
   X86InstrPtr div_reg = std::make_shared<X86Instr>(X86InstrType::MOV_X86, curr->GetLabel());
-  div_reg->SetFirstArg("rax");
-  div_reg->SetSecondArg(curr->GetArgs().first);
+
+  auto div_arg1 = std::make_shared<X86InstrArg>(X86InstrArgType::REG_X86, "rax");
+  div_reg->SetFirstArg(div_arg1);
+
+  auto div_arg2 = std::make_shared<X86InstrArg>(X86InstrArgType::REG_X86,
+						curr->GetArgs().first);
+  div_reg->SetSecondArg(div_arg2);
   x86.push_back(div_reg);
 
   X86InstrPtr instr = std::make_shared<X86Instr>(X86InstrType::DIV_X86, curr->GetLabel());
-  instr->SetFirstArg(curr->GetArgs().second);
+
+  auto arg1 = std::make_shared<X86InstrArg>(X86InstrArgType::REG_X86,
+						curr->GetArgs().second);
+  instr->SetFirstArg(arg1);
   x86.push_back(instr);
 }
 
@@ -200,23 +240,39 @@ void X86InstrSel::ConvertModInstr(std::vector<X86InstrPtr>& x86,
   auto const curr = ir[i];
   assert(curr->GetType() == IrInstrType::MOD_INSTR);
 
+  // TODO: Again, should these clr registers be provided by the allocator?
   X86InstrPtr clr = std::make_shared<X86Instr>(X86InstrType::MOV_X86, curr->GetLabel());
-  clr->SetFirstArg("rdx");
-  clr->SetSecondArg("0");
+  auto const clr_arg1 = std::make_shared<X86InstrArg>(X86InstrArgType::REG_X86, "rdx");
+  clr->SetFirstArg(clr_arg1);
+
+  auto const clr_arg2 = std::make_shared<X86InstrArg>(X86InstrArgType::NUM_X86, "0");
+  clr->SetSecondArg(clr_arg2);
+
   x86.push_back(clr);
 
   X86InstrPtr div_reg = std::make_shared<X86Instr>(X86InstrType::MOV_X86, curr->GetLabel());
-  div_reg->SetFirstArg("rax");
-  div_reg->SetSecondArg(curr->GetArgs().first);
+  auto const div_arg1 = std::make_shared<X86InstrArg>(X86InstrArgType::REG_X86, "rax");
+  div_reg->SetFirstArg(div_arg1);
+
+  auto const div_arg2 = std::make_shared<X86InstrArg>(X86InstrArgType::REG_X86,
+						      curr->GetArgs().first);
+  div_reg->SetSecondArg(div_arg2);
   x86.push_back(div_reg);
 
   X86InstrPtr instr = std::make_shared<X86Instr>(X86InstrType::DIV_X86, curr->GetLabel());
-  instr->SetFirstArg(curr->GetArgs().second);
+  auto const instr_arg1 = std::make_shared<X86InstrArg>(X86InstrArgType::REG_X86,
+						      curr->GetArgs().second);
+  instr->SetFirstArg(instr_arg1);
   x86.push_back(instr);
 
   X86InstrPtr get_remainder = std::make_shared<X86Instr>(X86InstrType::MOV_X86, curr->GetLabel());
-  get_remainder->SetFirstArg("rax");
-  get_remainder->SetSecondArg("rdx");
+  auto const rem_arg1 = std::make_shared<X86InstrArg>(X86InstrArgType::REG_X86,
+						      "rax");
+  get_remainder->SetFirstArg(rem_arg1);
+
+  auto const rem_arg2 = std::make_shared<X86InstrArg>(X86InstrArgType::REG_X86,
+						      "rdx");
+  get_remainder->SetSecondArg(rem_arg2);
   x86.push_back(get_remainder);
 }
 
@@ -228,8 +284,13 @@ void X86InstrSel::ConvertCmpInstr(std::vector<X86InstrPtr>& x86,
   assert(curr->GetType() == IrInstrType::CMP_INSTR);
 
   X86InstrPtr instr = std::make_shared<X86Instr>(X86InstrType::CMP_X86, curr->GetLabel());
-  instr->SetFirstArg(curr->GetArgs().first);
-  instr->SetSecondArg(curr->GetArgs().second);
+  auto const instr_arg1 = std::make_shared<X86InstrArg>(X86InstrArgType::REG_X86,
+						      curr->GetArgs().first);
+  instr->SetFirstArg(instr_arg1);
+
+  auto const instr_arg2 = std::make_shared<X86InstrArg>(X86InstrArgType::REG_X86,
+						      curr->GetArgs().second);
+  instr->SetSecondArg(instr_arg2);
   x86.push_back(instr);
 }
 
@@ -237,7 +298,9 @@ void X86InstrSel::ConvertBranchingInstr(std::vector<X86InstrPtr>& x86,
 					const IrInstrPtr& instr) {
   X86InstrType j_type = GetX86BranchType(instr);
   X86InstrPtr i = std::make_shared<X86Instr>(j_type, instr->GetLabel());
-  i->SetFirstArg(instr->GetDest());
+  auto const instr_arg1 = std::make_shared<X86InstrArg>(X86InstrArgType::LBL_X86,
+							instr->GetDest());
+  i->SetFirstArg(instr_arg1);
   x86.push_back(i);
 }
 

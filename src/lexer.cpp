@@ -48,7 +48,7 @@ Token Lexer::Lex() {
   }
 
   // Lex a string
-  if (isalpha(lastchar_)) {
+    if (isalpha(lastchar_)) {
     return GetStrTkn();
   }
 

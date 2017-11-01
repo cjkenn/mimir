@@ -1,4 +1,4 @@
-CC = clang++
+CC = g++
 CFLAGS = -g -Wall -std=c++11 -I../include -o
 LEXERFILES = lexer_test.cpp \
 	../src/lexer.cpp \
@@ -45,7 +45,8 @@ X86SELFILES = x86_instr_sel_test.cpp \
 	../src/symbol.cpp \
 	../src/ir_instr.cpp \
 	../src/ast.cpp \
-	../src/x86_instr.cpp
+	../src/x86_instr.cpp \
+	../src/x86_instr_arg.cpp
 
 all: lexer_test parser_test ir_gen_test sym_tab_test cfg_gen_test local_opt_test x86_instr_sel_test
 

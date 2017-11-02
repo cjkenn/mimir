@@ -9,7 +9,7 @@
 class X86InstrSel {
  public:
   X86InstrSel(std::shared_ptr<SymbolTable> sym_tab,
-	      std::shared_ptr<X86RegAlloc> alloc);
+	      const unsigned int virtual_reg_count);
   ~X86InstrSel() {};
 
   void SelectInstrs(const CfgNodePtr& block);

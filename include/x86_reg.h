@@ -33,6 +33,7 @@ class X86Reg {
 
   X86RegName GetName() const { return name_; }
   bool IsFree() const { return free_; }
+  void Allocate() { free_ = false; }
   std::string NameToStr();
 
  private:

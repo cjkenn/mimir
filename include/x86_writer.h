@@ -10,10 +10,10 @@
 
 class X86Writer {
  public:
-  X86Writer(std::shared_ptr<SymbolTable> sym_tab, const int virtual_reg_count);
+  X86Writer(std::shared_ptr<SymbolTable> sym_tab, const unsigned int virtual_reg_count);
   X86Writer(std::shared_ptr<SymbolTable> sym_tab,
 	    std::string filename,
-	    const int virtual_reg_count);
+	    const unsigned int virtual_reg_count);
   ~X86Writer();
 
   void Write(const CfgNodePtr& block);
@@ -38,5 +38,5 @@ class X86Writer {
   X86SectionPtr data_;
   X86SectionPtr text_;
   std::shared_ptr<SymbolTable> sym_tab_;
-  std::shared_ptr<X86RegAlloc> allocator_;
+  unsigned int vreg_cnt;
 };

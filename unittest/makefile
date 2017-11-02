@@ -46,7 +46,9 @@ X86SELFILES = x86_instr_sel_test.cpp \
 	../src/ir_instr.cpp \
 	../src/ast.cpp \
 	../src/x86_instr.cpp \
-	../src/x86_instr_arg.cpp
+	../src/x86_instr_arg.cpp \
+	../src/x86_reg_alloc.cpp \
+	../src/x86_reg.cpp
 
 all: lexer_test parser_test ir_gen_test sym_tab_test cfg_gen_test local_opt_test x86_instr_sel_test
 

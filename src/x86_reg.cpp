@@ -4,7 +4,7 @@
 
 X86Reg::X86Reg(X86RegName name) {
   name_ = name;
-  free_ = false;
+  free_ = true;
 }
 
 std::string X86Reg::NameToStr() {

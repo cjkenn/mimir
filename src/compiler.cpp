@@ -3,6 +3,7 @@
 #include <iostream>
 #include <memory>
 #include <unordered_map>
+#include <queue>
 #include "ast.h"
 #include "symbol_table.h"
 #include "lexer.h"
@@ -13,7 +14,29 @@
 #include "cfg.h"
 #include "local_optimizer.h"
 #include "x86_writer.h"
+#include "x86_instr_sel.h"
+#include "x86_reg_alloc.h"
 #include "compiler_opts.h"
+
+
+// TODO: bandaid for now. Really could have separate pointers for visitation
+// so we don't need to reset a visited field.
+void resetCfg(const CfgNodePtr& block) {
+  std::queue<CfgNodePtr> q;
+  q.push(block);
+
+  while (!q.empty()) {
+    auto node = q.front();
+    q.pop();
+    node->SetVisited(false);
+    for (auto r : node->GetAdj()) {
+      // If we have a visited node, make sure we reset it to false.
+      if (r->GetVisited()) {
+	q.push(r);
+      }
+    }
+  }
+}
 
 int main(int argc, char **argv) {
   CompilerOptions opts;
@@ -58,7 +81,20 @@ int main(int argc, char **argv) {
     lo.OptimizeBlock(root);
   }
 
-  X86Writer x86_writer(sym_tab, virtual_reg_count);
+  // Instr selection: convert ir to x86
+  X86InstrSel x86_sel(sym_tab);
+  x86_sel.SelectInstrsForEntireBranch(cfg.GetRoot());
+
+  resetCfg(cfg.GetRoot());
+
+  // Register allocation: convert virtual ir registers to x86 registers
+  X86RegAlloc x86_alloc(virtual_reg_count);
+  x86_alloc.Allocate(cfg.GetRoot());
+
+  resetCfg(cfg.GetRoot());
+
+  // Writing: Walk x86 instructions in ast and write nasm x86 to output file
+  X86Writer x86_writer(sym_tab);
   x86_writer.Write(cfg.GetRoot());
 
   return 0;

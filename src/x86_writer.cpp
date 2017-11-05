@@ -17,22 +17,18 @@ const std::string DATA_SECTION = "section .data";
 const std::string TEXT_SECTION = "section .text";
 const std::string SYS_INTERRUPT = "int 0x80";
 
-X86Writer::X86Writer(std::shared_ptr<SymbolTable> sym_tab, const unsigned int virtual_reg_count) {
+X86Writer::X86Writer(std::shared_ptr<SymbolTable> sym_tab) {
   InitSections();
   sym_tab_ = sym_tab;
   filename_ = DEFAULT_FILENAME;
   ofs_.open(filename_.c_str(), std::ofstream::out | std::ofstream::trunc);
-  vreg_cnt = virtual_reg_count;
 }
 
-X86Writer::X86Writer(std::shared_ptr<SymbolTable> sym_tab,
-		     std::string filename,
-		     const unsigned int virtual_reg_count) {
+X86Writer::X86Writer(std::shared_ptr<SymbolTable> sym_tab, std::string filename) {
   InitSections();
   sym_tab_ = sym_tab;
   filename_ = filename;
   ofs_.open(filename_.c_str(), std::ofstream::out | std::ofstream::trunc);
-  vreg_cnt = virtual_reg_count;
 }
 
 X86Writer::~X86Writer() {
@@ -40,10 +36,6 @@ X86Writer::~X86Writer() {
 }
 
 void X86Writer::Write(const CfgNodePtr& block) {
-  // Select all x86 instructions, starting from the cfg root.
-  X86InstrSel x86_sel(sym_tab_, vreg_cnt);
-  x86_sel.SelectInstrsForEntireBranch(block);
-
   // Set 64 bits mode. Insert proper instr into start of text section
   // (_start label, as well as stack creation)
   Init64Bits();
@@ -55,8 +47,6 @@ void X86Writer::Write(const CfgNodePtr& block) {
   // be to provide a traverse function in cfg that takes in a function that is called
   // every time we visit a node. Then we could just call it like Traverse(ConvertX86InstrToStr())
   // or something
-  ResetCfg(block);
-
   std::queue<CfgNodePtr> q;
   q.push(block);
 
@@ -158,21 +148,4 @@ std::string X86Writer::PopRbpInstr() {
 
 std::string X86Writer::MovExitInstr() {
   return "mov rax, 1";
-}
-
-void X86Writer::ResetCfg(const CfgNodePtr& block) {
-  std::queue<CfgNodePtr> q;
-  q.push(block);
-
-  while (!q.empty()) {
-    auto node = q.front();
-    q.pop();
-    node->SetVisited(false);
-    for (auto r : node->GetAdj()) {
-      // If we have a visited node, make sure we reset it to false.
-      if (r->GetVisited()) {
-	q.push(r);
-      }
-    }
-  }
 }

@@ -10,8 +10,6 @@
 #include "cfg_node.h"
 #include "ast.h"
 
-const unsigned int test_reg_cnt = 10; // ensures there's always enough regs, for now
-
 // Input:
 //
 // sv 10, x
@@ -30,7 +28,7 @@ void test_select_instrs_simple_assign(std::shared_ptr<SymbolTable> sym_tab) {
   CfgNodePtr cfg_node = std::make_shared<CfgNode>("b0");
   cfg_node->SetInstrs(instrs);
 
-  X86InstrSel x86is(sym_tab, test_reg_cnt);
+  X86InstrSel x86is(sym_tab);
   x86is.SelectInstrs(cfg_node);
 
   assert(cfg_node->GetX86Instrs().size() == 1);
@@ -67,7 +65,7 @@ void test_select_instrs_two_assigns(std::shared_ptr<SymbolTable> sym_tab) {
   CfgNodePtr cfg_node = std::make_shared<CfgNode>("b0");
   cfg_node->SetInstrs(instrs);
 
-  X86InstrSel x86is(sym_tab, test_reg_cnt);
+  X86InstrSel x86is(sym_tab);
   x86is.SelectInstrs(cfg_node);
 
   assert(cfg_node->GetX86Instrs().size() == 2);
@@ -101,7 +99,7 @@ void test_select_instrs_simple_access(std::shared_ptr<SymbolTable> sym_tab) {
   CfgNodePtr cfg_node = std::make_shared<CfgNode>("b0");
   cfg_node->SetInstrs(instrs);
 
-  X86InstrSel x86is(sym_tab, test_reg_cnt);
+  X86InstrSel x86is(sym_tab);
   x86is.SelectInstrs(cfg_node);
 
   assert(cfg_node->GetX86Instrs().size() == 1);
@@ -138,7 +136,7 @@ void test_select_instrs_multiple_access(std::shared_ptr<SymbolTable> sym_tab) {
   CfgNodePtr cfg_node = std::make_shared<CfgNode>("b0");
   cfg_node->SetInstrs(instrs);
 
-  X86InstrSel x86is(sym_tab, test_reg_cnt);
+  X86InstrSel x86is(sym_tab);
   x86is.SelectInstrs(cfg_node);
 
   assert(cfg_node->GetX86Instrs().size() == 2);
@@ -172,14 +170,14 @@ void test_select_instrs_mv_instr(std::shared_ptr<SymbolTable> sym_tab) {
   CfgNodePtr cfg_node = std::make_shared<CfgNode>("b0");
   cfg_node->SetInstrs(instrs);
 
-  X86InstrSel x86is(sym_tab, test_reg_cnt);
+  X86InstrSel x86is(sym_tab);
   x86is.SelectInstrs(cfg_node);
 
   assert(cfg_node->GetX86Instrs().size() == 1);
 
   auto first_x86 = cfg_node->GetX86Instrs()[0];
   assert(first_x86->GetType() == X86InstrType::MOV_X86);
-  assert(first_x86->GetFirstArg()->GetVal() == "rax");
+  assert(first_x86->GetFirstArg()->GetVal() == "r0");
   assert(first_x86->GetSecondArg()->GetVal() == "10");
 }
 
@@ -201,7 +199,7 @@ void test_select_instrs_add_instr(std::shared_ptr<SymbolTable> sym_tab) {
   CfgNodePtr cfg_node = std::make_shared<CfgNode>("b0");
   cfg_node->SetInstrs(instrs);
 
-  X86InstrSel x86is(sym_tab, test_reg_cnt);
+  X86InstrSel x86is(sym_tab);
   x86is.SelectInstrs(cfg_node);
 
   assert(cfg_node->GetX86Instrs().size() == 1);
@@ -231,7 +229,7 @@ void test_select_instrs_mul_instr(std::shared_ptr<SymbolTable> sym_tab) {
   CfgNodePtr cfg_node = std::make_shared<CfgNode>("b0");
   cfg_node->SetInstrs(instrs);
 
-  X86InstrSel x86is(sym_tab, test_reg_cnt);
+  X86InstrSel x86is(sym_tab);
   x86is.SelectInstrs(cfg_node);
 
   assert(cfg_node->GetX86Instrs().size() == 2);
@@ -266,7 +264,7 @@ void test_select_instrs_div_instr(std::shared_ptr<SymbolTable> sym_tab) {
   CfgNodePtr cfg_node = std::make_shared<CfgNode>("b0");
   cfg_node->SetInstrs(instrs);
 
-  X86InstrSel x86is(sym_tab, test_reg_cnt);
+  X86InstrSel x86is(sym_tab);
   x86is.SelectInstrs(cfg_node);
 
   assert(cfg_node->GetX86Instrs().size() == 3);
@@ -307,7 +305,7 @@ void test_select_instrs_mod_instr(std::shared_ptr<SymbolTable> sym_tab) {
   CfgNodePtr cfg_node = std::make_shared<CfgNode>("b0");
   cfg_node->SetInstrs(instrs);
 
-  X86InstrSel x86is(sym_tab, test_reg_cnt);
+  X86InstrSel x86is(sym_tab);
   x86is.SelectInstrs(cfg_node);
 
   assert(cfg_node->GetX86Instrs().size() == 4);
@@ -350,7 +348,7 @@ void test_select_instrs_cmp(std::shared_ptr<SymbolTable> sym_tab) {
   CfgNodePtr cfg_node = std::make_shared<CfgNode>("b0");
   cfg_node->SetInstrs(instrs);
 
-  X86InstrSel x86is(sym_tab, test_reg_cnt);
+  X86InstrSel x86is(sym_tab);
   x86is.SelectInstrs(cfg_node);
 
   assert(cfg_node->GetX86Instrs().size() == 1);
@@ -377,7 +375,7 @@ void test_select_instrs_simple_branch(std::shared_ptr<SymbolTable> sym_tab) {
   CfgNodePtr cfg_node = std::make_shared<CfgNode>("b0");
   cfg_node->SetInstrs(instrs);
 
-  X86InstrSel x86is(sym_tab, test_reg_cnt);
+  X86InstrSel x86is(sym_tab);
   x86is.SelectInstrs(cfg_node);
 
   assert(cfg_node->GetX86Instrs().size() == 1);

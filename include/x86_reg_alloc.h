@@ -4,12 +4,14 @@
 #include <vector>
 #include <unordered_map>
 #include "x86_reg.h"
+#include "cfg.h"
 
 class X86RegAlloc {
  public:
   X86RegAlloc(const unsigned int virtual_reg_count);
   ~X86RegAlloc() {};
 
+  void Allocate(const CfgNodePtr& block);
   X86RegPtr NextRegister();
   X86RegPtr NextRegisterForVReg(const std::string vreg);
 

@@ -8,8 +8,7 @@
 
 class X86InstrSel {
  public:
-  X86InstrSel(std::shared_ptr<SymbolTable> sym_tab,
-	      const unsigned int virtual_reg_count);
+  X86InstrSel(std::shared_ptr<SymbolTable> sym_tab);
   ~X86InstrSel() {};
 
   void SelectInstrs(const CfgNodePtr& block);
@@ -59,5 +58,4 @@ class X86InstrSel {
   std::string BuildDataAddressArg(const std::string name);
   std::string BuildLdAddressArg(const int offset);
   std::shared_ptr<SymbolTable> sym_tab_;
-  std::shared_ptr<X86RegAlloc> alloc_;
 };

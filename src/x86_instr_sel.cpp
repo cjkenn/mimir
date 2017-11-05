@@ -10,17 +10,15 @@
 #include "symbol_table.h"
 #include "symbol.h"
 
-X86InstrSel::X86InstrSel(std::shared_ptr<SymbolTable> sym_tab,
-			 const unsigned int virtual_reg_count) {
+X86InstrSel::X86InstrSel(std::shared_ptr<SymbolTable> sym_tab) {
   sym_tab_ = sym_tab;
-  alloc_ = std::make_shared<X86RegAlloc>(virtual_reg_count);
 }
 
 void X86InstrSel::SelectInstrs(const CfgNodePtr& block) {
   std::vector<X86InstrPtr> x86;
   auto ir = block->GetInstrs();
 
-  for (int i = 0; i < ir.size(); i++) {
+  for (unsigned int i = 0; i < ir.size(); i++) {
     auto curr = ir[i];
     MapIrToX86(x86, ir, i);
   }
@@ -98,12 +96,9 @@ void X86InstrSel::ConvertMvInstr(std::vector<X86InstrPtr>& x86,
 
   X86InstrPtr i = std::make_shared<X86Instr>(X86InstrType::MOV_X86, instr->GetLabel());
 
-  // The order of args is swapped around in x86, compared to the ir,
-  // so we use the second arg here. Allocate a real reg for the virtual
-  // reg from the ir, then pass the value to the arg pointer.
-  auto reg = alloc_->NextRegisterForVReg(instr->GetArgs().second);
+  // The order of args is swapped around in x86, compared to the ir
   auto arg1 = std::make_shared<X86InstrArg>(X86InstrArgType::REG_X86,
-					    reg->NameToStr());
+					    instr->GetArgs().second);
   i->SetFirstArg(arg1);
 
   auto arg2 = std::make_shared<X86InstrArg>(X86InstrArgType::NUM_X86,

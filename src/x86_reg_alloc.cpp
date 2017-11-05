@@ -1,6 +1,8 @@
 #include <assert.h>
+#include <queue>
 #include "x86_reg.h"
 #include "x86_reg_alloc.h"
+#include "cfg.h"
 
 // Constant containing the number of general purpose registers in x86 assembly. We
 // define this as any register except rsp, rbp, rsi, or rdi. That is, rax - rdx,
@@ -12,6 +14,24 @@ X86RegAlloc::X86RegAlloc(const unsigned int virtual_reg_count) {
   virtual_reg_count_ = virtual_reg_count;
 
   enough_regs_ = (virtual_reg_count < NUM_GP_REG ? true : false);
+}
+
+void X86RegAlloc::Allocate(const CfgNodePtr& block) {
+  std::queue<CfgNodePtr> q;
+  q.push(block);
+
+  while(!q.empty()) {
+    auto block = q.front();
+    q.pop();
+    block->SetVisited(true);
+    // Allocate block here
+
+    for (auto b : block->GetAdj()) {
+      if (!b->GetVisited()) {
+	q.push(b);
+      }
+    }
+  }
 }
 
 X86RegPtr X86RegAlloc::NextRegister() {

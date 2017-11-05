@@ -57,7 +57,7 @@ class AstNode {
 
   // Returns the child at a specific index. Will error if the index
   // passed in is greater than the size of the children vector.
-  AstNodePtr GetChildAtIndex(const int index);
+  AstNodePtr GetChildAtIndex(const unsigned int index);
 
   // Set the visited flag to true on this node, as well as visit all children
   // and set their visited flags to true as well. This can be used to

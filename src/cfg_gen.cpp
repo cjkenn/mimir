@@ -29,7 +29,7 @@ Cfg CfgGen::Gen(const std::vector<IrInstrPtr>& ir) {
   leader.push_back(root);
   CfgNodePtr curr = root;
 
-  for (int i = 1; i < ir.size(); i++) {
+  for (unsigned int i = 1; i < ir.size(); i++) {
     // Any instruction that has a different label than the
     // previous one is a potential jump target, so we
     // mark it as a leader.

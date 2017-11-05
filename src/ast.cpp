@@ -18,7 +18,7 @@ void AstNode::AddChild(AstNodePtr child) {
   children_.push_back(child);
 }
 
-AstNodePtr AstNode::GetChildAtIndex(const int index) {
+AstNodePtr AstNode::GetChildAtIndex(const unsigned int index) {
   assert(index < children_.size());
   return children_[index];
 }

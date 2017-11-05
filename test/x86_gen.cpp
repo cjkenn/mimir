@@ -5,6 +5,7 @@
 #include <memory>
 #include <vector>
 #include <assert.h>
+#include <queue>
 #include "lexer.h"
 #include "parser.h"
 #include "ast.h"
@@ -32,10 +33,28 @@ void verify(const std::string name) {
 
   while (std::getline(output, output_line) && std::getline(expected, expected_line)) {
     if (output_line != expected_line) {
+      std::cout << "In file: '" << name << "' -->" << std::endl;
       std::cout << "Expected: '" << expected_line <<
 	"' but found: '" << output_line << "'" <<
 	std::endl;
       assert(false);
+    }
+  }
+}
+
+void resetCfg(const CfgNodePtr& block) {
+  std::queue<CfgNodePtr> q;
+  q.push(block);
+
+  while (!q.empty()) {
+    auto node = q.front();
+    q.pop();
+    node->SetVisited(false);
+    for (auto r : node->GetAdj()) {
+      // If we have a visited node, make sure we reset it to false.
+      if (r->GetVisited()) {
+	q.push(r);
+      }
     }
   }
 }
@@ -54,8 +73,13 @@ void test_x86_gen(const std::string filename) {
   CfgGen cfg_gen;
   Cfg cfg = cfg_gen.Gen(ir);
 
+  X86InstrSel x86_sel(sym_tab);
+  x86_sel.SelectInstrsForEntireBranch(cfg.GetRoot());
+
+  resetCfg(cfg.GetRoot());
+
   const std::string output_file = OUTPUT_DIR + filename;
-  X86Writer x86_writer(sym_tab, output_file, ir_gen.GetRegCount());
+  X86Writer x86_writer(sym_tab, output_file);
   x86_writer.Write(cfg.GetRoot());
 
   // Verify output file

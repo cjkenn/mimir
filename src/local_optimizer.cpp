@@ -16,7 +16,7 @@ void LocalOptimizer::OptimizeBlock(CfgNodePtr& block) {
   op_map_.clear();
   const auto instrs = block->GetInstrs();
 
-  for (int i = 0; i < instrs.size(); i++) {
+  for (unsigned int i = 0; i < instrs.size(); i++) {
     const auto instr = instrs[i];
     // Skip everything but saves, loads, and binops
     if (!IsInstrLvnValid(instr)) {

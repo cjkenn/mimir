@@ -23,11 +23,12 @@ void X86RegAlloc::Allocate(const CfgNodePtr& block) {
   while(!q.empty()) {
     auto block = q.front();
     q.pop();
-    block->SetVisited(true);
+    block->SetAllocVisited(true);
     // Allocate block here
 
+
     for (auto b : block->GetAdj()) {
-      if (!b->GetVisited()) {
+      if (!b->GetAllocVisited()) {
 	q.push(b);
       }
     }

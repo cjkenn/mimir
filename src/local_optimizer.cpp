@@ -95,11 +95,11 @@ void LocalOptimizer::OptimizeEntireBranch(CfgNodePtr& root) {
     auto block = q.front();
     q.pop();
 
-    block->SetVisited(true);
+    block->SetOptimizerVisited(true);
     OptimizeBlock(block);
 
     for (auto adj_block : block->GetAdj()) {
-      if (!adj_block->GetVisited()) {
+      if (!adj_block->GetOptimizerVisited()) {
 	q.push(adj_block);
       }
     }

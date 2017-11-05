@@ -53,11 +53,11 @@ void X86Writer::Write(const CfgNodePtr& block) {
   while(!q.empty()) {
     auto block = q.front();
     q.pop();
-    block->SetVisited(true);
+    block->SetWriterVisited(true);
     AddInstrsToSections(block);
 
     for (auto b : block->GetAdj()) {
-      if (!b->GetVisited()) {
+      if (!b->GetWriterVisited()) {
 	q.push(b);
       }
     }

@@ -42,23 +42,6 @@ void verify(const std::string name) {
   }
 }
 
-void resetCfg(const CfgNodePtr& block) {
-  std::queue<CfgNodePtr> q;
-  q.push(block);
-
-  while (!q.empty()) {
-    auto node = q.front();
-    q.pop();
-    node->SetVisited(false);
-    for (auto r : node->GetAdj()) {
-      // If we have a visited node, make sure we reset it to false.
-      if (r->GetVisited()) {
-	q.push(r);
-      }
-    }
-  }
-}
-
 void test_x86_gen(const std::string filename) {
   auto lexer = std::make_shared<Lexer>(INPUT_DIR + filename);
   auto sym_tab = std::make_shared<SymbolTable>();
@@ -75,8 +58,6 @@ void test_x86_gen(const std::string filename) {
 
   X86InstrSel x86_sel(sym_tab);
   x86_sel.SelectInstrsForEntireBranch(cfg.GetRoot());
-
-  resetCfg(cfg.GetRoot());
 
   const std::string output_file = OUTPUT_DIR + filename;
   X86Writer x86_writer(sym_tab, output_file);

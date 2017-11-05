@@ -7,11 +7,19 @@
 CfgNode::CfgNode(std::string name) {
   name_ = name;
   visited_ = false;
+  selector_visited_ = false;
+  writer_visited_ = false;
+  alloc_visited_ = false;
+  optimizer_visited_ = false;
 }
 
 CfgNode::CfgNode(std::string name, std::vector<CfgNodePtr>& adj) {
   name_ = name;
   visited_ = false;
+  selector_visited_ = false;
+  writer_visited_ = false;
+  alloc_visited_ = false;
+  optimizer_visited_ = false;
   adj_ = adj;
 }
 

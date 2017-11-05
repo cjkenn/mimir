@@ -33,11 +33,11 @@ void X86InstrSel::SelectInstrsForEntireBranch(const CfgNodePtr& block) {
   while(!q.empty()) {
     auto block = q.front();
     q.pop();
-    block->SetVisited(true);
+    block->SetSelectorVisited(true);
     SelectInstrs(block);
 
     for (auto b : block->GetAdj()) {
-      if (!b->GetVisited()) {
+      if (!b->GetSelectorVisited()) {
 	q.push(b);
       }
     }

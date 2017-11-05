@@ -1,3 +1,4 @@
+#include <assert.h>
 #include "x86_section.h"
 
 X86Section::X86Section(X86SectionType type) {
@@ -21,5 +22,7 @@ std::string X86Section::GetNameFromType() {
     return "bss";
   case X86SectionType::TEXT_SEC:
     return "text";
+  default:
+    assert(false);
   }
 }

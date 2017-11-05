@@ -105,7 +105,7 @@ void X86Writer::AddInstrsToSections(const CfgNodePtr& block) {
     text_->InsertLabel(instrs[0]->GetLabel());
   }
 
-  for (int i = 0; i < instrs.size(); i++) {
+  for (unsigned int i = 0; i < instrs.size(); i++) {
     if ((i != 0) && instrs[i]->GetLabel() != instrs[i-1]->GetLabel()) {
       text_->InsertLabel(instrs[i]->GetLabel());
     }

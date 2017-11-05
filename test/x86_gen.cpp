@@ -59,6 +59,9 @@ void test_x86_gen(const std::string filename) {
   X86InstrSel x86_sel(sym_tab);
   x86_sel.SelectInstrsForEntireBranch(cfg.GetRoot());
 
+  X86RegAlloc x86_alloc(ir_gen.GetRegCount());
+  x86_alloc.Allocate(cfg.GetRoot());
+
   const std::string output_file = OUTPUT_DIR + filename;
   X86Writer x86_writer(sym_tab, output_file);
   x86_writer.Write(cfg.GetRoot());

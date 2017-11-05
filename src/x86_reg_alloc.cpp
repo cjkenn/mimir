@@ -1,12 +1,17 @@
 #include <assert.h>
 #include <queue>
+#include <iostream>
 #include "x86_reg.h"
 #include "x86_reg_alloc.h"
 #include "cfg.h"
+#include "x86_instr_arg.h"
 
 // Constant containing the number of general purpose registers in x86 assembly. We
 // define this as any register except rsp, rbp, rsi, or rdi. That is, rax - rdx,
 // as well as r8 - r15.
+// TODO: However, the amount of mul, div, and mod instructions should (might?) affect
+// this because they require certain registers. Might need to remove the x86 registers
+// from those intrs selections in favor of virtual ones and then allocate later, in this phase
 const int NUM_GP_REG = 12;
 
 X86RegAlloc::X86RegAlloc(const unsigned int virtual_reg_count) {
@@ -24,8 +29,27 @@ void X86RegAlloc::Allocate(const CfgNodePtr& block) {
     auto block = q.front();
     q.pop();
     block->SetAllocVisited(true);
-    // Allocate block here
+    // instrs is a vector of x86 instrs in the order they appear
+    auto instrs = block->GetX86Instrs();
+    for (auto instr : instrs) {
+      auto first_arg = instr->GetFirstArg();
 
+      if (first_arg) {
+	if (first_arg->GetType() == X86InstrArgType::REG_X86) {
+	  auto reg1 = NextRegister(first_arg->GetVal());
+	  first_arg->SetVal(reg1->NameToStr());
+	}
+      }
+
+      auto second_arg = instr->GetSecondArg();
+
+      if (second_arg) {
+	if (second_arg->GetType() == X86InstrArgType::REG_X86) {
+	  auto reg2 = NextRegister(second_arg->GetVal());
+	  second_arg->SetVal(reg2->NameToStr());
+	}
+      }
+    }
 
     for (auto b : block->GetAdj()) {
       if (!b->GetAllocVisited()) {
@@ -35,16 +59,14 @@ void X86RegAlloc::Allocate(const CfgNodePtr& block) {
   }
 }
 
-X86RegPtr X86RegAlloc::NextRegister() {
-
-}
-
-X86RegPtr X86RegAlloc::NextRegisterForVReg(const std::string vreg) {
+X86RegPtr X86RegAlloc::NextRegister(const std::string vreg) {
   if (enough_regs_) {
     auto reg = v_registers_[vreg];
     reg->Allocate();
     return reg;
   }
+
+  // TODO: segfaults will happen here
 }
 
 void X86RegAlloc::InitRegisters() {

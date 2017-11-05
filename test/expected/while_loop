@@ -6,16 +6,16 @@ push rbp
 mov rbp, rsp
 sub rsp, 8
 lbl0:
-mov r0, 10
-mov [rbp-8], r0
-mov r1, [rbp-8]
-mov r2, 12
-cmp r1, r2
+mov rax, 10
+mov [rbp-8], rax
+mov rbx, [rbp-8]
+mov rcx, 12
+cmp rbx, rcx
 jg lbl1
-mov r3, [rbp-8]
-mov r4, 1
-add r4, r3
-mov [rbp-8], r4
+mov rdx, [rbp-8]
+mov r8, 1
+add r8, rdx
+mov [rbp-8], r8
 jmp lbl0
 lbl1:
 nop

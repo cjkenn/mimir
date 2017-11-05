@@ -12,11 +12,10 @@ class X86RegAlloc {
   ~X86RegAlloc() {};
 
   void Allocate(const CfgNodePtr& block);
-  X86RegPtr NextRegister();
-  X86RegPtr NextRegisterForVReg(const std::string vreg);
 
  private:
   void InitRegisters();
+  X86RegPtr NextRegister(const std::string vreg);
   std::unordered_map<std::string, X86RegPtr> registers_;
   std::unordered_map<std::string, X86RegPtr> v_registers_;
 

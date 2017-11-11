@@ -7,6 +7,8 @@
 #include "ir_instr.h"
 #include "ir_gen.h"
 
+using namespace mimir;
+
 IrGen::IrGen() {
   register_count_ = 0;
   lbl_count_ = 0;

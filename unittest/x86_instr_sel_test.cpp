@@ -10,6 +10,8 @@
 #include "cfg_node.h"
 #include "ast.h"
 
+using namespace mimir;
+
 // Input:
 //
 // sv 10, x
@@ -17,7 +19,7 @@
 // Expected Output:
 //
 // mv [ebp-4], 10
-void test_select_instrs_simple_assign(std::shared_ptr<SymbolTable> sym_tab) {
+void test_select_instrs_simple_assign(std::shared_ptr<mimir::SymbolTable> sym_tab) {
   std::vector<IrInstrPtr> instrs;
   IrInstrPtr sv = std::make_shared<IrInstr>(IrInstrType::SV_INSTR,
 					    "10",
@@ -48,7 +50,7 @@ void test_select_instrs_simple_assign(std::shared_ptr<SymbolTable> sym_tab) {
 //
 // mv [ebp-4], 10
 // mv [ebp-8], 9
-void test_select_instrs_two_assigns(std::shared_ptr<SymbolTable> sym_tab) {
+void test_select_instrs_two_assigns(std::shared_ptr<mimir::SymbolTable> sym_tab) {
   std::vector<IrInstrPtr> instrs;
   IrInstrPtr sv = std::make_shared<IrInstr>(IrInstrType::SV_INSTR,
 					    "10",
@@ -88,7 +90,7 @@ void test_select_instrs_two_assigns(std::shared_ptr<SymbolTable> sym_tab) {
 // Expected Output:
 //
 // mv r0, [ebp-4]
-void test_select_instrs_simple_access(std::shared_ptr<SymbolTable> sym_tab) {
+void test_select_instrs_simple_access(std::shared_ptr<mimir::SymbolTable> sym_tab) {
   std::vector<IrInstrPtr> instrs;
   IrInstrPtr ld = std::make_shared<IrInstr>(IrInstrType::LD_INSTR,
 					    "x",
@@ -119,7 +121,7 @@ void test_select_instrs_simple_access(std::shared_ptr<SymbolTable> sym_tab) {
 //
 // mv r0, [ebp-4]
 // mv r1, [ebp-8]
-void test_select_instrs_multiple_access(std::shared_ptr<SymbolTable> sym_tab) {
+void test_select_instrs_multiple_access(std::shared_ptr<mimir::SymbolTable> sym_tab) {
   std::vector<IrInstrPtr> instrs;
   IrInstrPtr ld = std::make_shared<IrInstr>(IrInstrType::LD_INSTR,
 					    "x",
@@ -159,7 +161,7 @@ void test_select_instrs_multiple_access(std::shared_ptr<SymbolTable> sym_tab) {
 // Expected Output:
 //
 // mov rax, 10
-void test_select_instrs_mv_instr(std::shared_ptr<SymbolTable> sym_tab) {
+void test_select_instrs_mv_instr(std::shared_ptr<mimir::SymbolTable> sym_tab) {
   std::vector<IrInstrPtr> instrs;
   IrInstrPtr mv = std::make_shared<IrInstr>(IrInstrType::MV_INSTR,
 					    "10",
@@ -188,7 +190,7 @@ void test_select_instrs_mv_instr(std::shared_ptr<SymbolTable> sym_tab) {
 // Expected Output:
 //
 // add r1, r0 ->have to swap arguments for destination
-void test_select_instrs_add_instr(std::shared_ptr<SymbolTable> sym_tab) {
+void test_select_instrs_add_instr(std::shared_ptr<mimir::SymbolTable> sym_tab) {
   std::vector<IrInstrPtr> instrs;
   IrInstrPtr add = std::make_shared<IrInstr>(IrInstrType::ADD_INSTR,
 					    "r0",
@@ -218,7 +220,7 @@ void test_select_instrs_add_instr(std::shared_ptr<SymbolTable> sym_tab) {
 //
 // mov rax, r0
 // mul r1
-void test_select_instrs_mul_instr(std::shared_ptr<SymbolTable> sym_tab) {
+void test_select_instrs_mul_instr(std::shared_ptr<mimir::SymbolTable> sym_tab) {
   std::vector<IrInstrPtr> instrs;
   IrInstrPtr mul = std::make_shared<IrInstr>(IrInstrType::MUL_INSTR,
 					     "r0",
@@ -253,7 +255,7 @@ void test_select_instrs_mul_instr(std::shared_ptr<SymbolTable> sym_tab) {
 // mov rdx, 0
 // mov rax, r0
 // div r1
-void test_select_instrs_div_instr(std::shared_ptr<SymbolTable> sym_tab) {
+void test_select_instrs_div_instr(std::shared_ptr<mimir::SymbolTable> sym_tab) {
   std::vector<IrInstrPtr> instrs;
   IrInstrPtr div = std::make_shared<IrInstr>(IrInstrType::DIV_INSTR,
 					     "r0",
@@ -294,7 +296,7 @@ void test_select_instrs_div_instr(std::shared_ptr<SymbolTable> sym_tab) {
 // mov rax, r0
 // div r1
 // mov rax, rdx
-void test_select_instrs_mod_instr(std::shared_ptr<SymbolTable> sym_tab) {
+void test_select_instrs_mod_instr(std::shared_ptr<mimir::SymbolTable> sym_tab) {
   std::vector<IrInstrPtr> instrs;
   IrInstrPtr mod = std::make_shared<IrInstr>(IrInstrType::MOD_INSTR,
 					     "r0",
@@ -337,7 +339,7 @@ void test_select_instrs_mod_instr(std::shared_ptr<SymbolTable> sym_tab) {
 // Expected Output:
 //
 // cmp x, 10
-void test_select_instrs_cmp(std::shared_ptr<SymbolTable> sym_tab) {
+void test_select_instrs_cmp(std::shared_ptr<mimir::SymbolTable> sym_tab) {
   std::vector<IrInstrPtr> instrs;
   IrInstrPtr cmp = std::make_shared<IrInstr>(IrInstrType::CMP_INSTR,
 					    "x",
@@ -366,7 +368,7 @@ void test_select_instrs_cmp(std::shared_ptr<SymbolTable> sym_tab) {
 // Expected Output:
 //
 // jmp lbl0
-void test_select_instrs_simple_branch(std::shared_ptr<SymbolTable> sym_tab) {
+void test_select_instrs_simple_branch(std::shared_ptr<mimir::SymbolTable> sym_tab) {
   std::vector<IrInstrPtr> instrs;
   IrInstrPtr jmp = std::make_shared<IrInstr>(IrInstrType::JMP_INSTR);
   jmp->SetDest("lbl0");
@@ -387,7 +389,7 @@ void test_select_instrs_simple_branch(std::shared_ptr<SymbolTable> sym_tab) {
 
 
 int main(int argc, char **argv) {
-  auto sym_tab = std::make_shared<SymbolTable>();
+  auto sym_tab = std::make_shared<mimir::SymbolTable>();
   auto x_node = std::make_shared<AstNode>(AstType::VAR_AST);
   x_node->SetText("x");
   auto y_node = std::make_shared<AstNode>(AstType::VAR_AST);

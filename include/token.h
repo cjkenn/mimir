@@ -2,6 +2,7 @@
 
 #include <string>
 
+namespace mimir {
 enum TokenType {
   LEFT_PAREN_TKN,
   RIGHT_PAREN_TKN,
@@ -58,3 +59,4 @@ class Token {
   int line_pos_;
   int char_pos_;
 };
+}

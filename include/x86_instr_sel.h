@@ -6,6 +6,7 @@
 #include "symbol_table.h"
 #include "x86_reg_alloc.h"
 
+namespace mimir {
 class X86InstrSel {
  public:
   X86InstrSel(std::shared_ptr<SymbolTable> sym_tab);
@@ -59,3 +60,4 @@ class X86InstrSel {
   std::string BuildLdAddressArg(const int offset);
   std::shared_ptr<SymbolTable> sym_tab_;
 };
+}

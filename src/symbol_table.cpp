@@ -6,6 +6,8 @@
 #include "symbol.h"
 #include "symbol_table.h"
 
+using namespace mimir;
+
 SymbolTable::SymbolTable() {
   curr_level_ = -1;
   // Create a top level scope for the entire program (we need at least one scope).

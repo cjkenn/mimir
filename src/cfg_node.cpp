@@ -4,6 +4,8 @@
 #include "cfg_node.h"
 #include "ir_instr.h"
 
+using namespace mimir;
+
 CfgNode::CfgNode(std::string name) {
   name_ = name;
   visited_ = false;

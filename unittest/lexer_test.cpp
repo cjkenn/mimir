@@ -4,6 +4,8 @@
 #include "token.h"
 #include "lexer.h"
 
+using namespace mimir;
+
 // Test the Lex function on some single char symbols.
 // The order of the assert statements matters here,
 // because it must match the order of the symbols in the

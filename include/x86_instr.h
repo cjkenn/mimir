@@ -5,6 +5,8 @@
 #include <string>
 #include "x86_instr_arg.h"
 
+namespace mimir {
+
 class X86Instr;
 
 typedef std::shared_ptr<X86Instr> X86InstrPtr;
@@ -59,3 +61,4 @@ class X86Instr {
   std::pair<X86InstrArgPtr, X86InstrArgPtr> args_;
   std::string label_;
 };
+}

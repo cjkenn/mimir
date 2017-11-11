@@ -3,6 +3,7 @@
 #include "cfg.h"
 #include "ir_instr.h"
 
+namespace mimir {
 class CfgGen {
  public:
   CfgGen();
@@ -26,3 +27,4 @@ class CfgGen {
   // How many blocks we've created (0 indexed)
   int block_count_;
 };
+}

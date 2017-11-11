@@ -3,6 +3,7 @@
 #include <string>
 #include <memory>
 
+namespace mimir {
 class X86Reg;
 
 typedef std::shared_ptr<X86Reg> X86RegPtr;
@@ -40,3 +41,4 @@ class X86Reg {
   X86RegName name_;
   bool free_;
 };
+}

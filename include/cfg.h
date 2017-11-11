@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include "cfg_node.h"
 
+namespace mimir {
 class Cfg {
  public:
   Cfg(CfgNodePtr root);
@@ -33,3 +34,4 @@ class Cfg {
   // for easy lookup of each node.
   std::unordered_map<std::string, CfgNodePtr> BuildNodeMapping(std::vector<CfgNodePtr>& cg);
 };
+}

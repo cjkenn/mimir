@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 
+namespace mimir {
 class AstNode;
 
 typedef std::shared_ptr<AstNode> AstNodePtr;
@@ -88,3 +89,4 @@ class AstNode {
   // be reset in between.
   bool visited_;
 };
+}

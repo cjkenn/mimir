@@ -1,6 +1,8 @@
 #include <string>
 #include "symbol.h"
 
+using namespace mimir;
+
 Symbol::Symbol() {
   initialized_ = false;
   size_ = 8;

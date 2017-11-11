@@ -2,6 +2,8 @@
 #include "compiler_opts.h"
 #include "error.h"
 
+using namespace mimir;
+
 const std::string FILENAME_KEY = "filename";
 const std::string LOCAL_OPT_KEY = "local_opt";
 const char* LOCAL_OPT = "-O";

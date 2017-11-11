@@ -3,6 +3,7 @@
 #include <string>
 #include "token.h"
 
+namespace mimir {
 class Error {
  public:
   Error() {};
@@ -24,3 +25,4 @@ class Error {
   std::string filename_;
   std::string message_;
 };
+}

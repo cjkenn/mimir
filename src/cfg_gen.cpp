@@ -7,6 +7,8 @@
 #include "cfg.h"
 #include "ir_instr.h"
 
+using namespace mimir;
+
 CfgGen::CfgGen() {
   block_count_ = -1;
 }

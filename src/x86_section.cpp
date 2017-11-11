@@ -1,6 +1,8 @@
 #include <assert.h>
 #include "x86_section.h"
 
+using namespace mimir;
+
 X86Section::X86Section(X86SectionType type) {
   type_ = type;
   name_ = GetNameFromType();

@@ -6,6 +6,8 @@
 #include "cfg_node.h"
 #include "cfg.h"
 
+using namespace mimir;
+
 Cfg::Cfg(CfgNodePtr root) {
   root_ = root;
 }

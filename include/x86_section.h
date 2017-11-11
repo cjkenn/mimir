@@ -4,6 +4,7 @@
 #include <vector>
 #include <memory>
 
+namespace mimir {
 class X86Section;
 
 typedef std::shared_ptr<X86Section> X86SectionPtr;
@@ -32,3 +33,4 @@ class X86Section {
   std::string name_;
   std::vector<std::string> instrs_;
 };
+}

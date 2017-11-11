@@ -6,6 +6,8 @@
 #include <queue>
 #include "local_optimizer.h"
 
+using namespace mimir;
+
 LocalOptimizer::LocalOptimizer() {
   val_count_ = 0;
 }

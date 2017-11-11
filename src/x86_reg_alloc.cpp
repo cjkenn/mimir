@@ -9,6 +9,8 @@
 #include "cfg.h"
 #include "x86_instr_arg.h"
 
+using namespace mimir;
+
 // Constant containing the number of general purpose registers in x86 assembly. We
 // define this as any register except rsp, rbp, rsi, or rdi. That is, rax - rdx,
 // as well as r8 - r15.

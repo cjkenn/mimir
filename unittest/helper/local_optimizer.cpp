@@ -1,5 +1,7 @@
 #include "local_optimizer.h"
 
+using namespace mimir;
+
 CfgNodePtr LocalOptimizerTestHelper::GetRedundantBlock() {
   CfgNodePtr block = std::make_shared<CfgNode>("n0");
 

@@ -1,6 +1,8 @@
 #include "parser_result.h"
 #include "error.h"
 
+using namespace mimir;
+
 bool ParserResult::HasError() {
   return errors_.size() > 0;
 }

@@ -7,6 +7,8 @@
 #include "cfg.h"
 #include "cfg_node.h"
 
+using namespace mimir;
+
 // TODO: Maybe should go into a test_helper file
 std::vector<IrInstrPtr> build_if_ir() {
   std::vector<IrInstrPtr> ir;

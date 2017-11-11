@@ -7,6 +7,8 @@
 #include "ir_instr.h"
 #include "helper/local_optimizer.h"
 
+using namespace mimir;
+
 // Expected input instructions:
 // ld a, r0
 // ld d, r1

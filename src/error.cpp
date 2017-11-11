@@ -3,6 +3,8 @@
 #include "token.h"
 #include "error.h"
 
+using namespace mimir;
+
 Error::Error(int line, int pos, std::string filename) {
   line_ = line;
   pos_ = pos;

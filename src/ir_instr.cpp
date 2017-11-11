@@ -2,6 +2,8 @@
 #include <utility>
 #include "ir_instr.h"
 
+using namespace mimir;
+
 IrInstr::IrInstr(IrInstrType type) {
   type_ = type;
   redundant_ = false;

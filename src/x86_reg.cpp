@@ -2,6 +2,8 @@
 #include <assert.h>
 #include "x86_reg.h"
 
+using namespace mimir;
+
 X86Reg::X86Reg(X86RegName name) {
   name_ = name;
   free_ = true;

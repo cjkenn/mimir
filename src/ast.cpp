@@ -2,6 +2,8 @@
 #include <assert.h>
 #include "ast.h"
 
+using namespace mimir;
+
 AstNode::AstNode(AstType type) {
   type_ = type;
   val_ = 0;

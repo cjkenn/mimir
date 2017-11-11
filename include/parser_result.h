@@ -6,6 +6,7 @@
 #include "ast.h"
 #include "error.h"
 
+namespace mimir {
 class ParserResult {
  public:
   ParserResult() {};
@@ -25,3 +26,4 @@ class ParserResult {
   AstNodePtr ast_;
   std::vector<Error> errors_;
 };
+}

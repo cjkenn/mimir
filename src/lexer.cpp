@@ -8,6 +8,8 @@
 #include "lexer.h"
 #include "error.h"
 
+using namespace mimir;
+
 Lexer::Lexer(const std::string filename) {
   filename_ = filename;
   curr_line_pos_ = 1;

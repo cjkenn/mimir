@@ -1,5 +1,7 @@
 #include "x86_instr.h"
 
+using namespace mimir;
+
 X86Instr::X86Instr(X86InstrType type) {
   type_ = type;
 }

@@ -8,6 +8,7 @@
 #include "error.h"
 #include "parser_result.h"
 
+namespace mimir {
 class Parser {
  public:
   Parser(std::shared_ptr<Lexer> lexer,
@@ -56,3 +57,4 @@ class Parser {
   Token curr_tkn_;
   ParserResult result_;
 };
+}

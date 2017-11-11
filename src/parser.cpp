@@ -8,6 +8,8 @@
 #include "error.h"
 #include "symbol.h"
 
+using namespace mimir;
+
 Parser::Parser(std::shared_ptr<Lexer> lexer,
 	       std::shared_ptr<SymbolTable> sym_tab) {
   lexer_ = lexer;

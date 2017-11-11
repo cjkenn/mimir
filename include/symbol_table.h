@@ -5,6 +5,7 @@
 #include "ast.h"
 #include "symbol.h"
 
+namespace mimir {
 // The symbol table is represented by cascading unordered maps, one for each
 // recognized lexical scope. It is up to the user to initialize and exit these
 // scopes, by calling InitScope() and ExitScope() where appropriate.
@@ -48,3 +49,4 @@ class SymbolTable {
   int curr_level_;
   std::vector<std::unordered_map<std::string, SymbolPtr>> sym_tab_;
 };
+}

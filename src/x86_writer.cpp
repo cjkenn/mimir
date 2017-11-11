@@ -7,6 +7,8 @@
 #include "x86_writer.h"
 #include "x86_instr_sel.h"
 
+using namespace mimir;
+
 const std::string DEFAULT_FILENAME = "mimir.asm";
 const std::string BSS = "bss";
 const std::string DATA = "data";

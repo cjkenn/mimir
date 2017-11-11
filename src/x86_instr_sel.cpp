@@ -10,6 +10,8 @@
 #include "symbol_table.h"
 #include "symbol.h"
 
+using namespace mimir;
+
 X86InstrSel::X86InstrSel(std::shared_ptr<SymbolTable> sym_tab) {
   sym_tab_ = sym_tab;
 }

@@ -5,6 +5,7 @@
 #include "ast.h"
 #include "ir_instr.h"
 
+namespace mimir {
 // IrGen is used to create a vector of IR instructions that can be used in control flow analysis
 // and make it a bit easier to generate assembly code, when compared to generating
 // right from an ast. For more details on what the ir contains, see ir_instr.h
@@ -92,3 +93,4 @@ class IrGen {
   // Value of currently active label.
   std::string curr_lbl_;
 };
+}

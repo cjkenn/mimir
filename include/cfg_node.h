@@ -6,6 +6,7 @@
 #include "ir_instr.h"
 #include "x86_instr.h"
 
+namespace mimir {
 class CfgNode;
 
 typedef std::shared_ptr<CfgNode> CfgNodePtr;
@@ -79,3 +80,4 @@ class CfgNode {
   // Contains each x86 instruction in this block.
   std::vector<X86InstrPtr> x86instrs_;
 };
+}

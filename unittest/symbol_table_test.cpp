@@ -5,6 +5,8 @@
 #include "symbol.h"
 #include "symbol_table.h"
 
+using namespace mimir;
+
 void test_insert_find_single_scope() {
   SymbolTable st;
 

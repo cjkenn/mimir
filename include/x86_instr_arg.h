@@ -2,6 +2,7 @@
 
 #include <string>
 
+namespace mimir {
 enum X86InstrArgType {
   REG_X86,
   NUM_X86,
@@ -24,3 +25,4 @@ class X86InstrArg {
   X86InstrArgType type_;
   std::string val_;
 };
+}

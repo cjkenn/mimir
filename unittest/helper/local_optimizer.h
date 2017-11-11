@@ -3,6 +3,7 @@
 #include "cfg_node.h"
 #include "ir_instr.h"
 
+namespace mimir {
 class LocalOptimizerTestHelper {
  public:
   LocalOptimizerTestHelper() {};
@@ -20,3 +21,4 @@ class LocalOptimizerTestHelper {
   CfgNodePtr GetMulByZeroBlock();
   CfgNodePtr GetDivByOneBlock();
 };
+}

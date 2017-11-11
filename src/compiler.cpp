@@ -19,7 +19,7 @@
 #include "compiler_opts.h"
 
 int main(int argc, char **argv) {
-  CompilerOptions opts;
+  mimir::CompilerOptions opts;
   opts.ParseCommandLine(argc, argv);
 
   if (opts.HasCommandLineErrors()) {
@@ -31,10 +31,11 @@ int main(int argc, char **argv) {
 
   // Lex and parse the input file, storing variables
   // in our symbol table.
-  auto lexer = std::make_shared<Lexer>(filename);
-  auto sym_tab = std::make_shared<SymbolTable>();
-  Parser parser(lexer, sym_tab);
-  ParserResult parser_result = parser.Parse();
+  auto lexer = std::make_shared<mimir::Lexer>(filename);
+  auto sym_tab = std::make_shared<mimir::SymbolTable>();
+
+  mimir::Parser parser(lexer, sym_tab);
+  mimir::ParserResult parser_result = parser.Parse();
 
   // If the parser contains any errors, we don't continue
   // with analysis/ generation. Show the user the errors
@@ -44,33 +45,33 @@ int main(int argc, char **argv) {
     return -1;
   }
 
-  AstNodePtr ast = parser_result.GetAst();
+  mimir::AstNodePtr ast = parser_result.GetAst();
 
   // Convert the ast to ir for analysis and x86 generation.
-  IrGen ir_gen;
-  std::vector<IrInstrPtr> ir = ir_gen.Gen(ast);
+  mimir::IrGen ir_gen;
+  std::vector<mimir::IrInstrPtr> ir = ir_gen.Gen(ast);
   const int virtual_reg_count = ir_gen.GetRegCount();
 
   // Cfg construction and analysis
-  CfgGen cfg_gen;
-  Cfg cfg = cfg_gen.Gen(ir);
+  mimir::CfgGen cfg_gen;
+  mimir::Cfg cfg = cfg_gen.Gen(ir);
 
   if (opts.ShouldPerformLocalOptimization()) {
-    LocalOptimizer lo;
+    mimir::LocalOptimizer lo;
     auto root = cfg.GetRoot();
     lo.OptimizeBlock(root);
   }
 
   // Instr selection: convert ir to x86
-  X86InstrSel x86_sel(sym_tab);
+  mimir::X86InstrSel x86_sel(sym_tab);
   x86_sel.SelectInstrsForEntireBranch(cfg.GetRoot());
 
   // Register allocation: convert virtual ir registers to x86 registers
-  X86RegAlloc x86_alloc(virtual_reg_count);
+  mimir::X86RegAlloc x86_alloc(virtual_reg_count);
   x86_alloc.Allocate(cfg.GetRoot());
 
   // Writing: Walk x86 instructions in ast and write nasm x86 to output file
-  X86Writer x86_writer(sym_tab);
+  mimir::X86Writer x86_writer(sym_tab);
   x86_writer.Write(cfg.GetRoot());
 
   return 0;

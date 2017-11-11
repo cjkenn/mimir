@@ -6,6 +6,7 @@
 #include "x86_reg.h"
 #include "cfg.h"
 
+namespace mimir {
 class X86RegAlloc {
  public:
   X86RegAlloc(const unsigned int virtual_reg_count);
@@ -33,3 +34,4 @@ class X86RegAlloc {
 
   unsigned int virtual_reg_count_;
 };
+}

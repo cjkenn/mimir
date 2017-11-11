@@ -5,6 +5,7 @@
 #include <vector>
 #include "error.h"
 
+namespace mimir {
 class CompilerOptions {
  public:
   CompilerOptions() {};
@@ -21,3 +22,4 @@ class CompilerOptions {
   std::vector<Error> errors_;
   std::unordered_map<std::string, std::string> options_map_;
 };
+}

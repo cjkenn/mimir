@@ -1,5 +1,7 @@
 #include "token.h"
 
+using namespace mimir;
+
 Token::Token(const TokenType type) {
   type_ = type;
 }

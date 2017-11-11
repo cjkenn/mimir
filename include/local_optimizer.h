@@ -5,6 +5,7 @@
 #include "cfg_node.h"
 #include "ir_instr.h"
 
+namespace mimir {
 class LocalOptimizer {
  public:
   LocalOptimizer();
@@ -138,3 +139,4 @@ class LocalOptimizer {
   std::unordered_map<std::string, int> val_map_;
   std::unordered_map<std::string, std::string> op_map_;
 };
+}

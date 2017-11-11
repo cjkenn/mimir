@@ -5,6 +5,7 @@
 #include <string>
 #include <memory>
 
+namespace mimir {
 class IrInstr;
 
 typedef std::shared_ptr<IrInstr> IrInstrPtr;
@@ -115,3 +116,4 @@ class IrInstr {
   // The constant value that this instruction actually evaluates to
   int constant_val_;
 };
+}

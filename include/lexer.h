@@ -5,6 +5,7 @@
 #include "token.h"
 #include "error.h"
 
+namespace mimir {
 class Lexer {
  public:
   Lexer(const std::string filename);
@@ -49,3 +50,4 @@ class Lexer {
   int curr_line_pos_;
   int curr_char_pos_;
 };
+}

@@ -9,6 +9,8 @@
 #include "token.h"
 #include "symbol_table.h"
 
+using namespace mimir;
+
 // Input:
 //
 // if (x < 1) { y = 2; }

@@ -8,6 +8,8 @@
 #include "symbol_table.h"
 #include "error.h"
 
+using namespace mimir;
+
 Parser get_parser_for_file(std::string filename) {
   std::string test_file = "parser_input/" + filename;
   auto lexer = std::make_shared<Lexer>(test_file);

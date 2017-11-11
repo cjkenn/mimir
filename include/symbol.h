@@ -3,7 +3,9 @@
 #include <string>
 #include <memory>
 
+namespace mimir {
 class Symbol;
+
 typedef std::shared_ptr<Symbol> SymbolPtr;
 
 class Symbol {
@@ -40,3 +42,4 @@ class Symbol {
   // The nesting level of the scope of this symbol. 0 is defined as global scope.
   int scope_level_;
 };
+}

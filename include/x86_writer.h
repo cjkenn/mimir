@@ -8,6 +8,7 @@
 #include "x86_section.h"
 #include "x86_reg_alloc.h"
 
+namespace mimir {
 class X86Writer {
  public:
   X86Writer(std::shared_ptr<SymbolTable> sym_tab);
@@ -36,3 +37,4 @@ class X86Writer {
   X86SectionPtr text_;
   std::shared_ptr<SymbolTable> sym_tab_;
 };
+}

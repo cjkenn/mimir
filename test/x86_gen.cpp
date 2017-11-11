@@ -43,27 +43,28 @@ void verify(const std::string name) {
 }
 
 void test_x86_gen(const std::string filename) {
-  auto lexer = std::make_shared<Lexer>(INPUT_DIR + filename);
-  auto sym_tab = std::make_shared<SymbolTable>();
-  Parser parser(lexer, sym_tab);
-  const ParserResult parser_result = parser.Parse();
+  auto lexer = std::make_shared<mimir::Lexer>(INPUT_DIR + filename);
+  auto sym_tab = std::make_shared<mimir::SymbolTable>();
 
-  const AstNodePtr ast = parser_result.GetAst();
+  mimir::Parser parser(lexer, sym_tab);
+  const mimir::ParserResult parser_result = parser.Parse();
 
-  IrGen ir_gen;
-  const std::vector<IrInstrPtr> ir = ir_gen.Gen(ast);
+  const mimir::AstNodePtr ast = parser_result.GetAst();
 
-  CfgGen cfg_gen;
-  Cfg cfg = cfg_gen.Gen(ir);
+  mimir::IrGen ir_gen;
+  const std::vector<mimir::IrInstrPtr> ir = ir_gen.Gen(ast);
 
-  X86InstrSel x86_sel(sym_tab);
+  mimir::CfgGen cfg_gen;
+  mimir::Cfg cfg = cfg_gen.Gen(ir);
+
+  mimir::X86InstrSel x86_sel(sym_tab);
   x86_sel.SelectInstrsForEntireBranch(cfg.GetRoot());
 
-  X86RegAlloc x86_alloc(ir_gen.GetRegCount());
+  mimir::X86RegAlloc x86_alloc(ir_gen.GetRegCount());
   x86_alloc.Allocate(cfg.GetRoot());
 
   const std::string output_file = OUTPUT_DIR + filename;
-  X86Writer x86_writer(sym_tab, output_file);
+  mimir::X86Writer x86_writer(sym_tab, output_file);
   x86_writer.Write(cfg.GetRoot());
 
   // Verify output file

@@ -27,6 +27,8 @@ enum AstType {
   IF_AST,
   ELSE_AST,
   WHILE_AST,
+  FUNC_AST,
+  PARAMS_AST,
   SEQ_AST,
   EXPR_AST,
   NEG_AST,

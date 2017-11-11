@@ -15,6 +15,7 @@ enum TokenType {
   PERCENT_TKN,
   EXCL_TKN,
   SEMICOLON_TKN,
+  COMMA_TKN,
   EQ_TKN,
   EQEQ_TKN,
   NEQ_TKN,
@@ -27,6 +28,7 @@ enum TokenType {
   IF_TKN,
   ELSE_TKN,
   WHILE_TKN,
+  FUNC_TKN,
   UNKNOWN_TKN,
   EOF_TKN
 };

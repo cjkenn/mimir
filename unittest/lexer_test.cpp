@@ -58,6 +58,9 @@ void test_lex_symbols() {
 
   Token neq_tkn = lexer.Lex();
   assert(neq_tkn.GetType() == TokenType::NEQ_TKN);
+
+  Token comma_tkn = lexer.Lex();
+  assert(comma_tkn.GetType() == TokenType::COMMA_TKN);
 }
 
 // Test the Lex function on an identifier.
@@ -70,6 +73,12 @@ void test_lex_ident() {
   assert(ident_tkn.GetText() == "ident1");
   assert(ident_tkn.GetLinePos() == 1);
   assert(ident_tkn.GetCharPos() == 1);
+
+  Token func_tkn = lexer.Lex();
+  assert(func_tkn.GetType() == TokenType::FUNC_TKN);
+  assert(func_tkn.GetText() == "function");
+  assert(func_tkn.GetLinePos() == 2);
+  assert(func_tkn.GetCharPos() == 1);
 }
 
 // Test the Lex function on a number.

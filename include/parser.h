@@ -31,6 +31,7 @@ class Parser {
   AstNodePtr Test();
   AstNodePtr BinOp();
   AstNodePtr Term();
+  AstNodePtr Params();
 
   // Checks the current token type and if it is equal to expected_type, advances
   // the token and returns. If the current token is not what we expect, we create

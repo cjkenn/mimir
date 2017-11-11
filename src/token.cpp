@@ -28,6 +28,8 @@ const std::string Token::GetPrettyType() {
     return "'Else' keyword";
   case TokenType::WHILE_TKN:
     return "'While' keyword";
+  case TokenType::FUNC_TKN:
+    return "'Function' keyword";
   case TokenType::LEFT_PAREN_TKN:
     return "(";
   case TokenType::RIGHT_PAREN_TKN:
@@ -48,6 +50,8 @@ const std::string Token::GetPrettyType() {
     return "%";
   case TokenType::SEMICOLON_TKN:
     return ";";
+  case TokenType::COMMA_TKN:
+    return ",";
   case TokenType::EQ_TKN:
     return "=";
   case TokenType::LT_TKN:

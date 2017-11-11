@@ -4,11 +4,14 @@
 #include <memory>
 #include <fstream>
 #include <iostream>
+#include <assert.h>
 #include "token.h"
 #include "lexer.h"
 #include "error.h"
 
 using namespace mimir;
+
+const unsigned int NUM_RESERVED_WORDS = 4;
 
 Lexer::Lexer(const std::string filename) {
   filename_ = filename;
@@ -16,6 +19,9 @@ Lexer::Lexer(const std::string filename) {
   curr_char_pos_ = 1;
   ifs_.open(filename.c_str());
   ifs_.get(lastchar_);
+
+  InitReservedWords();
+  assert(reserved_words_.size() == NUM_RESERVED_WORDS);
 }
 
 Lexer::~Lexer() {
@@ -83,6 +89,9 @@ Token Lexer::Lex() {
     return tkn;
   case '%':
     tkn = BuildTokenAndAdvance(TokenType::PERCENT_TKN);
+    return tkn;
+  case ',':
+    tkn = BuildTokenAndAdvance(TokenType::COMMA_TKN);
     return tkn;
   case '<':
     {
@@ -217,16 +226,8 @@ Token Lexer::GetStrTkn() {
 
   Token tkn = Token(TokenType::ID_TKN, ident);
 
-  if (ident == "while") {
-    tkn.SetType(TokenType::WHILE_TKN);
-  }
-
-  if (ident == "if") {
-    tkn.SetType(TokenType::IF_TKN);
-  }
-
-  if (ident == "else") {
-    tkn.SetType(TokenType::ELSE_TKN);
+  if (reserved_words_.find(ident) != reserved_words_.end()) {
+    tkn.SetType(reserved_words_[ident]);
   }
 
   tkn.SetLinePos(curr_line_pos_);
@@ -244,4 +245,11 @@ void Lexer::Advance() {
 
 char Lexer::Peek() {
   return ifs_.peek();
+}
+
+void Lexer::InitReservedWords() {
+  reserved_words_["while"] = TokenType::WHILE_TKN;
+  reserved_words_["if"] = TokenType::IF_TKN;
+  reserved_words_["else"] = TokenType::ELSE_TKN;
+  reserved_words_["function"] = TokenType::FUNC_TKN;
 }

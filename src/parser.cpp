@@ -76,6 +76,21 @@ AstNodePtr Parser::Statement() {
 
     GetNextTkn();
     break;
+  case TokenType::FUNC_TKN:
+    statement_ast->SetType(AstType::FUNC_AST);
+    GetNextTkn();
+
+    statement_ast->SetText(curr_tkn_.GetText());
+    Expect(TokenType::ID_TKN);
+
+    Expect(TokenType::LEFT_PAREN_TKN);
+    statement_ast->AddChild(Params());
+    Expect(TokenType::RIGHT_PAREN_TKN);
+
+    Expect(TokenType::LEFT_BRACE_TKN);
+    statement_ast->AddChild(Statement());
+    Expect(TokenType::RIGHT_BRACE_TKN);
+    break;
   default:
     statement_ast->SetType(AstType::EXPR_AST);
     statement_ast->AddChild(Expr());
@@ -211,6 +226,18 @@ AstNodePtr Parser::Term() {
   }
 
   return term_ast;
+}
+
+AstNodePtr Parser::Params() {
+  auto params_ast = std::make_shared<AstNode>(AstType::PARAMS_AST);
+
+  while (curr_tkn_.GetType() != TokenType::RIGHT_PAREN_TKN) {
+    // TODO: Support expressions in params
+    params_ast->AddChild(Term());
+    Expect(TokenType::COMMA_TKN);
+  }
+
+  return params_ast;
 }
 
 void Parser::Expect(const TokenType expected_type) {

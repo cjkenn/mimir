@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <memory>
+#include <unordered_map>
 #include "token.h"
 #include "error.h"
 
@@ -40,6 +41,9 @@ class Lexer {
   // consume the current char in the file stream.
   char Peek();
 
+  // Initialize reserved words mapping. Called in the constructor.
+  void InitReservedWords();
+
   std::string filename_;
   std::ifstream ifs_;
   char lastchar_;
@@ -49,5 +53,7 @@ class Lexer {
   // used later on for error reporting purposes.
   int curr_line_pos_;
   int curr_char_pos_;
+
+  std::unordered_map<std::string, TokenType> reserved_words_;
 };
 }

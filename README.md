@@ -14,7 +14,7 @@ cd ../build
 ```
 
 #### Tests
-mimir has unit tests and integration tests. 
+mimir has unit tests and integration tests.
 To run unit tests:
 
 ```
@@ -47,9 +47,11 @@ Supported operations can be found in src/ir_instr.h
 <statement> ::= "if" <paren_expr> <statement> |
                 "if" <paren_expr> <statement> "else" <statement> |
                 "while" <paren_expr> <statement> |
-                "{" <statement> "}" |
+                <brace_statement> |
                 <expr> ";" |
+		<func> |
                 ";"
+ <brace_statement> ::= "{" <statement> "}"
  <paren_expr> ::= "(" <expr> ")"
  <expr> ::= <test> | <id> "=" <expr>
  <test> ::= <sum> | <sum> <testop> <sum>
@@ -59,4 +61,6 @@ Supported operations can be found in src/ir_instr.h
  <term> ::= <id> | <int> | <paren_expr>
  <id> ::= "a" | "b" | "c" | "d" | ... | "z"
  <int> ::= <an_unsigned_decimal_integer>
+ <func> ::= "function" <id> "(" <params> ")" <brace_statement>
+ <params> ::= <sum> | "," <params>
 ```

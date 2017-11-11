@@ -48,6 +48,7 @@ std::string Error::BuildLocErrorPrefix() {
   return output;
 }
 
+// TODO: Should only belong in the token class. How to call this then?
 std::string Error::PrettifyTokenType(TokenType tkn_type) {
   switch (tkn_type) {
   case TokenType::ID_TKN:
@@ -60,6 +61,8 @@ std::string Error::PrettifyTokenType(TokenType tkn_type) {
     return "'Else' keyword";
   case TokenType::WHILE_TKN:
     return "'While' keyword";
+  case TokenType::FUNC_TKN:
+    return "'Function' keyword";
   case TokenType::LEFT_PAREN_TKN:
     return "(";
   case TokenType::RIGHT_PAREN_TKN:
@@ -92,6 +95,8 @@ std::string Error::PrettifyTokenType(TokenType tkn_type) {
     return ">=";
   case TokenType::EQEQ_TKN:
     return "==";
+  case TokenType::COMMA_TKN:
+    return ",";
   case TokenType::EOF_TKN:
     return "EOF";
   default:

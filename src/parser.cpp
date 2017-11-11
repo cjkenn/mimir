@@ -88,6 +88,13 @@ AstNodePtr Parser::Statement() {
     Expect(TokenType::RIGHT_PAREN_TKN);
 
     Expect(TokenType::LEFT_BRACE_TKN);
+    // We can allow for empty function declarations here
+    // (rather than requiring at least a semicolon)
+    if (curr_tkn_.GetType() == TokenType::RIGHT_BRACE_TKN) {
+      GetNextTkn();
+      break;
+    }
+
     statement_ast->AddChild(Statement());
     Expect(TokenType::RIGHT_BRACE_TKN);
     break;
@@ -234,6 +241,11 @@ AstNodePtr Parser::Params() {
   while (curr_tkn_.GetType() != TokenType::RIGHT_PAREN_TKN) {
     // TODO: Support expressions in params
     params_ast->AddChild(Term());
+
+    if (curr_tkn_.GetType() == TokenType::RIGHT_PAREN_TKN) {
+      break;
+    }
+
     Expect(TokenType::COMMA_TKN);
   }
 

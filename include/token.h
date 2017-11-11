@@ -46,6 +46,7 @@ class Token {
   int GetLinePos() const { return line_pos_; }
   int GetCharPos() const { return char_pos_; }
   std::string GetText() const { return text_; }
+
   const std::string GetPrettyType();
 
   void SetType(const TokenType type) { type_ = type; }
@@ -57,7 +58,6 @@ class Token {
   TokenType type_;
   int val_;
   std::string text_;
-  std::string debug_;
   int line_pos_;
   int char_pos_;
 };

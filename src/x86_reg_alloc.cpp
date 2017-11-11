@@ -65,13 +65,24 @@ void X86RegAlloc::Allocate(const CfgNodePtr& block) {
       assigned_registers_[sorted_vregs[i].first] = registers_[reg_order_[i]];
     }
 
-    // Traverse the instructions again, and rewrite the instructions
+    // TODO: Traverse the instructions again, and rewrite the instructions
     // to use the assigned register. If no register is assigned for the
     // found virtual reg, insert a ld from memory and a sv to a reserved
     // register to access the value.
-    // Ensure that the stack size is calculated correctly for this operation,
+    // TODO: Ensure that the stack size is calculated correctly for this operation,
     // as each spilled value adds to the stack size, and the address must be know
     // for writing to be correct.
+    // At this time, reg alloc only works when the program needs less than 11 general
+    // purpose registers.
+    // Steps that may need to be taken: count the amount of extra virtual registers. Determine
+    // extra stack space needed from these and then ensure that the writer accomodates that.
+    // Each time a vreg is not found in the assigned_regs mapping, change that set of instructions
+    // to a mv to the stack, and then a ld from the stack into r15, our reserved register.
+    // ie.
+    // mov r20, 10
+    // becomes
+    // mov [rbp-8], 10
+    // mov r15, [rbp-8]
     for (auto instr : instrs) {
       auto first_arg = instr->GetFirstArg();
 
@@ -105,7 +116,6 @@ X86RegPtr X86RegAlloc::NextRegister(const std::string vreg) {
   // (ie. not enough registers)
   assert(assigned_registers_.find(vreg) != assigned_registers_.end());
 
-  // std::cout << vreg << std::endl;
   auto reg = assigned_registers_[vreg];
   reg->Allocate();
 

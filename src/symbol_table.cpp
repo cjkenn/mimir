@@ -74,6 +74,7 @@ void SymbolTable::ExitScope() {
 
 int SymbolTable::GetSizeOfCurrentScope() {
   // TODO: Eventually this will need to be a loop over each var, to check types and sizes.
+  // For now, each var created is assumed to be 32 bits
   return sym_tab_[curr_level_].size() * 8;
 }
 

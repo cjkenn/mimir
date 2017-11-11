@@ -52,7 +52,7 @@ void X86RegAlloc::Allocate(const CfgNodePtr& block) {
 
     std::sort(sorted_vregs.begin(), sorted_vregs.end(),
 	      [=](std::pair<std::string, unsigned int>& a, std::pair<std::string, unsigned int>& b) {
-		return a.second < b.second;
+		return b.second < a.second;
 	      });
 
     // Now pick the top NUM_UNRESERVED_REG and assign to a real register. Any virtual registers

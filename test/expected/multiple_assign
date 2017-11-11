@@ -6,10 +6,10 @@ push rbp
 mov rbp, rsp
 sub rsp, 16
 lbl0:
-mov rax, 10
-mov [rbp-8], rax
-mov rbx, 11
-mov [rbp-16], rbx
+mov rbx, 10
+mov [rbp-8], rbx
+mov rax, 11
+mov [rbp-16], rax
 nop
 mov rsp, rbp
 pop rbp

@@ -87,6 +87,12 @@ std::vector<IrInstrPtr> IrGen::ConvertAstToInstr(AstNodePtr ast) {
       MergeInstrVecs(instrs, set_instrs);
       break;
     }
+  case AstType::FUNC_AST:
+    {
+      auto func_instrs = FuncAstToInstr(ast);
+      MergeInstrVecs(instrs, func_instrs);
+      break;
+    }
   case AstType::ADD_AST:
   case AstType::SUB_AST:
   case AstType::MUL_AST:
@@ -270,6 +276,39 @@ std::vector<IrInstrPtr> IrGen::SetAstToInstr(AstNodePtr ast) {
 
   // Ensure we visit the set arguments here so we don't search them
   // multiple times.
+  ast->VisitNodeAndChildren();
+
+  return v;
+}
+
+std::vector<IrInstrPtr> IrGen::FuncAstToInstr(AstNodePtr ast) {
+  assert(ast->GetType() == AstType::FUNC_AST);
+  std::vector<IrInstrPtr> v;
+  auto func_name = ast->GetText();
+
+  // Generate label with function name. We use a custom instruction
+  // called func_enter, which will expand to the proper calling sequence
+  // when we convert to a backend assembly. For now we don't really care.
+  IrInstrPtr func_enter = std::make_shared<IrInstr>(IrInstrType::FUNC_ENTER_INSTR);
+  func_enter->SetLabel(func_name);
+  v.push_back(func_enter);
+
+  // The left side of this ast represents the function params. We don't really need
+  // to do anything with those here, since when the function is called the params
+  // are pushed on to the stack and saved using the func_enter instr above.
+  // TODO: Will there be any scoping issues here?
+  auto func_body = ConvertAstToInstr(ast->GetChildAtIndex(1));
+
+  for (auto instr : func_body) {
+    instr->SetLabel(func_name);
+  }
+
+  MergeInstrVecs(v, func_body);
+
+  IrInstrPtr func_exit = std::make_shared<IrInstr>(IrInstrType::FUNC_EXIT_INSTR);
+  func_exit->SetLabel(func_name);
+  v.push_back(func_exit);
+
   ast->VisitNodeAndChildren();
 
   return v;

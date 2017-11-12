@@ -27,7 +27,9 @@ enum IrInstrType {
   DIV_INSTR,
   MOD_INSTR,
   NOP_INSTR,
-  CMP_INSTR
+  CMP_INSTR,
+  FUNC_ENTER_INSTR,
+  FUNC_EXIT_INSTR
 };
 
 class IrInstr {

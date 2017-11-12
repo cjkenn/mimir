@@ -89,6 +89,9 @@ void X86InstrSel::MapIrToX86(std::vector<X86InstrPtr>& x86,
   case IrInstrType::NOP_INSTR:
     ConvertNopInstr(x86, curr);
     break;
+  default:
+    assert(false);
+    break;
   }
 }
 

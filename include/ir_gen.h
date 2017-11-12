@@ -35,6 +35,7 @@ class IrGen {
   std::vector<IrInstrPtr> IfElseAstToInstr(AstNodePtr ast);
   std::vector<IrInstrPtr> WhileAstToInstr(AstNodePtr ast);
   std::vector<IrInstrPtr> SetAstToInstr(AstNodePtr ast);
+  std::vector<IrInstrPtr> FuncAstToInstr(AstNodePtr ast);
   std::vector<IrInstrPtr> BinOpAstToInstr(AstNodePtr ast);
 
   // The parenthetical expressions that are used the test

@@ -95,8 +95,14 @@ AstNodePtr Parser::Statement() {
       break;
     }
 
+    // When we enter parsing of a function body, we open a new scope in
+    // our symbol table.
+    sym_tab_->InitScope();
+
     statement_ast->AddChild(Statement());
     Expect(TokenType::RIGHT_BRACE_TKN);
+
+    sym_tab_->ExitScope();
     break;
   default:
     statement_ast->SetType(AstType::EXPR_AST);
@@ -239,8 +245,7 @@ AstNodePtr Parser::Params() {
   auto params_ast = std::make_shared<AstNode>(AstType::PARAMS_AST);
 
   while (curr_tkn_.GetType() != TokenType::RIGHT_PAREN_TKN) {
-    // TODO: Support expressions in params
-    params_ast->AddChild(Term());
+    params_ast->AddChild(BinOp());
 
     if (curr_tkn_.GetType() == TokenType::RIGHT_PAREN_TKN) {
       break;

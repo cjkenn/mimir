@@ -15,7 +15,13 @@ CfgGen::CfgGen() {
 
 Cfg CfgGen::Gen(const std::vector<IrInstrPtr>& ir) {
   CfgNodePtr root = std::make_shared<CfgNode>(GetNextName());
+
+  // Leader is a vector because the ordering of the nodes inserted
+  // matters, which makes it difficult to use a map instead.
   std::vector<CfgNodePtr> leader;
+
+  // TODO: We should make a mapping from node name to list index
+  // so that we can insert child nodes easier later on
 
   if (ir.empty()) {
     Cfg cfg(root);
@@ -56,6 +62,10 @@ Cfg CfgGen::Gen(const std::vector<IrInstrPtr>& ir) {
       if (instr->IsJmp()) {
 	int to_jmp = FindBlockIndex(instr);
 	node->AddAdjChild(leader[to_jmp]);
+      }
+
+      if (instr->IsFunc()) {
+	// TODO: add the func block as a child here
       }
     }
   }

@@ -451,9 +451,8 @@ void test_select_instrs_func_exit_no_return(std::shared_ptr<mimir::SymbolTable> 
   assert(second_x86->GetFirstArg()->GetVal() == "ebp");
 
   auto third_x86 = cfg_node->GetX86Instrs()[2];
-  assert(second_x86->GetType() == X86InstrType::RET_X86);
+  assert(third_x86->GetType() == X86InstrType::RET_X86);
 }
-
 
 int main(int argc, char **argv) {
   auto sym_tab = std::make_shared<mimir::SymbolTable>();
@@ -477,6 +476,7 @@ int main(int argc, char **argv) {
   test_select_instrs_cmp(sym_tab);
   test_select_instrs_simple_branch(sym_tab);
   test_select_instrs_func_enter_no_locals(sym_tab);
+  test_select_instrs_func_exit_no_return(sym_tab);
 
   std::cout << "X86 Instruction Selection tests passed!" << std::endl;
 

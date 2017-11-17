@@ -69,6 +69,9 @@ class IrInstr {
   // True if the instruction is a binary operator.
   bool IsBinOp();
 
+  // True if the instruction is a function definition.
+  bool IsFunc();
+
   // Returns the instruction type as a string.
   const std::string GetTypeAsStr();
 

@@ -61,6 +61,8 @@ std::string X86Instr::MapTypeToStr() {
     return "call";
   case X86InstrType::NOP_X86:
     return "nop";
+  case X86InstrType::RET_X86:
+    return "ret";
   default:
     return "";
   }

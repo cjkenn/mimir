@@ -57,6 +57,10 @@ bool IrInstr::IsBinOp() {
 	  type_ == IrInstrType::MOD_INSTR);
 }
 
+bool IrInstr::IsFunc() {
+  return (type_ == IrInstrType::FUNC_ENTER_INSTR);
+}
+
 const std::string IrInstr::GetTypeAsStr() {
   switch(type_) {
   case IrInstrType::MV_INSTR:
@@ -75,6 +79,10 @@ const std::string IrInstr::GetTypeAsStr() {
     return "DIV";
   case IrInstrType::MOD_INSTR:
     return "MOD";
+  case IrInstrType::FUNC_ENTER_INSTR:
+    return "FUNC ENTER";
+  case IrInstrType::FUNC_EXIT_INSTR:
+    return "FUNC_EXIT";
   default:
     return "OP";
   }

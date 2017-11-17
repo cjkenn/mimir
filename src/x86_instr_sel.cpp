@@ -32,6 +32,8 @@ void X86InstrSel::SelectInstrsForEntireBranch(const CfgNodePtr& block) {
   std::queue<CfgNodePtr> q;
   q.push(block);
 
+  auto ir = block->GetInstrs();
+
   while(!q.empty()) {
     auto block = q.front();
     q.pop();

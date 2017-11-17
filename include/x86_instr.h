@@ -29,7 +29,8 @@ enum X86InstrType {
   PUSH_X86,
   POP_X86,
   CALL_X86,
-  NOP_X86
+  NOP_X86,
+  RET_X86
 };
 
 class X86Instr {

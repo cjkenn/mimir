@@ -89,6 +89,12 @@ void X86InstrSel::MapIrToX86(std::vector<X86InstrPtr>& x86,
   case IrInstrType::NOP_INSTR:
     ConvertNopInstr(x86, curr);
     break;
+  case IrInstrType::FUNC_ENTER_INSTR:
+    ConvertFuncEnterInstr(x86, curr);
+    break;
+  case IrInstrType::FUNC_EXIT_INSTR:
+    ConvertFuncExitInstr(x86, curr);
+    break;
   default:
     assert(false);
     break;
@@ -316,6 +322,70 @@ void X86InstrSel::ConvertNopInstr(std::vector<X86InstrPtr>& x86,
   X86InstrPtr i = std::make_shared<X86Instr>(X86InstrType::NOP_X86, instr->GetLabel());
   x86.push_back(i);
 }
+
+void X86InstrSel::ConvertFuncEnterInstr(std::vector<X86InstrPtr>& x86,
+					const IrInstrPtr& instr) {
+  assert(instr->GetType() == IrInstrType::FUNC_ENTER_INSTR);
+
+  auto push_instr = std::make_shared<X86Instr>(X86InstrType::PUSH_X86, instr->GetLabel());
+  auto const push_arg1 = std::make_shared<X86InstrArg>(X86InstrArgType::REG_X86,
+						      "ebp");
+  push_instr->SetFirstArg(push_arg1);
+  x86.push_back(push_instr);
+
+  auto mv_instr = std::make_shared<X86Instr>(X86InstrType::MOV_X86, instr->GetLabel());
+  auto const mv_arg1 = std::make_shared<X86InstrArg>(X86InstrArgType::REG_X86,
+						     "ebp");
+
+  auto const mv_arg2 = std::make_shared<X86InstrArg>(X86InstrArgType::REG_X86,
+						     "esp");
+  mv_instr->SetFirstArg(mv_arg1);
+  mv_instr->SetSecondArg(mv_arg2);
+  x86.push_back(mv_instr);
+
+  // TODO: Get stack size needed by this function. Should be available through the sym table,
+  // under the scope for this function (if we can find it)
+  const unsigned int stack_sz = 0;
+
+  if (stack_sz > 0) {
+    auto sub_instr = std::make_shared<X86Instr>(X86InstrType::SUB_X86, instr->GetLabel());
+    auto const sub_arg1 = std::make_shared<X86InstrArg>(X86InstrArgType::REG_X86,
+							 "esp");
+    sub_instr->SetFirstArg(sub_arg1);
+
+    auto const sub_arg2 = std::make_shared<X86InstrArg>(X86InstrArgType::NUM_X86,
+							 std::to_string(stack_sz));
+    sub_instr->SetSecondArg(sub_arg2);
+    x86.push_back(sub_instr);
+  }
+}
+
+void X86InstrSel::ConvertFuncExitInstr(std::vector<X86InstrPtr>& x86,
+				       const IrInstrPtr& instr) {
+  assert(instr->GetType() == IrInstrType::FUNC_EXIT_INSTR);
+
+  auto mv_instr = std::make_shared<X86Instr>(X86InstrType::MOV_X86, instr->GetLabel());
+  auto const mv_arg1 = std::make_shared<X86InstrArg>(X86InstrArgType::REG_X86,
+						      "esp");
+  mv_instr->SetFirstArg(mv_arg1);
+
+  auto const mv_arg2 = std::make_shared<X86InstrArg>(X86InstrArgType::REG_X86,
+						      "ebp");
+  mv_instr->SetSecondArg(mv_arg2);
+  x86.push_back(mv_instr);
+
+  auto pop_instr = std::make_shared<X86Instr>(X86InstrType::POP_X86, instr->GetLabel());
+  auto const pop_arg1 = std::make_shared<X86InstrArg>(X86InstrArgType::REG_X86,
+						      "ebp");
+  pop_instr->SetFirstArg(pop_arg1);
+  x86.push_back(pop_instr);
+
+  // TODO: Support for returning values instead of an empty return
+  auto ret_instr = std::make_shared<X86Instr>(X86InstrType::RET_X86, instr->GetLabel());
+
+  x86.push_back(ret_instr);
+}
+
 
 X86InstrType X86InstrSel::GetX86BranchType(IrInstrPtr instr) {
   assert(instr->IsJmp());

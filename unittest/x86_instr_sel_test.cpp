@@ -387,6 +387,73 @@ void test_select_instrs_simple_branch(std::shared_ptr<mimir::SymbolTable> sym_ta
   assert(first_x86->GetFirstArg()->GetVal() == "lbl0");
 }
 
+// Input:
+//
+// func_enter
+//
+// Expected Outpu:
+//
+// push ebp
+// mov ebp, esp
+// -- sub esp, 0 -- this will be omitted for this test
+void test_select_instrs_func_enter_no_locals(std::shared_ptr<mimir::SymbolTable> sym_tab) {
+  std::vector<IrInstrPtr> instrs;
+  IrInstrPtr func = std::make_shared<IrInstr>(IrInstrType::FUNC_ENTER_INSTR);
+  instrs.push_back(func);
+
+  CfgNodePtr cfg_node = std::make_shared<CfgNode>("b0");
+  cfg_node->SetInstrs(instrs);
+
+  X86InstrSel x86is(sym_tab);
+  x86is.SelectInstrs(cfg_node);
+
+  assert(cfg_node->GetX86Instrs().size() == 2);
+
+  auto first_x86 = cfg_node->GetX86Instrs()[0];
+  assert(first_x86->GetType() == X86InstrType::PUSH_X86);
+  assert(first_x86->GetFirstArg()->GetVal() == "ebp");
+
+  auto second_x86 = cfg_node->GetX86Instrs()[1];
+  assert(second_x86->GetType() == X86InstrType::MOV_X86);
+  assert(second_x86->GetFirstArg()->GetVal() == "ebp");
+  assert(second_x86->GetSecondArg()->GetVal() == "esp");
+}
+
+// Input:
+//
+// func_exit
+//
+// Expected Outpu:
+//
+// mov esp, ebp
+// pop ebp
+// ret
+void test_select_instrs_func_exit_no_return(std::shared_ptr<mimir::SymbolTable> sym_tab) {
+  std::vector<IrInstrPtr> instrs;
+  IrInstrPtr func = std::make_shared<IrInstr>(IrInstrType::FUNC_EXIT_INSTR);
+  instrs.push_back(func);
+
+  CfgNodePtr cfg_node = std::make_shared<CfgNode>("b0");
+  cfg_node->SetInstrs(instrs);
+
+  X86InstrSel x86is(sym_tab);
+  x86is.SelectInstrs(cfg_node);
+
+  assert(cfg_node->GetX86Instrs().size() == 3);
+
+  auto first_x86 = cfg_node->GetX86Instrs()[0];
+  assert(first_x86->GetType() == X86InstrType::MOV_X86);
+  assert(first_x86->GetFirstArg()->GetVal() == "esp");
+  assert(first_x86->GetSecondArg()->GetVal() == "ebp");
+
+  auto second_x86 = cfg_node->GetX86Instrs()[1];
+  assert(second_x86->GetType() == X86InstrType::POP_X86);
+  assert(second_x86->GetFirstArg()->GetVal() == "ebp");
+
+  auto third_x86 = cfg_node->GetX86Instrs()[2];
+  assert(second_x86->GetType() == X86InstrType::RET_X86);
+}
+
 
 int main(int argc, char **argv) {
   auto sym_tab = std::make_shared<mimir::SymbolTable>();
@@ -409,6 +476,7 @@ int main(int argc, char **argv) {
   test_select_instrs_mod_instr(sym_tab);
   test_select_instrs_cmp(sym_tab);
   test_select_instrs_simple_branch(sym_tab);
+  test_select_instrs_func_enter_no_locals(sym_tab);
 
   std::cout << "X86 Instruction Selection tests passed!" << std::endl;
 

@@ -53,6 +53,12 @@ class X86InstrSel {
   void ConvertNopInstr(std::vector<X86InstrPtr>& x86,
 		       const IrInstrPtr& instr);
 
+  void ConvertFuncEnterInstr(std::vector<X86InstrPtr>& x86,
+			     const IrInstrPtr& instr);
+
+  void ConvertFuncExitInstr(std::vector<X86InstrPtr>& x86,
+			     const IrInstrPtr& instr);
+
   X86InstrType GetX86BranchType(IrInstrPtr instr);
 
  private:

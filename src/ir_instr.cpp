@@ -61,6 +61,10 @@ bool IrInstr::IsFunc() {
   return (type_ == IrInstrType::FUNC_ENTER_INSTR);
 }
 
+bool IrInstr::IsCall() {
+  return (type_ == IrInstrType::FUNC_CALL_INSTR);
+}
+
 const std::string IrInstr::GetTypeAsStr() {
   switch(type_) {
   case IrInstrType::MV_INSTR:
@@ -82,7 +86,11 @@ const std::string IrInstr::GetTypeAsStr() {
   case IrInstrType::FUNC_ENTER_INSTR:
     return "FUNC ENTER";
   case IrInstrType::FUNC_EXIT_INSTR:
-    return "FUNC_EXIT";
+    return "FUNC EXIT";
+  case IrInstrType::FUNC_CALL_INSTR:
+    return "FUNC CALL";
+  case IrInstrType::FUNC_PARAM_INSTR:
+    return "FUNC PARAM";
   default:
     return "OP";
   }

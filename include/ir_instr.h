@@ -74,6 +74,9 @@ class IrInstr {
   // True if the instruction is a function definition.
   bool IsFunc();
 
+  // True if the instruction is a function call.
+  bool IsCall();
+
   // Returns the instruction type as a string.
   const std::string GetTypeAsStr();
 

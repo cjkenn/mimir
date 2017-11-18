@@ -392,7 +392,7 @@ void test_select_instrs_simple_branch(std::shared_ptr<mimir::SymbolTable> sym_ta
 //
 // func_enter
 //
-// Expected Outpu:
+// Expected Output:
 //
 // push ebp
 // mov ebp, esp
@@ -424,7 +424,7 @@ void test_select_instrs_func_enter_no_locals(std::shared_ptr<mimir::SymbolTable>
 //
 // func_exit
 //
-// Expected Outpu:
+// Expected Output:
 //
 // mov esp, ebp
 // pop ebp
@@ -459,7 +459,7 @@ void test_select_instrs_func_exit_no_return(std::shared_ptr<mimir::SymbolTable> 
 //
 // call mFunc
 //
-// Expected Outpu:
+// Expected Output:
 //
 // call mFunc
 void test_select_instrs_func_call(std::shared_ptr<mimir::SymbolTable> sym_tab) {
@@ -485,7 +485,7 @@ void test_select_instrs_func_call(std::shared_ptr<mimir::SymbolTable> sym_tab) {
 //
 // param 1
 //
-// Expected Outpu:
+// Expected Output:
 //
 // push 1
 void test_select_instrs_func_param(std::shared_ptr<mimir::SymbolTable> sym_tab) {

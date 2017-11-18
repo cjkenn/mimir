@@ -3,6 +3,7 @@
 #include <vector>
 #include <iostream>
 #include <assert.h>
+#include <utility>
 #include "ast.h"
 #include "ir_instr.h"
 #include "ir_gen.h"
@@ -91,6 +92,18 @@ std::vector<IrInstrPtr> IrGen::ConvertAstToInstr(AstNodePtr ast) {
     {
       auto func_instrs = FuncAstToInstr(ast);
       MergeInstrVecs(instrs, func_instrs);
+      break;
+    }
+  case AstType::FUNC_CALL_AST:
+    {
+      auto func_call_instrs = FuncCallAstToInstr(ast);
+      MergeInstrVecs(instrs, func_call_instrs);
+      break;
+    }
+  case AstType::PARAMS_AST:
+    {
+      auto params_instrs = ParamsAstToInstr(ast);
+      MergeInstrVecs(instrs, params_instrs);
       break;
     }
   case AstType::ADD_AST:
@@ -308,6 +321,44 @@ std::vector<IrInstrPtr> IrGen::FuncAstToInstr(AstNodePtr ast) {
   IrInstrPtr func_exit = std::make_shared<IrInstr>(IrInstrType::FUNC_EXIT_INSTR);
   func_exit->SetLabel(func_name);
   v.push_back(func_exit);
+
+  ast->VisitNodeAndChildren();
+
+  return v;
+}
+
+std::vector<IrInstrPtr> IrGen::FuncCallAstToInstr(AstNodePtr ast) {
+  assert(ast->GetType() == AstType::FUNC_CALL_AST);
+
+  auto param_instrs = ConvertAstToInstr(ast->GetChildAtIndex(0));
+  auto const func_name = ast->GetText();
+
+  IrInstrPtr func_call = std::make_shared<IrInstr>(IrInstrType::FUNC_CALL_INSTR);
+  func_call->SetArgs(std::make_pair(func_name, ""));
+  func_call->SetLabel(curr_lbl_);
+  param_instrs.push_back(func_call);
+
+  ast->VisitNodeAndChildren();
+
+  return param_instrs;
+}
+
+std::vector<IrInstrPtr> IrGen::ParamsAstToInstr(AstNodePtr ast) {
+  assert(ast->GetType() == AstType::PARAMS_AST);
+
+  std::vector<IrInstrPtr> v;
+
+  for (auto param_ast : ast->GetChildren()) {
+    IrInstrPtr param = std::make_shared<IrInstr>(IrInstrType::FUNC_PARAM_INSTR);
+    param->SetLabel(curr_lbl_);
+
+    if (param_ast->GetType() == AstType::VAR_AST) {
+      param->SetArgs(std::make_pair(param_ast->GetText(), ""));
+    } else if (param_ast->GetType() == AstType::CST_AST) {
+      param->SetArgs(std::make_pair(std::to_string(param_ast->GetVal()), ""));
+    }
+    v.insert(v.begin(), param);
+  }
 
   ast->VisitNodeAndChildren();
 

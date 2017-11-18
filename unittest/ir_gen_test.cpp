@@ -256,7 +256,7 @@ void test_gen_while_ast() {
 // func_exit
 // lbl0:
 // nop
-void test_gen_func_ast() {
+void test_gen_func_def_ast() {
   std::string test_file = "parser_input/func_statement";
   auto lexer = std::make_shared<Lexer>(test_file);
   auto sym_tab = std::make_shared<SymbolTable>();
@@ -290,11 +290,52 @@ void test_gen_func_ast() {
   assert(ir[4]->GetLabel() == "lbl0");
 }
 
+// Input:
+//
+// mFunc(x,y);
+//
+// Expected Output:
+//
+// lbl0:
+// param y
+// param x
+// call mFunc
+// nop
+void test_gen_func_call_ast() {
+  std::string test_file = "parser_input/func_call";
+  auto lexer = std::make_shared<Lexer>(test_file);
+  auto sym_tab = std::make_shared<SymbolTable>();
+  Parser parser(lexer, sym_tab);
+
+  auto ast = parser.Parse().GetAst();
+  IrGen ir_gen;
+  std::vector<IrInstrPtr> ir = ir_gen.Gen(ast);
+
+  assert(ir.size() == 4);
+
+  assert(ir[0]->GetType() == IrInstrType::FUNC_PARAM_INSTR);
+  assert(ir[0]->GetLabel() == "lbl0");
+  assert(ir[0]->GetArgs().first == "y");
+
+  assert(ir[1]->GetType() == IrInstrType::FUNC_PARAM_INSTR);
+  assert(ir[1]->GetLabel() == "lbl0");
+  assert(ir[1]->GetArgs().first == "x");
+
+  assert(ir[2]->GetType() == IrInstrType::FUNC_CALL_INSTR);
+  assert(ir[2]->GetLabel() == "lbl0");
+  assert(ir[2]->GetArgs().first == "mFunc");
+  assert(ir[2]->GetArgs().second == "");
+
+  assert(ir[3]->GetType() == IrInstrType::NOP_INSTR);
+  assert(ir[3]->GetLabel() == "lbl0");
+}
+
 int main(int argc, char** argv) {
   test_gen_if_ast();
   test_gen_else_ast();
   test_gen_while_ast();
-  test_gen_func_ast();
+  test_gen_func_def_ast();
+  test_gen_func_call_ast();
 
   std::cout << "Ir gen tests passed!" << std::endl;
   return 0;

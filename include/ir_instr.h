@@ -29,7 +29,9 @@ enum IrInstrType {
   NOP_INSTR,
   CMP_INSTR,
   FUNC_ENTER_INSTR,
-  FUNC_EXIT_INSTR
+  FUNC_EXIT_INSTR,
+  FUNC_CALL_INSTR,
+  FUNC_PARAM_INSTR
 };
 
 class IrInstr {

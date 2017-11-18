@@ -2,6 +2,7 @@
 #include <iostream>
 #include <memory>
 #include <vector>
+#include <utility>
 #include "x86_instr_sel.h"
 #include "symbol_table.h"
 #include "symbol.h"
@@ -454,6 +455,58 @@ void test_select_instrs_func_exit_no_return(std::shared_ptr<mimir::SymbolTable> 
   assert(third_x86->GetType() == X86InstrType::RET_X86);
 }
 
+// Input:
+//
+// call mFunc
+//
+// Expected Outpu:
+//
+// call mFunc
+void test_select_instrs_func_call(std::shared_ptr<mimir::SymbolTable> sym_tab) {
+  std::vector<IrInstrPtr> instrs;
+  IrInstrPtr func = std::make_shared<IrInstr>(IrInstrType::FUNC_CALL_INSTR);
+  func->SetArgs(std::make_pair("mFunc", ""));
+  instrs.push_back(func);
+
+  CfgNodePtr cfg_node = std::make_shared<CfgNode>("b0");
+  cfg_node->SetInstrs(instrs);
+
+  X86InstrSel x86is(sym_tab);
+  x86is.SelectInstrs(cfg_node);
+
+  assert(cfg_node->GetX86Instrs().size() == 1);
+
+  auto first_x86 = cfg_node->GetX86Instrs()[0];
+  assert(first_x86->GetType() == X86InstrType::CALL_X86);
+  assert(first_x86->GetFirstArg()->GetVal() == "mFunc");
+}
+
+// Input:
+//
+// param 1
+//
+// Expected Outpu:
+//
+// push 1
+void test_select_instrs_func_param(std::shared_ptr<mimir::SymbolTable> sym_tab) {
+  std::vector<IrInstrPtr> instrs;
+  IrInstrPtr func = std::make_shared<IrInstr>(IrInstrType::FUNC_PARAM_INSTR);
+  func->SetArgs(std::make_pair("1", ""));
+  instrs.push_back(func);
+
+  CfgNodePtr cfg_node = std::make_shared<CfgNode>("b0");
+  cfg_node->SetInstrs(instrs);
+
+  X86InstrSel x86is(sym_tab);
+  x86is.SelectInstrs(cfg_node);
+
+  assert(cfg_node->GetX86Instrs().size() == 1);
+
+  auto first_x86 = cfg_node->GetX86Instrs()[0];
+  assert(first_x86->GetType() == X86InstrType::PUSH_X86);
+  assert(first_x86->GetFirstArg()->GetVal() == "1");
+}
+
 int main(int argc, char **argv) {
   auto sym_tab = std::make_shared<mimir::SymbolTable>();
   auto x_node = std::make_shared<AstNode>(AstType::VAR_AST);
@@ -477,6 +530,8 @@ int main(int argc, char **argv) {
   test_select_instrs_simple_branch(sym_tab);
   test_select_instrs_func_enter_no_locals(sym_tab);
   test_select_instrs_func_exit_no_return(sym_tab);
+  test_select_instrs_func_call(sym_tab);
+  test_select_instrs_func_param(sym_tab);
 
   std::cout << "X86 Instruction Selection tests passed!" << std::endl;
 

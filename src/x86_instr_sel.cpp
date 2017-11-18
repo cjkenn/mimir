@@ -97,6 +97,12 @@ void X86InstrSel::MapIrToX86(std::vector<X86InstrPtr>& x86,
   case IrInstrType::FUNC_EXIT_INSTR:
     ConvertFuncExitInstr(x86, curr);
     break;
+  case IrInstrType::FUNC_PARAM_INSTR:
+    ConvertParamInstr(x86, curr);
+    break;
+  case IrInstrType::FUNC_CALL_INSTR:
+    ConvertFuncCallInstr(x86, curr);
+    break;
   default:
     assert(false);
     break;
@@ -388,6 +394,29 @@ void X86InstrSel::ConvertFuncExitInstr(std::vector<X86InstrPtr>& x86,
   x86.push_back(ret_instr);
 }
 
+void X86InstrSel::ConvertFuncCallInstr(std::vector<X86InstrPtr>& x86,
+				       const IrInstrPtr& instr) {
+  assert(instr->GetType() == IrInstrType::FUNC_CALL_INSTR);
+
+  auto call_instr = std::make_shared<X86Instr>(X86InstrType::CALL_X86, instr->GetLabel());
+  auto const func_name = std::make_shared<X86InstrArg>(X86InstrArgType::LBL_X86,
+						       instr->GetArgs().first);
+  call_instr->SetFirstArg(func_name);
+  x86.push_back(call_instr);
+}
+
+void X86InstrSel::ConvertParamInstr(std::vector<X86InstrPtr>& x86,
+				    const IrInstrPtr& instr) {
+  assert(instr->GetType() == IrInstrType::FUNC_PARAM_INSTR);
+
+  auto push_instr = std::make_shared<X86Instr>(X86InstrType::PUSH_X86, instr->GetLabel());
+  // TODO: Needs to handle different param types other than numbers. We need to load
+  // the variables that we pass to the function.
+  auto const param_arg  = std::make_shared<X86InstrArg>(X86InstrArgType::NUM_X86,
+					      instr->GetArgs().first);
+  push_instr->SetFirstArg(param_arg);
+  x86.push_back(push_instr);
+}
 
 X86InstrType X86InstrSel::GetX86BranchType(IrInstrPtr instr) {
   assert(instr->IsJmp());

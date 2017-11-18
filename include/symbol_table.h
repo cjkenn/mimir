@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <unordered_map>
+#include <string>
 #include "ast.h"
 #include "symbol.h"
 
@@ -22,6 +23,11 @@ class SymbolTable {
 
   // Insert a value into the current scope level table.
   void Insert(AstNodePtr var_ast);
+
+  // Insert a function name into the current scope level table. This has less
+  // functionality than the Insert function above, as it is only used for lookup
+  // and not for setting stack sizes.
+  void InsertFuncName(std::string key);
 
   // Find a key. If the key does not exist at the current
   // scope level, traverses up the scope level until a key

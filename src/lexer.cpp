@@ -172,6 +172,19 @@ Token Lexer::Lex() {
   return tkn;
 }
 
+char Lexer::PeekCurrChar() {
+  char curr = lastchar_;
+  int curr_g = ifs_.tellg();
+
+  while(isspace(curr)) {
+    ifs_.get(curr);
+  }
+
+  ifs_.seekg(curr_g);
+
+  return curr;
+}
+
 Token Lexer::BuildTokenAndAdvance(const TokenType curr_type) {
   Token tkn(curr_type);
   tkn.SetLinePos(curr_line_pos_);

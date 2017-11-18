@@ -572,7 +572,7 @@ void test_parse_negation_op() {
 //  Var    Var    Set
 //                 |
 //                ...
-void test_parse_function() {
+void test_parse_func_def() {
   auto parser = get_parser_for_file("func_statement");
   auto ast = parser.Parse().GetAst();
 
@@ -594,6 +594,33 @@ void test_parse_function() {
   assert(statement_ast->GetChildren().size() == 1);
 }
 
+// Expected format:
+//
+//   Program
+//      |
+//   FuncCall
+//      |
+//    Params
+//    _/  \_
+//  Var    Var
+void test_parse_func_call() {
+  auto parser = get_parser_for_file("func_call");
+  auto ast = parser.Parse().GetAst();
+
+  assert(ast->GetType() == AstType::PROG_AST);
+  assert(ast->GetChildren().size() == 1);
+
+  auto func_ast = ast->GetChildren()[0];
+  assert(func_ast->GetType() == AstType::FUNC_CALL_AST);
+  assert(func_ast->GetChildren().size() == 1);
+
+  auto params_ast = func_ast->GetChildren()[0];
+  assert(params_ast->GetType() == AstType::PARAMS_AST);
+  assert(params_ast->GetChildren().size() == 2);
+  assert(params_ast->GetChildren()[0]->GetText() == "x");
+  assert(params_ast->GetChildren()[1]->GetText() == "y");
+}
+
 int main(int argc, char** argv) {
   test_parse_assign();
   test_parse_assign_expression();
@@ -607,7 +634,8 @@ int main(int argc, char** argv) {
   test_parse_while();
   test_parse_two_statements();
   test_parse_negation_op();
-  test_parse_function();
+  test_parse_func_def();
+  test_parse_func_call();
 
   std::cout << "Parser Tests passed!" << std::endl;
   return 0;

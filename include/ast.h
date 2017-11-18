@@ -28,6 +28,7 @@ enum AstType {
   ELSE_AST,
   WHILE_AST,
   FUNC_AST,
+  FUNC_CALL_AST,
   PARAMS_AST,
   SEQ_AST,
   EXPR_AST,

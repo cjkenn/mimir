@@ -35,6 +35,12 @@ Cfg CfgGen::Gen(const std::vector<IrInstrPtr>& ir) {
   // This requires a single pass over the ir. Each leader
   // will be a part of a cfg node, so the number of cfg nodes
   // is equal to the number of leaders.
+  //
+  // Interestingly, this algorithm will not add a leader block of a
+  // function definition type IF nothing calls that function. This makes
+  // some sense, as control flow will never jmp to that function if nothing
+  // calls it. It may be slightly misleading though, because then a defined
+  // function shows up in ir but not in the finished assembly.
   ir[0]->SetIsLeader(true);
   root->AddInstr(ir[0]);
 
@@ -79,14 +85,12 @@ Cfg CfgGen::Gen(const std::vector<IrInstrPtr>& ir) {
       // but we need to make sure we jump to the right one when we call it (ie.
       // we get the control flow correct). We also then need to find all ret
       // instructions, and make sure they map back to the calling block
-      // But shouldn't function defs go into their own blocks? How to add those to
-      // the cfg then?
-      if (instr->IsFunc()) {
-	auto func_idx = leader_node_map.find(instr->GetLabel());
-	if (func_idx != leader_node_map.end()) {
-	  node->AddAdjChild(leader[func_idx->second]);
-	}
-      }
+      // if (instr->IsFunc()) {
+      // 	auto func_idx = leader_node_map.find(instr->GetLabel());
+      // 	if (func_idx != leader_node_map.end()) {
+      // 	  node->AddAdjChild(leader[func_idx->second]);
+      // 	}
+      // }
     }
   }
 

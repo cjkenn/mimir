@@ -81,6 +81,10 @@ AstNodePtr Parser::Statement() {
     GetNextTkn();
 
     statement_ast->SetText(curr_tkn_.GetText());
+
+    // Put the function name in the symbol table, so that if
+    // we call it later we can lookup the name.
+    sym_tab_->InsertFuncName(curr_tkn_.GetText());
     Expect(TokenType::ID_TKN);
 
     Expect(TokenType::LEFT_PAREN_TKN);
@@ -105,11 +109,37 @@ AstNodePtr Parser::Statement() {
     sym_tab_->ExitScope();
     break;
   default:
-    statement_ast->SetType(AstType::EXPR_AST);
-    statement_ast->AddChild(Expr());
+    {
+      // Look ahead one char to see if we have a function call. If the next
+      // char is not a left paren, we continue parsing an expression.
+      const char next_ch = lexer_->PeekCurrChar();
+      if (next_ch == '(') {
+	const std::string sym_name = curr_tkn_.GetText();
+	statement_ast->SetType(AstType::FUNC_CALL_AST);
+	statement_ast->SetText(sym_name);
 
-    Expect(TokenType::SEMICOLON_TKN);
-    break;
+	GetNextTkn();
+
+	const SymbolPtr sym = sym_tab_->Find(sym_name);
+	if (sym == nullptr) {
+	  Error err(curr_tkn_.GetLinePos(),
+		    curr_tkn_.GetCharPos(),
+		    lexer_->GetFileName());
+	  err.SetMessageForUnknownId(sym_name);
+	  result_.AddError(err);
+	}
+
+	Expect(TokenType::LEFT_PAREN_TKN);
+	statement_ast->AddChild(Params());
+	Expect(TokenType::RIGHT_PAREN_TKN);
+      } else {
+	statement_ast->SetType(AstType::EXPR_AST);
+	statement_ast->AddChild(Expr());
+      }
+
+      Expect(TokenType::SEMICOLON_TKN);
+      break;
+    }
   }
 
   return statement_ast;
@@ -201,10 +231,13 @@ AstNodePtr Parser::Term() {
 
   switch(curr_type) {
   case TokenType::ID_TKN:
-    term_ast->SetType(AstType::VAR_AST);
-    term_ast->SetText(curr_tkn_.GetText());
-    GetNextTkn();
-    break;
+    {
+      // Check if ID is a function call
+      term_ast->SetType(AstType::VAR_AST);
+      term_ast->SetText(curr_tkn_.GetText());
+      GetNextTkn();
+      break;
+    }
   case TokenType::NUM_TKN:
     term_ast->SetType(AstType::CST_AST);
     term_ast->SetVal(curr_tkn_.GetVal());

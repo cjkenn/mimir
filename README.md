@@ -50,6 +50,7 @@ Supported operations can be found in src/ir_instr.h
                 <brace_statement> |
                 <expr> ";" |
 		<func> |
+		<func_call> |
                 ";"
  <brace_statement> ::= "{" <statement> "}"
  <paren_expr> ::= "(" <expr> ")"
@@ -63,4 +64,5 @@ Supported operations can be found in src/ir_instr.h
  <int> ::= <an_unsigned_decimal_integer>
  <func> ::= "function" <id> "(" <params> ")" <brace_statement>
  <params> ::= <sum> | "," <params>
+ <func_call> ::= <id> "(" <params> ")" ";"
 ```

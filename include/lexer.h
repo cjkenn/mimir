@@ -15,6 +15,11 @@ class Lexer {
   // Read the file stream and return the next Token from the file.
   Token Lex();
 
+  // Look at the current char the file iterator is on. Keep in mind this will
+  // be the char immediately after the current token. This will also advance
+  // the iterator past whitespace, and then rewind it if necessary.
+  char PeekCurrChar();
+
   std::string GetFileName() const { return filename_; }
 
  private:

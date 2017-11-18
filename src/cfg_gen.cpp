@@ -2,6 +2,8 @@
 #include <string>
 #include <assert.h>
 #include <iostream>
+#include <unordered_map>
+#include <utility>
 #include "cfg_gen.h"
 #include "cfg_node.h"
 #include "cfg.h"
@@ -20,8 +22,9 @@ Cfg CfgGen::Gen(const std::vector<IrInstrPtr>& ir) {
   // matters, which makes it difficult to use a map instead.
   std::vector<CfgNodePtr> leader;
 
-  // TODO: We should make a mapping from node name to list index
-  // so that we can insert child nodes easier later on
+  // We map the node label (essentially, the leader name) to the index
+  // in the leader vector.
+  std::unordered_map<std::string, int> leader_node_map;
 
   if (ir.empty()) {
     Cfg cfg(root);
@@ -34,7 +37,9 @@ Cfg CfgGen::Gen(const std::vector<IrInstrPtr>& ir) {
   // is equal to the number of leaders.
   ir[0]->SetIsLeader(true);
   root->AddInstr(ir[0]);
+
   leader.push_back(root);
+  leader_node_map.insert(std::make_pair(ir[0]->GetLabel(), leader.size()-1));
   CfgNodePtr curr = root;
 
   for (unsigned int i = 1; i < ir.size(); i++) {
@@ -43,9 +48,12 @@ Cfg CfgGen::Gen(const std::vector<IrInstrPtr>& ir) {
     // mark it as a leader.
     if (ir[i]->GetLabel() != ir[i-1]->GetLabel()) {
       ir[i]->SetIsLeader(true);
+
       CfgNodePtr new_node = std::make_shared<CfgNode>(GetNextName());
       new_node->AddInstr(ir[i]);
       leader.push_back(new_node);
+      leader_node_map.insert(std::make_pair(ir[i]->GetLabel(), leader.size()-1));
+
       curr = new_node;
     } else {
       curr->AddInstr(ir[i]);
@@ -60,12 +68,24 @@ Cfg CfgGen::Gen(const std::vector<IrInstrPtr>& ir) {
   for (auto node : leader) {
     for (auto instr : node->GetInstrs()) {
       if (instr->IsJmp()) {
-	int to_jmp = FindBlockIndex(instr);
-	node->AddAdjChild(leader[to_jmp]);
+	auto jmp_idx = leader_node_map.find(instr->GetDest());
+	if (jmp_idx != leader_node_map.end()) {
+	  node->AddAdjChild(leader[jmp_idx->second]);
+	}
       }
 
+      // TODO: This should be done for a call to a function, not the definition
+      // of a function. It doesn't matter really what block the definition goes in,
+      // but we need to make sure we jump to the right one when we call it (ie.
+      // we get the control flow correct). We also then need to find all ret
+      // instructions, and make sure they map back to the calling block
+      // But shouldn't function defs go into their own blocks? How to add those to
+      // the cfg then?
       if (instr->IsFunc()) {
-	// TODO: add the func block as a child here
+	auto func_idx = leader_node_map.find(instr->GetLabel());
+	if (func_idx != leader_node_map.end()) {
+	  node->AddAdjChild(leader[func_idx->second]);
+	}
       }
     }
   }
@@ -85,17 +105,4 @@ std::string CfgGen::GetNextName() {
   block_count_++;
   curr_name_ = "n" + std::to_string(block_count_++);
   return curr_name_;
-}
-
-int CfgGen::FindBlockIndex(IrInstrPtr instr) {
-  assert(instr->IsJmp() == true);
-  assert(instr->GetDest().size() != 0);
-
-  std::string label = instr->GetDest();
-  // Label is guaranteed to end with an int. This int should correspond
-  // to the count of the leader block, because a leader block is created
-  // once a label is found.
-  // TODO: Will this change when procedures are implemented?
-  char lbl_num = label.back();
-  return lbl_num - '0';
 }

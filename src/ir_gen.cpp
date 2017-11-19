@@ -335,6 +335,7 @@ std::vector<IrInstrPtr> IrGen::FuncCallAstToInstr(AstNodePtr ast) {
 
   IrInstrPtr func_call = std::make_shared<IrInstr>(IrInstrType::FUNC_CALL_INSTR);
   func_call->SetArgs(std::make_pair(func_name, ""));
+  AdvanceLabel();
   func_call->SetLabel(curr_lbl_);
   param_instrs.push_back(func_call);
 

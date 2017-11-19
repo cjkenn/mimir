@@ -30,6 +30,3 @@ mimir: $(SRCS)
 
 clean:
 	$(RM) $(OUT) *.o
-
-testfile:
-	./../build/mimir ../testfile.mr

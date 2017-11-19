@@ -41,10 +41,9 @@ Cfg CfgGen::Gen(const std::vector<IrInstrPtr>& ir) {
   // some sense, as control flow will never jmp to that function if nothing
   // calls it. It may be slightly misleading though, because then a defined
   // function shows up in ir but not in the finished assembly.
-  // TODO: This probably isnt right though. In some case, this results in the
-  // root node not having any adjacent node pointers. For example, when we define a
-  // function and then call it afterwards, the root node has no pointers to the function def
-  // or the block containing the function call
+  // TODO: Is this correct? Does this affect linking a std library? We could
+  // add other functionality to stick those functions in regardless of control flow.
+  // Keeping uncalled functions out of the asm reduces size I suppose...
   ir[0]->SetIsLeader(true);
   root->AddInstr(ir[0]);
 
@@ -85,10 +84,16 @@ Cfg CfgGen::Gen(const std::vector<IrInstrPtr>& ir) {
       }
 
       if (instr->IsCall()) {
-	std::cout << "Hee" << std::endl;
 	auto call_idx = leader_node_map.find(instr->GetArgs().first);
 	if (call_idx != leader_node_map.end()) {
+	  // Three steps are taken here:
+	  // 1. We add the function definition as a child of root
+	  // 2. We set that definition block as a child of the calling block
+	  // 3. We set the calling block as a child of the function def block,
+	  //    because the function returns control to it.
+	  root->AddAdjChild(leader[call_idx->second]);
 	  node->AddAdjChild(leader[call_idx->second]);
+	  leader[call_idx->second]->AddAdjChild(node);
 	}
       }
     }
@@ -107,6 +112,6 @@ Cfg CfgGen::Gen(const std::vector<IrInstrPtr>& ir) {
 
 std::string CfgGen::GetNextName() {
   block_count_++;
-  curr_name_ = "n" + std::to_string(block_count_++);
+  curr_name_ = "n" + std::to_string(block_count_);
   return curr_name_;
 }

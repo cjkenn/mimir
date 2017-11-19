@@ -322,12 +322,12 @@ void test_gen_func_call_ast() {
   assert(ir[1]->GetArgs().first == "x");
 
   assert(ir[2]->GetType() == IrInstrType::FUNC_CALL_INSTR);
-  assert(ir[2]->GetLabel() == "lbl0");
+  assert(ir[2]->GetLabel() == "lbl1");
   assert(ir[2]->GetArgs().first == "mFunc");
   assert(ir[2]->GetArgs().second == "");
 
   assert(ir[3]->GetType() == IrInstrType::NOP_INSTR);
-  assert(ir[3]->GetLabel() == "lbl0");
+  assert(ir[3]->GetLabel() == "lbl1");
 }
 
 int main(int argc, char** argv) {

@@ -336,17 +336,17 @@ void X86InstrSel::ConvertFuncEnterInstr(std::vector<X86InstrPtr>& x86,
   assert(instr->GetType() == IrInstrType::FUNC_ENTER_INSTR);
 
   auto push_instr = std::make_shared<X86Instr>(X86InstrType::PUSH_X86, instr->GetLabel());
-  auto const push_arg1 = std::make_shared<X86InstrArg>(X86InstrArgType::REG_X86,
-						      "ebp");
+  auto const push_arg1 = std::make_shared<X86InstrArg>(X86InstrArgType::RESERVED_REG_X86,
+						      "rbp");
   push_instr->SetFirstArg(push_arg1);
   x86.push_back(push_instr);
 
   auto mv_instr = std::make_shared<X86Instr>(X86InstrType::MOV_X86, instr->GetLabel());
-  auto const mv_arg1 = std::make_shared<X86InstrArg>(X86InstrArgType::REG_X86,
-						     "ebp");
+  auto const mv_arg1 = std::make_shared<X86InstrArg>(X86InstrArgType::RESERVED_REG_X86,
+						     "rbp");
 
-  auto const mv_arg2 = std::make_shared<X86InstrArg>(X86InstrArgType::REG_X86,
-						     "esp");
+  auto const mv_arg2 = std::make_shared<X86InstrArg>(X86InstrArgType::RESERVED_REG_X86,
+						     "rsp");
   mv_instr->SetFirstArg(mv_arg1);
   mv_instr->SetSecondArg(mv_arg2);
   x86.push_back(mv_instr);
@@ -357,8 +357,8 @@ void X86InstrSel::ConvertFuncEnterInstr(std::vector<X86InstrPtr>& x86,
 
   if (stack_sz > 0) {
     auto sub_instr = std::make_shared<X86Instr>(X86InstrType::SUB_X86, instr->GetLabel());
-    auto const sub_arg1 = std::make_shared<X86InstrArg>(X86InstrArgType::REG_X86,
-							 "esp");
+    auto const sub_arg1 = std::make_shared<X86InstrArg>(X86InstrArgType::RESERVED_REG_X86,
+							 "rsp");
     sub_instr->SetFirstArg(sub_arg1);
 
     auto const sub_arg2 = std::make_shared<X86InstrArg>(X86InstrArgType::NUM_X86,
@@ -373,18 +373,18 @@ void X86InstrSel::ConvertFuncExitInstr(std::vector<X86InstrPtr>& x86,
   assert(instr->GetType() == IrInstrType::FUNC_EXIT_INSTR);
 
   auto mv_instr = std::make_shared<X86Instr>(X86InstrType::MOV_X86, instr->GetLabel());
-  auto const mv_arg1 = std::make_shared<X86InstrArg>(X86InstrArgType::REG_X86,
-						      "esp");
+  auto const mv_arg1 = std::make_shared<X86InstrArg>(X86InstrArgType::RESERVED_REG_X86,
+						      "rsp");
   mv_instr->SetFirstArg(mv_arg1);
 
-  auto const mv_arg2 = std::make_shared<X86InstrArg>(X86InstrArgType::REG_X86,
-						      "ebp");
+  auto const mv_arg2 = std::make_shared<X86InstrArg>(X86InstrArgType::RESERVED_REG_X86,
+						      "rbp");
   mv_instr->SetSecondArg(mv_arg2);
   x86.push_back(mv_instr);
 
   auto pop_instr = std::make_shared<X86Instr>(X86InstrType::POP_X86, instr->GetLabel());
-  auto const pop_arg1 = std::make_shared<X86InstrArg>(X86InstrArgType::REG_X86,
-						      "ebp");
+  auto const pop_arg1 = std::make_shared<X86InstrArg>(X86InstrArgType::RESERVED_REG_X86,
+						      "rbp");
   pop_instr->SetFirstArg(pop_arg1);
   x86.push_back(pop_instr);
 
@@ -412,7 +412,7 @@ void X86InstrSel::ConvertParamInstr(std::vector<X86InstrPtr>& x86,
   auto push_instr = std::make_shared<X86Instr>(X86InstrType::PUSH_X86, instr->GetLabel());
   // TODO: Needs to handle different param types other than numbers. We need to load
   // the variables that we pass to the function.
-  auto const param_arg  = std::make_shared<X86InstrArg>(X86InstrArgType::NUM_X86,
+  auto const param_arg = std::make_shared<X86InstrArg>(X86InstrArgType::NUM_X86,
 					      instr->GetArgs().first);
   push_instr->SetFirstArg(param_arg);
   x86.push_back(push_instr);

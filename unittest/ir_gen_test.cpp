@@ -299,6 +299,7 @@ void test_gen_func_def_ast() {
 // lbl0:
 // param y
 // param x
+// lbl1:
 // call mFunc
 // nop
 void test_gen_func_call_ast() {
@@ -314,11 +315,11 @@ void test_gen_func_call_ast() {
   assert(ir.size() == 4);
 
   assert(ir[0]->GetType() == IrInstrType::FUNC_PARAM_INSTR);
-  assert(ir[0]->GetLabel() == "lbl0");
+  assert(ir[0]->GetLabel() == "lbl1");
   assert(ir[0]->GetArgs().first == "y");
 
   assert(ir[1]->GetType() == IrInstrType::FUNC_PARAM_INSTR);
-  assert(ir[1]->GetLabel() == "lbl0");
+  assert(ir[1]->GetLabel() == "lbl1");
   assert(ir[1]->GetArgs().first == "x");
 
   assert(ir[2]->GetType() == IrInstrType::FUNC_CALL_INSTR);

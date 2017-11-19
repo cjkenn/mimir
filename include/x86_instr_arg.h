@@ -5,6 +5,7 @@
 namespace mimir {
 enum X86InstrArgType {
   REG_X86,
+  RESERVED_REG_X86,
   NUM_X86,
   ADDR_X86,
   LBL_X86

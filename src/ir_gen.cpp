@@ -337,6 +337,12 @@ std::vector<IrInstrPtr> IrGen::FuncCallAstToInstr(AstNodePtr ast) {
   func_call->SetArgs(std::make_pair(func_name, ""));
   AdvanceLabel();
   func_call->SetLabel(curr_lbl_);
+
+  // We need to reset the labels for params so that we have them in the same block
+  // as this function call.
+  for (auto param : param_instrs) {
+    param->SetLabel(curr_lbl_);
+  }
   param_instrs.push_back(func_call);
 
   ast->VisitNodeAndChildren();
@@ -346,7 +352,6 @@ std::vector<IrInstrPtr> IrGen::FuncCallAstToInstr(AstNodePtr ast) {
 
 std::vector<IrInstrPtr> IrGen::ParamsAstToInstr(AstNodePtr ast) {
   assert(ast->GetType() == AstType::PARAMS_AST);
-
   std::vector<IrInstrPtr> v;
 
   for (auto param_ast : ast->GetChildren()) {

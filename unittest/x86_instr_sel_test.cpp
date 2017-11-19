@@ -412,12 +412,12 @@ void test_select_instrs_func_enter_no_locals(std::shared_ptr<mimir::SymbolTable>
 
   auto first_x86 = cfg_node->GetX86Instrs()[0];
   assert(first_x86->GetType() == X86InstrType::PUSH_X86);
-  assert(first_x86->GetFirstArg()->GetVal() == "ebp");
+  assert(first_x86->GetFirstArg()->GetVal() == "rbp");
 
   auto second_x86 = cfg_node->GetX86Instrs()[1];
   assert(second_x86->GetType() == X86InstrType::MOV_X86);
-  assert(second_x86->GetFirstArg()->GetVal() == "ebp");
-  assert(second_x86->GetSecondArg()->GetVal() == "esp");
+  assert(second_x86->GetFirstArg()->GetVal() == "rbp");
+  assert(second_x86->GetSecondArg()->GetVal() == "rsp");
 }
 
 // Input:
@@ -444,12 +444,12 @@ void test_select_instrs_func_exit_no_return(std::shared_ptr<mimir::SymbolTable> 
 
   auto first_x86 = cfg_node->GetX86Instrs()[0];
   assert(first_x86->GetType() == X86InstrType::MOV_X86);
-  assert(first_x86->GetFirstArg()->GetVal() == "esp");
-  assert(first_x86->GetSecondArg()->GetVal() == "ebp");
+  assert(first_x86->GetFirstArg()->GetVal() == "rsp");
+  assert(first_x86->GetSecondArg()->GetVal() == "rbp");
 
   auto second_x86 = cfg_node->GetX86Instrs()[1];
   assert(second_x86->GetType() == X86InstrType::POP_X86);
-  assert(second_x86->GetFirstArg()->GetVal() == "ebp");
+  assert(second_x86->GetFirstArg()->GetVal() == "rbp");
 
   auto third_x86 = cfg_node->GetX86Instrs()[2];
   assert(third_x86->GetType() == X86InstrType::RET_X86);

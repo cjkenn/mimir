@@ -175,7 +175,7 @@ AstNodePtr Parser::Expr() {
 }
 
 AstNodePtr Parser::Test() {
-  AstNodePtr test_ast = BinOp();
+  AstNodePtr test_ast = BinOp(true);
 
   if (CurrTknIsTestTkn()) {
     AstNodePtr less_ast = test_ast;
@@ -185,13 +185,13 @@ AstNodePtr Parser::Test() {
     GetNextTkn();
 
     test_ast->AddChild(less_ast);
-    test_ast->AddChild(BinOp());
+    test_ast->AddChild(BinOp(true));
   }
 
   return test_ast;
 }
 
-AstNodePtr Parser::BinOp() {
+AstNodePtr Parser::BinOp(bool check_syms) {
   const int saved_line_pos = curr_tkn_.GetLinePos();
   const int saved_char_pos = curr_tkn_.GetCharPos();
   AstNodePtr sum_ast = Term();
@@ -199,7 +199,9 @@ AstNodePtr Parser::BinOp() {
   // Check here for undefined symbols. For example, if one argument to this binary operation
   // is a var symbol but hasn't been added to the symbol table, we create an error
   // for the unknown id.
-  if (sum_ast->GetType() == AstType::VAR_AST && curr_tkn_.GetType() != TokenType::EQ_TKN) {
+  if (sum_ast->GetType() == AstType::VAR_AST
+      && curr_tkn_.GetType() != TokenType::EQ_TKN
+      && check_syms) {
     const std::string key = sum_ast->GetText();
     const SymbolPtr sym = sym_tab_->Find(key);
 
@@ -219,7 +221,7 @@ AstNodePtr Parser::BinOp() {
     sum_ast = std::make_shared<AstNode>(curr_ast_type);
     GetNextTkn();
     sum_ast->AddChild(op_ast);
-    sum_ast->AddChild(BinOp());
+    sum_ast->AddChild(BinOp(true));
   }
 
   return sum_ast;
@@ -278,7 +280,7 @@ AstNodePtr Parser::Params() {
   auto params_ast = std::make_shared<AstNode>(AstType::PARAMS_AST);
 
   while (curr_tkn_.GetType() != TokenType::RIGHT_PAREN_TKN) {
-    params_ast->AddChild(BinOp());
+    params_ast->AddChild(BinOp(false));
 
     if (curr_tkn_.GetType() == TokenType::RIGHT_PAREN_TKN) {
       break;

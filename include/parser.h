@@ -29,7 +29,7 @@ class Parser {
   AstNodePtr ParenExpr();
   AstNodePtr Expr();
   AstNodePtr Test();
-  AstNodePtr BinOp();
+  AstNodePtr BinOp(bool checkSyms);
   AstNodePtr Term();
   AstNodePtr Params();
 

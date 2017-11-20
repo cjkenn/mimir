@@ -177,7 +177,10 @@ char Lexer::PeekCurrChar() {
   int curr_g = ifs_.tellg();
 
   while(isspace(curr)) {
-    ifs_.get(curr);
+    if (!ifs_.get(curr)) {
+      ifs_.seekg(curr_g);
+      return -1;
+    }
   }
 
   ifs_.seekg(curr_g);

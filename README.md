@@ -1,6 +1,8 @@
 ## mimir
 
-Small language with c-style syntax. Currently, the language generates NASM valid x86_64 assembly, on linux platforms. Local optimizations are also performed (by default, this will be a compiler flag once I get around to it).
+Small language with c-style syntax. Currently, the language generates NASM valid x86_64 assembly, on linux platforms. Local optimizations can be performed, if you pass an optional flag to the compiler.
+
+The intended purpose of this project is to work on mainly backend compiler features: IR design and generation, SSA construction, x86 instruction selection, code generation, local optimizations, and register allocation. There is a handwritten parser and lexer, but the language doesn't have many features or sophistication.
 
 #### Building
 Building is done using make. The directory structure is a WIP right now, so the builds are far from perfect. To compile a file with mimir, run:

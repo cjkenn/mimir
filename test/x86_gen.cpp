@@ -90,5 +90,8 @@ int main(int argc, char **argv) {
   test_x86_gen("expr_assign");
   print_success("expression assignment");
 
+  test_x86_gen("function");
+  print_success("function call");
+
   return 0;
 }

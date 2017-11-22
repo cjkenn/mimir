@@ -1,0 +1,7 @@
+x = 9;
+
+function mFunc(x) {
+  x = 10;
+}
+
+mFunc(3);

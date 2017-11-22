@@ -125,12 +125,22 @@ std::vector<IrInstrPtr> IrGen::ConvertAstToInstr(AstNodePtr ast) {
     instrs.push_back(TestAstToInstr(ast));
     break;
   case AstType::SEQ_AST:
+    {
+      // We need to convert each child ast in the sequence to an ir instruction,
+      // so we recursively call convert for all children.
+      for (auto child : ast->GetChildren()) {
+	auto seq_instrs = ConvertAstToInstr(child);
+	MergeInstrVecs(instrs, seq_instrs);
+      }
+      break;
+    }
   case AstType::EXPR_AST:
     {
-      // SEQ and EXPR asts don't really encode any instructions, they
+      // EXPR asts don't really encode any instructions, they
       // are just indicators of program structure. We can skip ahead to the next
-      // child and build instructions from there. Both these nodes should be
-      // guaranteed to have one child.
+      // child and build instructions from there. We should be guaranteed to have
+      // one child here.
+      assert(ast->GetChildren().size() > 0);
       auto next_ast = ast->GetChildAtIndex(0);
       instrs = ConvertAstToInstr(next_ast);
       break;

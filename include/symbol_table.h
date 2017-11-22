@@ -29,6 +29,9 @@ class SymbolTable {
   // and not for setting stack sizes.
   void InsertFuncName(std::string key);
 
+  // Insert a function parameter name into the current scope.
+  void InsertFuncParam(std::string key);
+
   // Find a key. If the key does not exist at the current
   // scope level, traverses up the scope level until a key
   // is found. Returns nullptr if none exists.

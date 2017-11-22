@@ -63,18 +63,17 @@ AstNodePtr Parser::Statement() {
     break;
   case TokenType::LEFT_BRACE_TKN:
     GetNextTkn();
-    while (curr_tkn_.GetType() != TokenType::RIGHT_BRACE_TKN) {
-      auto brace_statement_ast = statement_ast;
-      statement_ast = std::make_shared<AstNode>(AstType::SEQ_AST);
 
-      if (brace_statement_ast->GetType() != AstType::EMPTY_AST) {
-	statement_ast->AddChild(brace_statement_ast);
+    statement_ast = std::make_shared<AstNode>(AstType::SEQ_AST);
+    while (curr_tkn_.GetType() != TokenType::RIGHT_BRACE_TKN) {
+      if (curr_tkn_.GetType() == TokenType::EOF_TKN) {
+	break;
       }
 
       statement_ast->AddChild(Statement());
     }
 
-    GetNextTkn();
+    Expect(TokenType::RIGHT_BRACE_TKN);
     break;
   case TokenType::FUNC_TKN:
     statement_ast->SetType(AstType::FUNC_AST);
@@ -86,27 +85,20 @@ AstNodePtr Parser::Statement() {
     // we call it later we can lookup the name.
     sym_tab_->InsertFuncName(curr_tkn_.GetText());
     Expect(TokenType::ID_TKN);
-
     Expect(TokenType::LEFT_PAREN_TKN);
-    statement_ast->AddChild(Params());
-    Expect(TokenType::RIGHT_PAREN_TKN);
-
-    Expect(TokenType::LEFT_BRACE_TKN);
-    // We can allow for empty function declarations here
-    // (rather than requiring at least a semicolon)
-    if (curr_tkn_.GetType() == TokenType::RIGHT_BRACE_TKN) {
-      GetNextTkn();
-      break;
-    }
 
     // When we enter parsing of a function body, we open a new scope in
     // our symbol table.
     sym_tab_->InitScope();
 
+    statement_ast->AddChild(Params());
+    Expect(TokenType::RIGHT_PAREN_TKN);
     statement_ast->AddChild(Statement());
-    Expect(TokenType::RIGHT_BRACE_TKN);
 
     sym_tab_->ExitScope();
+    break;
+  case TokenType::EOF_TKN:
+    statement_ast = std::make_shared<AstNode>(AstType::EOF_AST);
     break;
   default:
     {
@@ -214,6 +206,10 @@ AstNodePtr Parser::BinOp(bool check_syms) {
     }
   }
 
+  if (!check_syms && sum_ast->GetType() == AstType::VAR_AST) {
+    sym_tab_->InsertFuncParam(sum_ast->GetText());
+  }
+
   while (CurrTknIsBinOpTkn()) {
     AstNodePtr op_ast = sum_ast;
     AstType curr_ast_type = GetBinOpAstFromTkn();
@@ -234,7 +230,6 @@ AstNodePtr Parser::Term() {
   switch(curr_type) {
   case TokenType::ID_TKN:
     {
-      // Check if ID is a function call
       term_ast->SetType(AstType::VAR_AST);
       term_ast->SetText(curr_tkn_.GetText());
       GetNextTkn();

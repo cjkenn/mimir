@@ -36,6 +36,12 @@ void SymbolTable::InsertFuncName(std::string key) {
   sym_tab_[curr_level_].insert(entry);
 }
 
+void SymbolTable::InsertFuncParam(std::string key) {
+  SymbolPtr s = std::make_shared<Symbol>(key);
+  std::pair<std::string, SymbolPtr> entry(key, s);
+  sym_tab_[curr_level_].insert(entry);
+}
+
 SymbolPtr SymbolTable::Find(std::string key) {
   if (curr_level_ < 0) {
     std::cout << "Find: No scope initialized!" << std::endl;

@@ -137,6 +137,11 @@ void X86InstrSel::ConvertLdInstr(std::vector<X86InstrPtr>& x86,
   i->SetFirstArg(arg1);
 
   const std::string name = instr->GetArgs().first;
+  // TODO: Shouldn't really be calling the symbol table here (or in ConvertSv), because our
+  // scopes are opened and closed in the parser. We're not sure what scope we're in here, which
+  // may cause problems and we shouldn't change the parser to accomodate that.
+  // Maybe the scope and symbol info should be encoded in the argument in the IR (we can expand
+  // the IR as much as we want)
   const SymbolPtr sym = sym_tab_->Find(name);
   assert(sym != nullptr);
 

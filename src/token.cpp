@@ -64,6 +64,8 @@ const std::string Token::GetPrettyType() {
     return ">=";
   case TokenType::EQEQ_TKN:
     return "==";
+  case TokenType::EOF_TKN:
+    return "EOF";
   default:
     return "Unknown token type";
   }

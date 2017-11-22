@@ -590,7 +590,7 @@ void test_parse_func_def() {
   assert(params_ast->GetChildren()[1]->GetText() == "y");
 
   auto statement_ast = func_ast->GetChildren()[1];
-  assert(statement_ast->GetType() == AstType::EXPR_AST);
+  assert(statement_ast->GetType() == AstType::SEQ_AST);
   assert(statement_ast->GetChildren().size() == 1);
 }
 

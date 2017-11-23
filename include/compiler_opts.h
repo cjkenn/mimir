@@ -17,8 +17,8 @@ class CompilerOptions {
   std::string GetInputFilename();
 
   bool ShouldPerformLocalOptimization();
-  bool ShouldPrintAST();
-  bool ShouldPrintIR();
+  bool ShouldPrintAst();
+  bool ShouldPrintIr();
 
  private:
   Error BuildUnknownOptionError(const std::string unknown_opt);

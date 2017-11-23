@@ -51,8 +51,8 @@ int main(int argc, char **argv) {
   mimir::AstNodePtr ast = parser_result.GetAst();
 
   // If we want to show the AST, we print it here.
-  if (opts.ShouldPrintAST()) {
-    printer.PrintAST(ast);
+  if (opts.ShouldPrintAst()) {
+    printer.PrintAst(ast);
   }
 
   // Convert the ast to ir for analysis and x86 generation.
@@ -61,8 +61,8 @@ int main(int argc, char **argv) {
   const int virtual_reg_count = ir_gen.GetRegCount();
 
   // If we want to show the IR, we print it here.
-  if (opts.ShouldPrintIR()) {
-    printer.PrintIR(ir);
+  if (opts.ShouldPrintIr()) {
+    printer.PrintIr(ir);
   }
 
   // Cfg construction and analysis

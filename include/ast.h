@@ -44,17 +44,21 @@ class AstNode {
   AstNode(AstType type, int val);
   ~AstNode() {};
 
-  AstType GetType() const {return type_;}
-  int GetVal() const {return val_;}
-  std::string GetText() const {return text_;}
-  std::vector<AstNodePtr> GetChildren() const {return children_;}
-  bool IsVisited() const { return visited_; }
+  AstType GetType() const { return type_; }
+  int GetVal() const { return val_; }
+  std::string GetText() const { return text_; }
+  std::vector<AstNodePtr> GetChildren() const { return children_; }
 
-  void SetType(AstType type) {type_ = type;}
-  void SetVal(int val) {val_ = val;}
-  void SetText(std::string text) {text_ = text;}
-  void SetChildren(std::vector<AstNodePtr> children) {children_ = children;}
+  bool IsVisited() const { return visited_; }
+  bool IsPrinterVisited() const { return printer_visited_; }
+
+  void SetType(AstType type) { type_ = type; }
+  void SetVal(int val) { val_ = val; }
+  void SetText(std::string text) { text_ = text; }
+  void SetChildren(std::vector<AstNodePtr> children) { children_ = children; }
+
   void SetVisited(bool v) { visited_ = v; }
+  void SetPrinterVisited(bool v) { printer_visited_ = v; }
 
   // Append an ast node to the children vector.
   void AddChild(AstNodePtr child);
@@ -91,5 +95,7 @@ class AstNode {
   // or traversal. If running multiple searches on an ast, this flag should
   // be reset in between.
   bool visited_;
+
+  bool printer_visited_;
 };
 }

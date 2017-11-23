@@ -55,11 +55,11 @@ bool CompilerOptions::ShouldPerformLocalOptimization() {
   return (options_map_.find(LOCAL_OPT_KEY) != options_map_.end());
 }
 
-bool CompilerOptions::ShouldPrintAST() {
+bool CompilerOptions::ShouldPrintAst() {
   return (options_map_.find(AST_PRINT_KEY) != options_map_.end());
 }
 
-bool CompilerOptions::ShouldPrintIR() {
+bool CompilerOptions::ShouldPrintIr() {
   return (options_map_.find(IR_PRINT_KEY) != options_map_.end());
 }
 

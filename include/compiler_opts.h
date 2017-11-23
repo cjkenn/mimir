@@ -15,7 +15,10 @@ class CompilerOptions {
   bool HasCommandLineErrors();
   void ReportCommandLineErrors();
   std::string GetInputFilename();
+
   bool ShouldPerformLocalOptimization();
+  bool ShouldPrintAST();
+  bool ShouldPrintIR();
 
  private:
   Error BuildUnknownOptionError(const std::string unknown_opt);

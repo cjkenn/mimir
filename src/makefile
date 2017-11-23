@@ -22,7 +22,8 @@ SRCS = compiler.cpp \
 	compiler_opts.cpp \
 	x86_reg.cpp \
 	x86_reg_alloc.cpp \
-	x86_instr_arg.cpp
+	x86_instr_arg.cpp \
+	pretty_printer.cpp
 OUT = ../build/mimir
 
 mimir: $(SRCS)

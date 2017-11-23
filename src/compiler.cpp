@@ -17,10 +17,13 @@
 #include "x86_instr_sel.h"
 #include "x86_reg_alloc.h"
 #include "compiler_opts.h"
+#include "pretty_printer.h"
 
 int main(int argc, char **argv) {
   mimir::CompilerOptions opts;
   opts.ParseCommandLine(argc, argv);
+
+  mimir::PrettyPrinter printer;
 
   if (opts.HasCommandLineErrors()) {
     opts.ReportCommandLineErrors();
@@ -47,10 +50,20 @@ int main(int argc, char **argv) {
 
   mimir::AstNodePtr ast = parser_result.GetAst();
 
+  // If we want to show the AST, we print it here.
+  if (opts.ShouldPrintAST()) {
+    printer.PrintAST(ast);
+  }
+
   // Convert the ast to ir for analysis and x86 generation.
   mimir::IrGen ir_gen;
   std::vector<mimir::IrInstrPtr> ir = ir_gen.Gen(ast);
   const int virtual_reg_count = ir_gen.GetRegCount();
+
+  // If we want to show the IR, we print it here.
+  if (opts.ShouldPrintIR()) {
+    printer.PrintIR(ir);
+  }
 
   // Cfg construction and analysis
   mimir::CfgGen cfg_gen;

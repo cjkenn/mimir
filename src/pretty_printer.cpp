@@ -1,6 +1,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include <assert.h>
 #include "pretty_printer.h"
 #include "ast.h"
 #include "ir_instr.h"
@@ -8,14 +9,108 @@
 
 using namespace mimir;
 
-PrettyPrinter::PrettyPrinter() {
-  InitTknMap();
-  InitAstMap();
-  InitIrMap();
-}
+const unsigned int NUM_AST_TYPES = 26;
+const unsigned int NUM_IR_TYPES = 21;
+const unsigned int NUM_TKN_TYPES = 27;
+
+// The following static arrays are a bit of a nightmare for maintenance. The order
+// of the initialized elements must matcht the order of the types in each respective
+// enum. When a new type is added to tkn, ast, or ir, it must be inserted correctly
+// in both places, and the constants above should be updated.
+// It's probably better to make this into a macro maybe?
+
+const std::string PrettyPrinter::tkn_map[] = {
+  "(",
+  ")",
+  "{",
+  "}",
+  "+",
+  "-",
+  "*",
+  "/",
+  "%",
+  "!",
+  ";",
+  ",",
+  "=",
+  "==",
+  "!=",
+  "<",
+  "<=",
+  ">",
+  ">=",
+  "Identifier",
+  "Number",
+  "'If' keyword",
+  "'Else' keyword",
+  "'While' keyword",
+  "'Function' keyword",
+  "Unknown token",
+  "EOF"
+};
+
+const std::string PrettyPrinter::ast_map[] = {
+  "Var",
+  "Constant",
+  "Addition",
+  "Subtraction",
+  "Multiplication",
+  "Division",
+  "Mod",
+  "Equality",
+  "Not equal",
+  "Less than",
+  "Greater than",
+  "Less equal",
+  "Greater equal",
+  "Set",
+  "If",
+  "Else",
+  "While",
+  "Function decl",
+  "Function call",
+  "Function params",
+  "Statement sequence",
+  "Expression",
+  "Negation",
+  "Program",
+  "Empty",
+  "EOF"
+};
+
+const std::string PrettyPrinter::ir_map[] = {
+  "MV",
+  "LD",
+  "SV",
+  "JMP",
+  "JMPLT",
+  "JMPLTE",
+  "JMPGT",
+  "JMPGTE",
+  "JMPEQ",
+  "JMPNEQ",
+  "ADD",
+  "SUB",
+  "MUL",
+  "DIV",
+  "MOD",
+  "NOP",
+  "CMP",
+  "FUNC_ENTER",
+  "FUNC_EXIT",
+  "FUNC_CALL",
+  "FUNC_PARAM"
+};
+
+static_assert(sizeof(PrettyPrinter::ast_map)/sizeof(PrettyPrinter::ast_map[0]) == NUM_AST_TYPES,
+	      "ast size mismatch");
+static_assert(sizeof(PrettyPrinter::ir_map)/sizeof(PrettyPrinter::ir_map[0]) == NUM_IR_TYPES,
+	      "ir size mismatch");
+static_assert(sizeof(PrettyPrinter::tkn_map)/sizeof(PrettyPrinter::tkn_map[0]) == NUM_TKN_TYPES,
+	      "tkn size mismatch");
 
 void PrettyPrinter::PrintSingleAst(const AstNodePtr ast) {
-  std::string output = ast_map_[ast->GetType()];
+  std::string output = ast_map[ast->GetType()];
   if (ast->GetVal()) {
     output += ": ";
     output += std::to_string(ast->GetVal());
@@ -28,7 +123,7 @@ void PrettyPrinter::PrintSingleAst(const AstNodePtr ast) {
 }
 
 void PrettyPrinter::PrintSingleIr(const IrInstrPtr ir) {
-  std::string output = ir_map_[ir->GetType()];
+  std::string output = ir_map[ir->GetType()];
 
   if (ir->GetArgs().first != "") {
     output += " -> ";
@@ -44,7 +139,7 @@ void PrettyPrinter::PrintSingleIr(const IrInstrPtr ir) {
 }
 
 void PrettyPrinter::PrintTkn(const Token tkn) {
-  std::string output = tkn_map_[tkn.GetType()];
+  std::string output = tkn_map[tkn.GetType()];
 
   if (tkn.GetVal()) {
     output += "(";
@@ -79,7 +174,7 @@ void PrettyPrinter::PrintAst(const AstNodePtr ast, unsigned int level) {
     prntspaces += ' ';
   }
 
-  std::string output = ('(' + ast_map_[ast->GetType()] + ')');
+  std::string output = ('(' + ast_map[ast->GetType()] + ')');
 
   if (ast->GetVal()) {
     output += ":";
@@ -112,84 +207,4 @@ void PrettyPrinter::PrintIr(const std::vector<IrInstrPtr> ir) {
     std::cout << i << ": ";
     PrintSingleIr(ir[i]);
   }
-}
-
-void PrettyPrinter::InitTknMap() {
-  tkn_map_[TokenType::ID_TKN] = "Identifier";
-  tkn_map_[TokenType::NUM_TKN] = "Number";
-  tkn_map_[TokenType::IF_TKN] = "'If' keyword";
-  tkn_map_[TokenType::ELSE_TKN] = "'Else' keyword";
-  tkn_map_[TokenType::WHILE_TKN] = "'While' keyword";
-  tkn_map_[TokenType::FUNC_TKN] = "'Function' keyword";
-  tkn_map_[TokenType::LEFT_PAREN_TKN] = "(";
-  tkn_map_[TokenType::RIGHT_PAREN_TKN] = ")";
-  tkn_map_[TokenType::LEFT_BRACE_TKN] = "{";
-  tkn_map_[TokenType::RIGHT_BRACE_TKN] = "}";
-  tkn_map_[TokenType::PLUS_TKN] = "+";
-  tkn_map_[TokenType::MINUS_TKN] = "-";
-  tkn_map_[TokenType::STAR_TKN] = "*";
-  tkn_map_[TokenType::BACKSLASH_TKN] = "/";
-  tkn_map_[TokenType::PERCENT_TKN] = "%";
-  tkn_map_[TokenType::SEMICOLON_TKN] = ";";
-  tkn_map_[TokenType::COMMA_TKN] = ",";
-  tkn_map_[TokenType::EQ_TKN] = "=";
-  tkn_map_[TokenType::LT_TKN] = "<";
-  tkn_map_[TokenType::LTE_TKN] = "<=";
-  tkn_map_[TokenType::GT_TKN] = ">";
-  tkn_map_[TokenType::GTE_TKN] = ">=";
-  tkn_map_[TokenType::EQEQ_TKN] = "==";
-  tkn_map_[TokenType::EOF_TKN] = "EOF";
-}
-
-void PrettyPrinter::InitAstMap() {
-  ast_map_[AstType::VAR_AST] = "Var";
-  ast_map_[AstType::CST_AST] = "Constant";
-  ast_map_[AstType::ADD_AST] = "Addition";
-  ast_map_[AstType::SUB_AST] = "Subtraction";
-  ast_map_[AstType::MUL_AST] = "Multiplication";
-  ast_map_[AstType::DIV_AST] = "Division";
-  ast_map_[AstType::MOD_AST] = "Mod";
-  ast_map_[AstType::EQEQ_AST] = "Equality";
-  ast_map_[AstType::NEQ_AST] = "Not equal";
-  ast_map_[AstType::LT_AST] = "Less than";
-  ast_map_[AstType::GT_AST] = "Greater than";
-  ast_map_[AstType::LTE_AST] = "Less equal";
-  ast_map_[AstType::GTE_AST] = "Greater equal";
-  ast_map_[AstType::SET_AST] = "Set";
-  ast_map_[AstType::IF_AST] = "If";
-  ast_map_[AstType::ELSE_AST] = "Else";
-  ast_map_[AstType::WHILE_AST] = "While";
-  ast_map_[AstType::FUNC_AST] = "Function decl";
-  ast_map_[AstType::FUNC_CALL_AST] = "Function call";
-  ast_map_[AstType::PARAMS_AST] = "Function params";
-  ast_map_[AstType::SEQ_AST] = "Statement sequence";
-  ast_map_[AstType::EXPR_AST] = "Expression";
-  ast_map_[AstType::NEG_AST] = "Negation";
-  ast_map_[AstType::PROG_AST] = "Program";
-  ast_map_[AstType::EMPTY_AST] = "Empty";
-  ast_map_[AstType::EOF_AST] = "EOF";
-}
-
-void PrettyPrinter::InitIrMap() {
-  ir_map_[IrInstrType::MV_INSTR] = "MV";
-  ir_map_[IrInstrType::LD_INSTR] = "LD";
-  ir_map_[IrInstrType::SV_INSTR] = "SV";
-  ir_map_[IrInstrType::JMP_INSTR] = "JMP";
-  ir_map_[IrInstrType::JMPLT_INSTR] = "JMPLT";
-  ir_map_[IrInstrType::JMPLTE_INSTR] = "JMPLTE";
-  ir_map_[IrInstrType::JMPGT_INSTR] = "JMPGT";
-  ir_map_[IrInstrType::JMPGTE_INSTR] = "JMPGTE";
-  ir_map_[IrInstrType::JMPEQ_INSTR] = "JMPEQ";
-  ir_map_[IrInstrType::JMPNEQ_INSTR] = "JMPNEQ";
-  ir_map_[IrInstrType::ADD_INSTR] = "ADD";
-  ir_map_[IrInstrType::SUB_INSTR] = "SUB";
-  ir_map_[IrInstrType::MUL_INSTR] = "MUL";
-  ir_map_[IrInstrType::DIV_INSTR] = "DIV";
-  ir_map_[IrInstrType::MOD_INSTR] = "MOD";
-  ir_map_[IrInstrType::NOP_INSTR] = "NOP";
-  ir_map_[IrInstrType::CMP_INSTR] = "CMP";
-  ir_map_[IrInstrType::FUNC_ENTER_INSTR] = "FUNC_ENTER";
-  ir_map_[IrInstrType::FUNC_EXIT_INSTR] = "FUNC_EXIT";
-  ir_map_[IrInstrType::FUNC_CALL_INSTR] = "FUNC_CALL";
-  ir_map_[IrInstrType::FUNC_PARAM_INSTR] = "FUNC_PARAM";
 }

@@ -23,7 +23,8 @@ IRGENFILES = ir_gen_test.cpp \
 	../src/parser.cpp \
 	../src/parser_result.cpp \
 	../src/token.cpp \
-	../src/error.cpp
+	../src/error.cpp \
+	../src/pretty_printer.cpp
 SYMTABFILES = symbol_table_test.cpp \
 	../src/ast.cpp \
 	../src/symbol.cpp \
@@ -32,12 +33,14 @@ CFGGENFILES = cfg_gen_test.cpp \
 	../src/ir_instr.cpp \
 	../src/cfg_gen.cpp \
 	../src/cfg.cpp \
-	../src/cfg_node.cpp
+	../src/cfg_node.cpp \
+	../src/pretty_printer.cpp
 LOCALOPTFILES = local_optimizer_test.cpp \
 	helper/local_optimizer.cpp \
 	../src/local_optimizer.cpp \
 	../src/cfg_node.cpp \
-	../src/ir_instr.cpp
+	../src/ir_instr.cpp \
+	../src/pretty_printer.cpp
 X86SELFILES = x86_instr_sel_test.cpp \
 	../src/x86_instr_sel.cpp \
 	../src/cfg_node.cpp \
@@ -47,7 +50,8 @@ X86SELFILES = x86_instr_sel_test.cpp \
 	../src/ast.cpp \
 	../src/x86_instr.cpp \
 	../src/x86_instr_arg.cpp \
-	../src/x86_reg.cpp
+	../src/x86_reg.cpp \
+	../src/pretty_printer.cpp
 
 all: lexer_test parser_test ir_gen_test sym_tab_test cfg_gen_test local_opt_test x86_instr_sel_test
 

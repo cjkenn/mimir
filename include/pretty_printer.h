@@ -6,31 +6,19 @@
 #include "ast.h"
 #include "token.h"
 
-const unsigned int NUM_AST_TYPES = 26;
-const unsigned int NUM_IR_TYPES = 21;
-const unsigned int NUM_TKN_TYPES = 27;
-
 namespace mimir {
 class PrettyPrinter {
  public:
-  PrettyPrinter();
-  ~PrettyPrinter() {};
+  const static std::string tkn_map[];
+  const static std::string ast_map[];
+  const static std::string ir_map[];
 
-  void PrintAst(const AstNodePtr ast, unsigned int level);
-  void PrintSingleAst(const AstNodePtr ast);
+  static void PrintAst(const AstNodePtr ast, unsigned int level);
+  static void PrintSingleAst(const AstNodePtr ast);
 
-  void PrintIr(const std::vector<IrInstrPtr> ir);
-  void PrintSingleIr(const IrInstrPtr ir);
+  static void PrintIr(const std::vector<IrInstrPtr> ir);
+  static void PrintSingleIr(const IrInstrPtr ir);
 
-  void PrintTkn(const Token tkn);
-
- private:
-  void InitTknMap();
-  void InitAstMap();
-  void InitIrMap();
-
-  std::string tkn_map_[NUM_TKN_TYPES];
-  std::string ast_map_[NUM_AST_TYPES];
-  std::string ir_map_[NUM_IR_TYPES];
+  static void PrintTkn(const Token tkn);
 };
 }

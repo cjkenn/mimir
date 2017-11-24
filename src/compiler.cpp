@@ -23,8 +23,6 @@ int main(int argc, char **argv) {
   mimir::CompilerOptions opts;
   opts.ParseCommandLine(argc, argv);
 
-  mimir::PrettyPrinter printer;
-
   if (opts.HasCommandLineErrors()) {
     opts.ReportCommandLineErrors();
     return -1;
@@ -52,7 +50,7 @@ int main(int argc, char **argv) {
 
   // If we want to show the AST, we print it here.
   if (opts.ShouldPrintAst()) {
-    printer.PrintAst(ast, 0);
+    mimir::PrettyPrinter::PrintAst(ast, 0);
   }
 
   // Convert the ast to ir for analysis and x86 generation.
@@ -62,7 +60,7 @@ int main(int argc, char **argv) {
 
   // If we want to show the IR, we print it here.
   if (opts.ShouldPrintIr()) {
-    printer.PrintIr(ir);
+    mimir::PrettyPrinter::PrintIr(ir);
   }
 
   // Cfg construction and analysis

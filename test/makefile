@@ -21,7 +21,8 @@ X86GENFILES = x86_gen.cpp \
 	../src/x86_writer.cpp \
 	../src/x86_reg.cpp \
 	../src/x86_reg_alloc.cpp \
-	../src/x86_instr_arg.cpp
+	../src/x86_instr_arg.cpp \
+	../src/pretty_printer.cpp
 
 all: x86_gen
 

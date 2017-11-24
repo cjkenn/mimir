@@ -1,6 +1,7 @@
 #include <vector>
 #include <utility>
 #include "ir_instr.h"
+#include "pretty_printer.h"
 
 using namespace mimir;
 
@@ -66,34 +67,7 @@ bool IrInstr::IsCall() {
 }
 
 const std::string IrInstr::GetTypeAsStr() {
-  switch(type_) {
-  case IrInstrType::MV_INSTR:
-    return "MV";
-  case IrInstrType::LD_INSTR:
-    return "LD";
-  case IrInstrType::SV_INSTR:
-    return "SV";
-  case IrInstrType::ADD_INSTR:
-    return "ADD";
-  case IrInstrType::SUB_INSTR:
-    return "SUB";
-  case IrInstrType::MUL_INSTR:
-    return "MUL";
-  case IrInstrType::DIV_INSTR:
-    return "DIV";
-  case IrInstrType::MOD_INSTR:
-    return "MOD";
-  case IrInstrType::FUNC_ENTER_INSTR:
-    return "FUNC ENTER";
-  case IrInstrType::FUNC_EXIT_INSTR:
-    return "FUNC EXIT";
-  case IrInstrType::FUNC_CALL_INSTR:
-    return "FUNC CALL";
-  case IrInstrType::FUNC_PARAM_INSTR:
-    return "FUNC PARAM";
-  default:
-    return "OP";
-  }
+  return PrettyPrinter::ir_map[type_];
 }
 
 bool IrInstr::IsCommutative() {

@@ -52,7 +52,7 @@ int main(int argc, char **argv) {
 
   // If we want to show the AST, we print it here.
   if (opts.ShouldPrintAst()) {
-    printer.PrintAst(ast);
+    printer.PrintAst(ast, 0);
   }
 
   // Convert the ast to ir for analysis and x86 generation.

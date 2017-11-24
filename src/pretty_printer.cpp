@@ -1,7 +1,6 @@
 #include <vector>
 #include <string>
 #include <iostream>
-#include <queue>
 #include "pretty_printer.h"
 #include "ast.h"
 #include "ir_instr.h"
@@ -66,32 +65,45 @@ void PrettyPrinter::PrintTkn(const Token tkn) {
   std::cout << output << std::endl;
 }
 
-void PrettyPrinter::PrintAst(const AstNodePtr ast) {
-  std::queue<AstNodePtr> q;
-  q.push(ast);
+void PrettyPrinter::PrintAst(const AstNodePtr ast, unsigned int level) {
+  if (ast == nullptr) {
+    return;
+  }
 
-  while (!q.empty()) {
-    auto node = q.front();
-    q.pop();
+  // This isn't the prettiest or even correct way to print everything,
+  // but it's good enough for this purpose. We really need this to verify the structure
+  // of the ast and ensure that nodes are in the place we expect them to be.
+  const int spaces = level * 3;
+  std::string prntspaces;
+  for (int i = 0; i < spaces-1; i++) {
+    prntspaces += ' ';
+  }
 
-    node->SetPrinterVisited(true);
+  std::string output = ('(' + ast_map_[ast->GetType()] + ')');
 
-    std::string output = ast_map_[node->GetType()];
-    if (node->GetVal()) {
-      output += ": ";
-      output += std::to_string(node->GetVal());
-    } else if (node->GetText() != "") {
-      output += ": ";
-      output += ("(" + node->GetText() + ")");
+  if (ast->GetVal()) {
+    output += ":";
+    output += ('(' + std::to_string(ast->GetVal()) + ')');
+  } else if (ast->GetText() != "") {
+    output += ":";
+    output += ("(" + ast->GetText() + ")");
+  }
+
+  std::cout << "|";
+  std::cout << prntspaces;
+  std::cout << output << std::endl;
+
+  for (auto node : ast->GetChildren()) {
+    std::cout << "|";
+    std::cout << prntspaces;
+
+    if (level != 0) {
+      std::cout << "|";
     }
 
-    std::cout << output << std::endl;
+    std::cout << "__" << std::endl;
 
-    for (auto n : node->GetChildren()) {
-      if (!n->IsPrinterVisited()) {
-	q.push(n);
-      }
-    }
+    PrintAst(node, level+1);
   }
 }
 

@@ -16,7 +16,7 @@ class PrettyPrinter {
   PrettyPrinter();
   ~PrettyPrinter() {};
 
-  void PrintAst(const AstNodePtr ast);
+  void PrintAst(const AstNodePtr ast, unsigned int level);
   void PrintSingleAst(const AstNodePtr ast);
 
   void PrintIr(const std::vector<IrInstrPtr> ir);

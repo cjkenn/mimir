@@ -2,7 +2,7 @@
 
 Small language with c-style syntax. Currently, the language generates NASM valid x86_64 assembly, on linux platforms. Local optimizations can be performed, if you pass an optional flag to the compiler.
 
-The intended purpose of this project is to work on mainly backend compiler features: IR design and generation, SSA construction, control flow graphs, instruction selection, code generation, local optimizations, and register allocation. There is a handwritten parser and lexer, but the language doesn't have many features or sophistication.
+The intended purpose of this project is to work on mainly backend compiler features: IR design and generation, SSA construction, control flow graphs, instruction selection, code generation, local optimizations, and register allocation. There is a handwritten parser and lexer, but the language doesn't have many features or sophistication. I'm certain there are some bugs in this stage...
 
 #### Building and Running
 Building is done using make. The directory structure is a WIP right now, so the builds are far from perfect. To compile a file with mimir, run:
@@ -18,7 +18,17 @@ cd ../build
 You can optionally run local optimizations when compiling too:
 
 ```
-./mimir -O {filename}
+./mimir {filename} -O
+```
+
+If you'd like to see the results of each compiler phase, you can look at the AST or the IR by passing some flags:
+
+```
+# dump the IR 
+./mimir {filename} -i
+
+# dump the ast
+./mimir {filename} -a
 ```
 
 #### Tests
